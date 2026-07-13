@@ -294,6 +294,8 @@ export default function PersonDetailPage() {
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [editPersonOpen, setEditPersonOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [shareUrl, setShareUrl] = useState('');
 
   const { data: personData, isLoading: personLoading } = useQuery({
     queryKey: ['person', personId],
@@ -317,6 +319,24 @@ export default function PersonDetailPage() {
     },
     onError: (err) => toast.error(err.message),
   });
+
+  const { mutate: generateShare, isPending: isSharing } = useMutation({
+    mutationFn: () => personsApi.generateShareLink(personId),
+    onSuccess: (res) => {
+      const url = res.data?.shareUrl || '';
+      setShareUrl(url);
+      if (navigator.share && /Mobi/i.test(navigator.userAgent)) {
+        navigator.share({ title: `${personData?.name}'s ledger on Credit Book`, url }).catch(() => {});
+      } else {
+        setShareDialogOpen(true);
+      }
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  function handleCopyLink() {
+    navigator.clipboard.writeText(shareUrl).then(() => toast.success('Link copied!'));
+  }
 
   if (personLoading) return <><PageNavigationBar title="" /><LoadingScreen /></>;
 
@@ -347,6 +367,23 @@ export default function PersonDetailPage() {
           <Avatar name={person.name} color={person.avatarColor} size={32} />
           <span className="nav-page-title" style={{ textAlign: 'left' }}>{person.name}</span>
         </div>
+        {/* Share button */}
+        <button
+          className="nav-page-action"
+          onClick={() => generateShare()}
+          disabled={isSharing}
+          id="person-share-btn"
+          title="Share"
+          style={{ marginRight: 4, opacity: isSharing ? 0.5 : 1 }}
+        >
+          {isSharing ? <Spinner size={16} /> : (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+            </svg>
+          )}
+        </button>
+        {/* Settings button */}
         <button className="nav-page-action" onClick={() => setOptionsOpen(true)} id="person-options-btn">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="3" />
@@ -354,6 +391,23 @@ export default function PersonDetailPage() {
           </svg>
         </button>
       </div>
+
+      {/* Share dialog — desktop only (mobile uses Web Share API) */}
+      {shareDialogOpen && (
+        <div className="share-dialog-overlay" onClick={() => setShareDialogOpen(false)}>
+          <div className="share-dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="share-dialog-header">
+              <span className="share-dialog-title">Share Link</span>
+              <button className="share-dialog-close" onClick={() => setShareDialogOpen(false)}>✕</button>
+            </div>
+            <p className="share-dialog-hint">Anyone with this link can view {person.name}'s transaction history (read-only, no login needed).</p>
+            <div className="share-dialog-link-row">
+              <span className="share-dialog-url">{shareUrl}</span>
+              <button className="share-dialog-copy-btn" id="copy-share-link-btn" onClick={handleCopyLink}>Copy</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Balance Card */}
       <div className={`balance-card ${balanceClass}`}>

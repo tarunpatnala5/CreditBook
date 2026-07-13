@@ -215,6 +215,66 @@ function formatPerson(p) {
   };
 }
 
+// ─── Generate / return share token for a person ───────────────────────────
+async function generateShareToken(personId, ownerId) {
+  const person = await prisma.person.findFirst({
+    where: { id: personId, ownerId, deletedAt: null },
+  });
+  if (!person) throw new NotFoundError('Person');
+
+  // Re-use existing token or generate new one
+  if (person.shareToken) return person.shareToken;
+
+  const { v4: uuidv4 } = require('uuid');
+  const token = uuidv4().replace(/-/g, ''); // 32-char hex token
+  await prisma.person.update({ where: { id: personId }, data: { shareToken: token } });
+  return token;
+}
+
+// ─── Revoke share token ────────────────────────────────────────────────────
+async function revokeShareToken(personId, ownerId) {
+  const person = await prisma.person.findFirst({
+    where: { id: personId, ownerId, deletedAt: null },
+  });
+  if (!person) throw new NotFoundError('Person');
+  await prisma.person.update({ where: { id: personId }, data: { shareToken: null } });
+}
+
+// ─── Get public share data (no auth) ──────────────────────────────────────
+async function getPublicShare(token) {
+  const person = await prisma.person.findFirst({
+    where: { shareToken: token, deletedAt: null },
+    include: { owner: { select: { name: true } } },
+  });
+  if (!person) throw new NotFoundError('Share link');
+
+  const transactions = await prisma.transaction.findMany({
+    where: { personId: person.id, deletedAt: null },
+    orderBy: { transactionDate: 'desc' },
+  });
+
+  return {
+    person: {
+      id: person.id,
+      name: person.name,
+      avatarColor: person.avatarColor,
+      balance: person.balance,
+      ownerName: person.owner?.name,
+    },
+    transactions: transactions.map((t) => ({
+      id: t.id,
+      type: t.type,
+      amount: t.amount,
+      currentAmount: t.currentAmount,
+      description: t.description,
+      interestRate: t.interestRate,
+      status: t.status,
+      balanceAfter: t.balanceAfter,
+      transactionDate: t.transactionDate,
+    })),
+  };
+}
+
 module.exports = {
   getPersons,
   getSharedPersons,
@@ -224,4 +284,7 @@ module.exports = {
   scheduleDeletion,
   restorePerson,
   recalculateBalance,
+  generateShareToken,
+  revokeShareToken,
+  getPublicShare,
 };

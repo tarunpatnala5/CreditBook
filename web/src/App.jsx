@@ -21,6 +21,7 @@ import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminPendingPage from './pages/admin/AdminPendingPage';
 import AdminSupportPage from './pages/admin/AdminSupportPage';
 import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
+import SharePage from './pages/share/SharePage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -63,6 +64,9 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
+          {/* Share page — fully public, no auth required */}
+          <Route path="/share/:token" element={<SharePage />} />
+
           {/* Public routes */}
           <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
           <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />

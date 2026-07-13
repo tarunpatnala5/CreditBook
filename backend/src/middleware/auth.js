@@ -30,8 +30,9 @@ async function authMiddleware(req, res, next) {
       throw new UnauthorizedError('Account suspended');
     }
 
-    // Attach user to request
+    // Attach user and sessionId to request
     req.user = user;
+    req.sessionId = payload.sessionId || null;
 
     // Update last active (non-blocking)
     prisma.user

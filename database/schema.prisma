@@ -114,6 +114,7 @@ model Person {
   lastActivityAt     DateTime  @default(now())
   deleteScheduledAt  DateTime?
   notes              String?
+  shareToken         String?   @unique
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
   deletedAt          DateTime?

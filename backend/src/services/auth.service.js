@@ -149,7 +149,7 @@ async function login({ phone, password, userAgent, ipAddress }) {
   const sessionId = uuidv4();
   const refreshPayload = { sub: user.id, sessionId };
 
-  const accessToken = signAccessToken({ sub: user.id, role: user.role });
+  const accessToken = signAccessToken({ sub: user.id, role: user.role, sessionId });
   const refreshToken = signRefreshToken(refreshPayload);
 
   await prisma.session.create({
@@ -216,7 +216,7 @@ async function refreshTokens(oldRefreshToken) {
   }
 
   // Issue new access token only (refresh token stays the same for unlimited session)
-  const newAccessToken = signAccessToken({ sub: user.id, role: user.role });
+  const newAccessToken = signAccessToken({ sub: user.id, role: user.role, sessionId: session.id });
 
   // Update session last active
   await prisma.session.update({
@@ -250,7 +250,7 @@ async function logoutAll(userId) {
 }
 
 // ─── Get all sessions (devices) for a user ────────────────────────────────
-async function getSessions(userId) {
+async function getSessions(userId, currentSessionId) {
   const sessions = await prisma.session.findMany({
     where: { userId, revokedAt: null, expiresAt: { gt: new Date() } },
     orderBy: { lastActiveAt: 'desc' },
@@ -265,6 +265,7 @@ async function getSessions(userId) {
     ipAddress: s.ipAddress,
     lastActiveAt: s.lastActiveAt,
     createdAt: s.createdAt,
+    isCurrent: s.id === currentSessionId,
   }));
 }
 

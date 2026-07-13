@@ -1,5 +1,13 @@
 // Credit Book — All API Functions
 import api from './client';
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL || '/api/v1';
+
+// ─── PUBLIC (no auth) ─────────────────────────────────────────────────────
+export const publicApi = {
+  getShare: (token) => axios.get(`${API_URL}/public/share/${token}`).then(r => r.data),
+};
 
 // ─── AUTH ─────────────────────────────────────────────────────────────────
 export const authApi = {
@@ -36,6 +44,8 @@ export const personsApi = {
   update: (id, data) => api.patch(`/persons/${id}`, data),
   scheduleDeletion: (id) => api.delete(`/persons/${id}`),
   restore: (id) => api.post(`/persons/${id}/restore`),
+  generateShareLink: (id) => api.post(`/persons/${id}/share`),
+  revokeShareLink: (id) => api.delete(`/persons/${id}/share`),
 };
 
 // ─── TRANSACTIONS ─────────────────────────────────────────────────────────

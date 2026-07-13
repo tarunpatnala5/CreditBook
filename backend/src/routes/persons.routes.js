@@ -97,4 +97,20 @@ router.get('/:personId/transactions/:txnId/interest-history', authMiddleware, as
   } catch (err) { next(err); }
 });
 
+// ─── Share link (generate / revoke) ────────────────────────────────────────
+router.post('/:personId/share', authMiddleware, async (req, res, next) => {
+  try {
+    const token = await personsService.generateShareToken(req.params.personId, req.user.id);
+    const shareUrl = `${process.env.CLIENT_URL || 'https://creditbook5.vercel.app'}/share/${token}`;
+    res.json(successResponse({ token, shareUrl }));
+  } catch (err) { next(err); }
+});
+
+router.delete('/:personId/share', authMiddleware, async (req, res, next) => {
+  try {
+    await personsService.revokeShareToken(req.params.personId, req.user.id);
+    res.json(successResponse(null, 'Share link revoked'));
+  } catch (err) { next(err); }
+});
+
 module.exports = router;

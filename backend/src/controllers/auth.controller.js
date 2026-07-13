@@ -56,7 +56,7 @@ async function logoutAll(req, res, next) {
 
 async function getSessions(req, res, next) {
   try {
-    const sessions = await authService.getSessions(req.user.id);
+    const sessions = await authService.getSessions(req.user.id, req.sessionId);
     res.json(successResponse(sessions));
   } catch (err) {
     next(err);

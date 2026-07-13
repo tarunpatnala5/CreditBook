@@ -84,6 +84,16 @@ app.use('/api/v1/notifications', notificationsRoutes);
 app.use('/api/v1/support', supportRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);
 
+// ─── Public share endpoint (no auth) ─────────────────────────────────────
+app.get('/api/v1/public/share/:token', async (req, res, next) => {
+  try {
+    const personsService = require('./services/persons.service');
+    const { successResponse } = require('./utils/response');
+    const data = await personsService.getPublicShare(req.params.token);
+    res.json(successResponse(data));
+  } catch (err) { next(err); }
+});
+
 // ─── 404 + Error handling ──────────────────────────────────────────────────
 app.use(notFoundHandler);
 app.use(errorHandler);

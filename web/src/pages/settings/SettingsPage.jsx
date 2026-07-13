@@ -100,7 +100,7 @@ function DevicesSection() {
                 <div className="device-info">
                   <div className="device-name">
                     {session.deviceName}
-                    {i === 0 && <span style={{ marginLeft: 6, fontSize: 11, color: 'var(--app-accent)', fontWeight: 600 }}>This Device</span>}
+                    {session.isCurrent && <span style={{ marginLeft: 6, fontSize: 11, color: 'var(--app-accent)', fontWeight: 600 }}>This Device</span>}
                   </div>
                   <div className="device-meta">
                     Active {formatRelative(session.lastActiveAt)}
