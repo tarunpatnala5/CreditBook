@@ -71,6 +71,7 @@ function AddTransactionSheet({ isOpen, onClose, personId, type }) {
           value={description}
           onChange={setDescription}
           placeholder="What's this for?"
+          autoComplete="off"
         />
         <TextField
           id="txn-date"
@@ -175,12 +176,12 @@ function EditTransactionSheet({ isOpen, onClose, transaction, personId }) {
           <span style={{ marginLeft: 'auto', fontSize: 13, color: 'var(--label-tertiary)' }}>{formatDate(transaction.transactionDate)}</span>
         </div>
         <TextField id="edit-txn-amount" label="Amount" value={amount} onChange={setAmount} placeholder="0" type="number" inputMode="decimal" prefix="₹" error={error} />
-        <TextField id="edit-txn-desc" label="Note (optional)" value={description} onChange={setDescription} placeholder="What's this for?" />
+        <TextField id="edit-txn-desc" label="Note (optional)" value={description} onChange={setDescription} placeholder="What's this for?" autoComplete="off" />
         <TextField id="edit-txn-interest" label="Interest % / year (optional)" value={interestRate} onChange={setInterestRate} placeholder="e.g. 12" type="number" inputMode="decimal" />
 
         <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
-          <Button id="edit-txn-save" variant="primary" size="md" style={{ flex: 1 }} loading={isUpdating}>Save</Button>
           <Button id="edit-txn-delete" variant="destructive" size="md" style={{ flex: 1 }} loading={isDeleting} onClick={(e) => { e.preventDefault(); deleteTxn(); }}>Delete</Button>
+          <Button id="edit-txn-save" variant="primary" size="md" style={{ flex: 1 }} loading={isUpdating}>Save</Button>
         </div>
       </form>
     </BottomSheet>

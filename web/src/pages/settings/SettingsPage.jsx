@@ -103,7 +103,6 @@ function DevicesSection() {
                     {i === 0 && <span style={{ marginLeft: 6, fontSize: 11, color: 'var(--app-accent)', fontWeight: 600 }}>This Device</span>}
                   </div>
                   <div className="device-meta">
-                    {session.ipAddress && <span>{session.ipAddress} · </span>}
                     Active {formatRelative(session.lastActiveAt)}
                   </div>
                 </div>

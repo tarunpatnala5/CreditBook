@@ -100,7 +100,7 @@ export function Toggle({ checked, onChange, id }) {
 /* ══════════════════════════════════════════════════════════
    TEXT FIELD
 ══════════════════════════════════════════════════════════ */
-export function TextField({ label, value, onChange, placeholder, type = 'text', error, id, autoFocus, inputMode, maxLength, prefix, onEnter }) {
+export function TextField({ label, value, onChange, placeholder, type = 'text', error, id, autoFocus, inputMode, maxLength, prefix, onEnter, autoComplete = 'off', autoCapitalize }) {
   return (
     <div className={cn('text-field', error && 'text-field-error')}>
       {label && <label className="text-field-label" htmlFor={id}>{label}</label>}
@@ -116,8 +116,9 @@ export function TextField({ label, value, onChange, placeholder, type = 'text', 
           autoFocus={autoFocus}
           inputMode={inputMode}
           maxLength={maxLength}
-          autoComplete="off"
+          autoComplete={autoComplete}
           autoCorrect="off"
+          autoCapitalize={autoCapitalize ?? 'off'}
           spellCheck="false"
         />
       </div>
