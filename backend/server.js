@@ -3,8 +3,38 @@ require('dotenv').config();
 
 const app = require('./src/app');
 const { startJobs } = require('./src/jobs/scheduler');
+const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcrypt');
 
+const prisma = new PrismaClient();
 const PORT = process.env.PORT || 3001;
+
+// ─── Auto-seed admin on startup ──────────────────────────────────────────────
+async function ensureAdminExists() {
+  try {
+    const adminPhone = process.env.ADMIN_PHONE || 'admin';
+    const existing = await prisma.user.findFirst({ where: { phone: adminPhone } });
+    if (!existing) {
+      const adminName = process.env.ADMIN_NAME || 'Admin';
+      const adminPassword = process.env.ADMIN_PASSWORD || 'admin';
+      const passwordHash = await bcrypt.hash(adminPassword, 12);
+      await prisma.user.create({
+        data: {
+          name: adminName,
+          phone: adminPhone,
+          passwordHash,
+          role: 'admin',
+          status: 'active',
+          activatedAt: new Date(),
+          avatarColor: '#007AFF',
+        },
+      });
+      console.log(`✅ Admin user auto-created: ${adminPhone}`);
+    }
+  } catch (err) {
+    console.error('⚠️  Admin auto-seed failed (DB may not be migrated yet):', err.message);
+  }
+}
 
 const server = app.listen(PORT, () => {
   console.log(`\n🚀 Credit Book API running at http://localhost:${PORT}`);
@@ -17,6 +47,9 @@ const server = app.listen(PORT, () => {
 
   // Start background jobs
   startJobs();
+
+  // Ensure admin user exists (auto-seed on fresh DB)
+  ensureAdminExists();
 });
 
 // Graceful shutdown
