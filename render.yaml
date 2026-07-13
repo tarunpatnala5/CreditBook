@@ -6,8 +6,8 @@ services:
     name: creditbook-api
     runtime: node
     rootDir: backend
-    buildCommand: npm install
-    startCommand: npm run db:deploy && node server.js
+    buildCommand: npm install && npx prisma generate --schema=../database/schema.prisma
+    startCommand: npm run db:deploy && npm run db:seed && node server.js
     healthCheckPath: /health
     envVars:
       - key: NODE_ENV

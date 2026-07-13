@@ -12,7 +12,8 @@
     "db:seed": "node src/prisma/seed.js",
     "db:studio": "npx prisma studio --schema=../database/schema.prisma",
     "db:push": "npx prisma db push --schema=../database/schema.prisma",
-    "db:generate": "npx prisma generate --schema=../database/schema.prisma"
+    "db:generate": "npx prisma generate --schema=../database/schema.prisma",
+    "db:push:local": "npx prisma db push --schema=../database/schema.local.prisma"
   },
   "prisma": {
     "schema": "../database/schema.prisma"

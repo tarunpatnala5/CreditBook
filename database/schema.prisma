@@ -1,15 +1,16 @@
 // Credit Book — Prisma Schema
-// Local dev : SQLite  (provider = "sqlite", DATABASE_URL = file:../database/creditbook.db)
-// Production: Switch provider to "postgresql" and set Neon URLs in Render env vars
+// Provider : postgresql (for Render + Neon — this file is committed to git)
+// Local dev : run `npm run db:push:local` to push schema to local SQLite separately
+// Production: `prisma migrate deploy` runs automatically on Render deploy
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "sqlite"
-  url       = env("DATABASE_URL")   // Local: file:../database/creditbook.db
-  // directUrl = env("DIRECT_URL") // Uncomment + change provider to postgresql for Render
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")    // Neon pooled URL (set in Render env vars)
+  directUrl = env("DIRECT_URL")      // Neon direct URL (set in Render env vars)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

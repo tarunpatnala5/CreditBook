@@ -54,3 +54,6 @@ google-services.json
 # ─── Reference / Media (large binary files) ────────────────────────────────
 reference/
 SF Pro/
+
+# ─── Local dev schema (SQLite override — not for production) ────────────────
+database/schema.local.prisma
