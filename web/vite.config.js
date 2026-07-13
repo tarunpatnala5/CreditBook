@@ -18,11 +18,19 @@ export default defineConfig({
     sourcemap: false,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          query: ['@tanstack/react-query'],
-          charts: ['recharts'],
-          pdf: ['jspdf', 'jspdf-autotable'],
+        manualChunks(id) {
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/react-router-dom')) {
+            return 'vendor';
+          }
+          if (id.includes('node_modules/@tanstack')) {
+            return 'query';
+          }
+          if (id.includes('node_modules/recharts') || id.includes('node_modules/d3')) {
+            return 'charts';
+          }
+          if (id.includes('node_modules/jspdf')) {
+            return 'pdf';
+          }
         },
       },
     },
