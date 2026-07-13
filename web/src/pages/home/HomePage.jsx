@@ -68,7 +68,7 @@ function AddPersonSheet({ isOpen, onClose }) {
           label="Phone Number"
           value={phone}
           onChange={(v) => { setPhone(v); setErrors((p) => ({ ...p, phone: '' })); }}
-          placeholder="98765 43210"
+          placeholder="Phone number"
           type="tel"
           inputMode="tel"
           error={errors.phone}

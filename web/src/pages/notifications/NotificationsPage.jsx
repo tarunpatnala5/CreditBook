@@ -1,5 +1,5 @@
 // Credit Book — Notifications Page (Tab 3)
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { notificationsApi } from '../../api';
@@ -31,12 +31,11 @@ export default function NotificationsPage() {
     select: (d) => d?.data,
   });
 
-  const { mutate: markAllRead, isPending: isMarkingRead } = useMutation({
+  const { mutate: markAllRead } = useMutation({
     mutationFn: () => notificationsApi.markAllRead(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
       queryClient.invalidateQueries({ queryKey: ['notification-count'] });
-      toast.success('All marked as read');
     },
   });
 
@@ -47,6 +46,12 @@ export default function NotificationsPage() {
       queryClient.invalidateQueries({ queryKey: ['notification-count'] });
     },
   });
+
+  // Auto-clear badge when user opens Alerts — fires after 1.5s so list renders first
+  useEffect(() => {
+    const timer = setTimeout(() => markAllRead(), 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const notifications = data?.notifications || [];
   const unreadCount = data?.unreadCount || 0;
