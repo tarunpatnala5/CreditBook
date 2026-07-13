@@ -52,7 +52,7 @@ export default function LoginPage() {
             label="Phone or Email"
             value={identifier}
             onChange={setIdentifier}
-            placeholder="98765 43210 or you@example.com"
+            placeholder="Phone number or you@example.com"
             type="text"
           />
           <TextField
