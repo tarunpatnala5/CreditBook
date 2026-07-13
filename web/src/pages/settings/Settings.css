@@ -1,0 +1,150 @@
+/* Credit Book — Settings Page Styles */
+.settings-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: var(--bg-primary);
+  padding-bottom: 32px;
+}
+
+.settings-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-top: 8px;
+}
+
+/* ─── Profile Card (Apple Settings style) ───────────────────────────────── */
+.settings-profile-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-card);
+  margin: 0 16px;
+  cursor: pointer;
+  transition: background var(--duration-instant) ease;
+}
+
+.settings-profile-row:active {
+  background: var(--fill-tertiary);
+}
+
+.settings-profile-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-profile-name {
+  font-size: 21px;
+  font-weight: 600;
+  font-family: var(--font-display);
+  color: var(--label-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.settings-profile-phone {
+  font-size: 14px;
+  color: var(--label-secondary);
+  margin-top: 1px;
+  font-family: var(--font-text);
+}
+
+.settings-profile-role {
+  display: inline-block;
+  margin-top: 5px;
+  background: var(--app-accent);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 9999px;
+  letter-spacing: 0.05em;
+  font-family: var(--font-text);
+}
+
+/* Chevron on profile row */
+.settings-profile-chevron {
+  color: var(--label-quaternary);
+  flex-shrink: 0;
+}
+
+
+
+/* Device card */
+.device-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 12px;
+  position: relative;
+}
+
+.device-row + .device-row::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 56px;
+  right: 0;
+  height: 0.5px;
+  background: var(--separator);
+}
+
+.device-icon {
+  font-size: 24px;
+  width: 40px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.device-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.device-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--label-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.device-meta {
+  font-size: 12px;
+  color: var(--label-secondary);
+  margin-top: 2px;
+}
+
+.device-current-badge {
+  font-size: 10px;
+  background: var(--color-green);
+  color: white;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.device-remove-btn {
+  background: none;
+  color: var(--color-red);
+  border: none;
+  padding: 4px 0;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: var(--font-text);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.device-remove-btn:active { opacity: 0.5; }
+
+/* Logout / Delete section */
+.settings-danger-section {
+  margin: 4px 16px;
+}

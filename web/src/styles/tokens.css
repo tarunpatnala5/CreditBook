@@ -1,0 +1,286 @@
+/* ============================================================
+   Credit Book — Design Tokens (Apple HIG)
+   All colors, spacing, typography, radius, shadows, animations
+   ============================================================ */
+
+/* ─── Font Face Declarations ─────────────────────────────────────────────── */
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('/fonts/SF-Pro-Display-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('/fonts/SF-Pro-Display-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('/fonts/SF-Pro-Display-Semibold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('/fonts/SF-Pro-Display-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'SF Pro Text';
+  src: url('/fonts/SF-Pro-Text-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'SF Pro Text';
+  src: url('/fonts/SF-Pro-Text-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'SF Pro Text';
+  src: url('/fonts/SF-Pro-Text-Semibold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'SF Pro Rounded';
+  src: url('/fonts/SF-Pro-Rounded-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'SF Pro Rounded';
+  src: url('/fonts/SF-Pro-Rounded-Semibold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ─── Light Mode Tokens ──────────────────────────────────────────────────── */
+:root {
+  /* System Colors */
+  --color-blue:   hsl(220, 82%, 52%);
+  --color-green:  hsl(141, 71%, 38%);
+  --color-red:    hsl(0, 100%, 42%);
+  --color-orange: hsl(28, 100%, 50%);
+  --color-yellow: hsl(45, 100%, 50%);
+  --color-purple: hsl(260, 60%, 58%);
+  --color-pink:   hsl(340, 90%, 56%);
+  --color-teal:   hsl(193, 72%, 46%);
+
+  /* Backgrounds */
+  --bg-primary:   hsl(0, 0%, 97%);
+  --bg-secondary: hsl(0, 0%, 100%);
+  --bg-tertiary:  hsl(240, 6%, 94%);
+  --bg-grouped:   hsl(240, 5%, 96%);
+
+  /* Labels */
+  --label-primary:   hsl(0, 0%, 0%);
+  --label-secondary: hsla(0, 0%, 24%, 0.60);
+  --label-tertiary:  hsla(0, 0%, 24%, 0.30);
+  --label-quaternary:hsla(0, 0%, 24%, 0.18);
+
+  /* Fills */
+  --fill-primary:   hsla(0, 0%, 47%, 0.20);
+  --fill-secondary: hsla(0, 0%, 47%, 0.16);
+  --fill-tertiary:  hsla(0, 0%, 47%, 0.12);
+  --fill-quaternary:hsla(0, 0%, 47%, 0.08);
+
+  /* Separators */
+  --separator:         hsla(0, 0%, 24%, 0.29);
+  --separator-opaque:  hsl(0, 0%, 87%);
+
+  /* App-Specific */
+  --app-positive: hsl(141, 71%, 38%);   /* You will get (green) */
+  --app-negative: hsl(0, 100%, 42%);    /* You will give (red) */
+  --app-accent:   hsl(220, 82%, 52%);   /* Premium Sapphire Blue */
+
+  /* Navigation Bar */
+  --nav-bg: hsla(0, 0%, 97%, 0.85);
+  --nav-border: hsla(0, 0%, 0%, 0.10);
+
+  /* Pill Nav */
+  --pill-bg: hsla(0, 0%, 100%, 0.85);
+  --pill-shadow: 0 8px 40px hsla(0,0%,0%,0.20), 0 2px 8px hsla(0,0%,0%,0.12);
+
+  /* Blur */
+  --blur-nav: saturate(180%) blur(20px);
+  --blur-pill: saturate(180%) blur(20px);
+  --blur-sheet: saturate(180%) blur(40px);
+
+  /* ─── Spacing (8pt grid) ─── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* ─── Border Radius ─── */
+  --radius-xs:     4px;
+  --radius-sm:     8px;
+  --radius-md:     12px;
+  --radius-lg:     16px;
+  --radius-xl:     20px;
+  --radius-2xl:    24px;
+  --radius-pill:   9999px;
+  --radius-full:   50%;
+  --radius-card:   13px;
+  --radius-sheet:  20px;
+  --radius-dialog: 14px;
+
+  /* ─── Shadows ─── */
+  --shadow-xs: 0 1px 3px hsla(0,0%,0%,0.08);
+  --shadow-sm: 0 2px 8px hsla(0,0%,0%,0.10);
+  --shadow-md: 0 4px 16px hsla(0,0%,0%,0.12);
+  --shadow-lg: 0 8px 32px hsla(0,0%,0%,0.15);
+  --shadow-xl: 0 16px 48px hsla(0,0%,0%,0.18);
+
+  /* ─── Transitions ─── */
+  --ease-standard:   cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-spring:     cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
+
+  --duration-instant: 120ms;
+  --duration-fast:    200ms;
+  --duration-normal:  300ms;
+  --duration-slow:    450ms;
+  --duration-search:  400ms;
+
+  /* ─── Typography ─── */
+  --font-display:  'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font-text:     'SF Pro Text',    -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font-rounded:  'SF Pro Rounded', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font-mono:     'SF Mono', 'Courier New', monospace;
+
+  /* Type Scale */
+  --text-large-title:   34px;
+  --text-title-1:       28px;
+  --text-title-2:       22px;
+  --text-title-3:       20px;
+  --text-headline:      17px;
+  --text-body:          17px;
+  --text-callout:       16px;
+  --text-subheadline:   15px;
+  --text-footnote:      13px;
+  --text-caption-1:     12px;
+  --text-caption-2:     11px;
+  --text-amount-xl:     48px;
+  --text-amount-lg:     40px;
+  --text-amount-md:     28px;
+
+  /* ─── Layout ─── */
+  --nav-height:       56px;
+  --pill-nav-height:  72px;
+  --safe-bottom:      20px;
+  --content-padding:  var(--space-4);
+  --card-padding:     var(--space-4);
+}
+
+/* ─── Dark Mode Tokens ───────────────────────────────────────────────────── */
+[data-theme='dark'], .dark {
+  --bg-primary:   hsl(0, 0%, 0%);
+  --bg-secondary: hsl(240, 5%, 11%);
+  --bg-tertiary:  hsl(240, 4%, 16%);
+  --bg-grouped:   hsl(0, 0%, 0%);
+
+  --label-primary:    hsl(0, 0%, 100%);
+  --label-secondary:  hsla(0, 0%, 100%, 0.60);
+  --label-tertiary:   hsla(0, 0%, 100%, 0.30);
+  --label-quaternary: hsla(0, 0%, 100%, 0.18);
+
+  --fill-primary:    hsla(0, 0%, 47%, 0.36);
+  --fill-secondary:  hsla(0, 0%, 47%, 0.32);
+  --fill-tertiary:   hsla(0, 0%, 47%, 0.24);
+  --fill-quaternary: hsla(0, 0%, 47%, 0.18);
+
+  --separator:        hsla(0, 0%, 100%, 0.15);
+  --separator-opaque: hsl(240, 3%, 25%);
+
+  --color-blue:   hsl(220, 88%, 63%);
+  --color-green:  hsl(141, 66%, 51%);
+  --color-red:    hsl(0, 100%, 57%);
+  --color-orange: hsl(28, 100%, 58%);
+
+  --app-positive: hsl(141, 66%, 51%);
+  --app-negative: hsl(0, 100%, 57%);
+  --app-accent:   hsl(220, 88%, 63%);
+
+  --nav-bg:    hsla(0, 0%, 0%, 0.85);
+  --nav-border: hsla(255, 0%, 100%, 0.08);
+  --pill-bg:   hsla(240, 5%, 14%, 0.90);
+  --pill-shadow: 0 8px 40px hsla(0,0%,0%,0.60), 0 2px 8px hsla(0,0%,0%,0.40);
+
+  --shadow-xs: 0 1px 3px hsla(0,0%,0%,0.30);
+  --shadow-sm: 0 2px 8px hsla(0,0%,0%,0.40);
+  --shadow-md: 0 4px 16px hsla(0,0%,0%,0.50);
+  --shadow-lg: 0 8px 32px hsla(0,0%,0%,0.55);
+  --shadow-xl: 0 16px 48px hsla(0,0%,0%,0.60);
+}
+
+/* ─── System dark mode (if no manual setting) ─────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg-primary:   hsl(0, 0%, 0%);
+    --bg-secondary: hsl(240, 5%, 11%);
+    --bg-tertiary:  hsl(240, 4%, 16%);
+    --bg-grouped:   hsl(0, 0%, 0%);
+
+    --label-primary:    hsl(0, 0%, 100%);
+    --label-secondary:  hsla(0, 0%, 100%, 0.60);
+    --label-tertiary:   hsla(0, 0%, 100%, 0.30);
+    --label-quaternary: hsla(0, 0%, 100%, 0.18);
+
+    --fill-primary:    hsla(0, 0%, 47%, 0.36);
+    --fill-secondary:  hsla(0, 0%, 47%, 0.32);
+    --fill-tertiary:   hsla(0, 0%, 47%, 0.24);
+    --fill-quaternary: hsla(0, 0%, 47%, 0.18);
+
+    --separator:        hsla(0, 0%, 100%, 0.15);
+    --separator-opaque: hsl(240, 3%, 25%);
+
+    --color-blue:   hsl(220, 88%, 63%);
+    --color-green:  hsl(141, 66%, 51%);
+    --color-red:    hsl(0, 100%, 57%);
+    --color-orange: hsl(28, 100%, 58%);
+
+    --app-positive: hsl(141, 66%, 51%);
+    --app-negative: hsl(0, 100%, 57%);
+    --app-accent:   hsl(220, 88%, 63%);
+
+    --nav-bg:    hsla(0, 0%, 0%, 0.85);
+    --nav-border: hsla(255, 0%, 100%, 0.08);
+    --pill-bg:   hsla(240, 5%, 14%, 0.90);
+    --pill-shadow: 0 8px 40px hsla(0,0%,0%,0.60), 0 2px 8px hsla(0,0%,0%,0.40);
+
+    --shadow-sm: 0 2px 8px hsla(0,0%,0%,0.40);
+    --shadow-md: 0 4px 16px hsla(0,0%,0%,0.50);
+    --shadow-lg: 0 8px 32px hsla(0,0%,0%,0.55);
+  }
+}
+
+/* ─── Reduced motion ─────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

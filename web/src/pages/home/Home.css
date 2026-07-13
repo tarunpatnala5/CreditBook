@@ -1,0 +1,186 @@
+/* Credit Book — Home Page Styles */
+.home-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: var(--bg-primary);
+}
+
+/* ─── Summary Cards ───────────────────────────────────────────────────────────────── */
+.summary-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-4) var(--space-3);
+}
+
+.summary-card {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  /* Horizontal layout: text on left, amount on right */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  box-shadow: var(--shadow-xs);
+  animation: scaleIn 300ms var(--ease-spring) both;
+}
+
+.summary-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.summary-card-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--label-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.summary-card-sub {
+  font-size: var(--text-caption-2);
+  color: var(--label-tertiary);
+  white-space: nowrap;
+}
+
+.summary-card-amount {
+  font-family: var(--font-display);
+  font-size: var(--text-title-3);
+  font-weight: 700;
+  line-height: 1;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.summary-card-amount.positive { color: var(--app-positive); }
+.summary-card-amount.negative { color: var(--app-negative); }
+
+/* ─── Person List ────────────────────────────────────────────────────────── */
+.persons-list {
+  flex: 1;
+  padding: 0 var(--space-4);
+}
+
+.persons-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+  padding: 0 var(--space-1);
+}
+
+.persons-list-title {
+  font-size: var(--text-footnote);
+  color: var(--label-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 400;
+}
+
+.persons-container {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+/* ─── Person Row ─────────────────────────────────────────────────────────── */
+.person-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 12px;
+  cursor: pointer;
+  position: relative;
+  transition: background var(--duration-instant) ease;
+  -webkit-tap-highlight-color: transparent;
+  animation: rowAppear 300ms var(--ease-decelerate) both;
+}
+
+.person-row:active { background: var(--fill-tertiary); }
+
+.person-row + .person-row::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 72px;
+  right: 0;
+  height: 0.5px;
+  background: var(--separator);
+}
+
+.person-row-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.person-row-name {
+  font-size: var(--text-body);
+  font-weight: 500;
+  color: var(--label-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.person-row-sub {
+  font-size: var(--text-footnote);
+  color: var(--label-secondary);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.person-row-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.person-row-balance {
+  font-size: var(--text-subheadline);
+  font-weight: 600;
+  font-family: var(--font-display);
+}
+
+.person-row-balance.positive { color: var(--app-positive); }
+.person-row-balance.negative { color: var(--app-negative); }
+.person-row-balance.zero { color: var(--label-tertiary); }
+
+.person-row-chevron {
+  color: var(--label-quaternary);
+  font-size: 12px;
+}
+
+/* Deletion scheduled banner */
+.person-row-deleting {
+  background: hsla(0, 100%, 50%, 0.04);
+}
+
+.person-row-delete-warning {
+  font-size: var(--text-caption-2);
+  color: var(--color-red);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 3px;
+}
+
+/* ─── Add Person Sheet ───────────────────────────────────────────────────── */
+.add-person-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.add-person-form .btn { margin-top: var(--space-2); }

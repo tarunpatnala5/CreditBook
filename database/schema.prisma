@@ -1,0 +1,265 @@
+// Credit Book — Prisma Schema
+// Local dev: Neon PostgreSQL (dev branch) | Production: Neon PostgreSQL (main branch)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")       // Neon pooled connection (for runtime)
+  directUrl = env("DIRECT_URL")         // Neon direct connection (for migrations)
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// USERS
+// ─────────────────────────────────────────────────────────────────────────────
+model User {
+  id              String    @id @default(uuid())
+  name            String
+  phone           String    @unique
+  email           String?   @unique
+  passwordHash    String
+  role            String    @default("user") // user | admin
+  status          String    @default("pending") // pending | active | suspended
+  avatarUrl       String?
+  avatarColor     String    @default("#007AFF")
+  lastActiveAt    DateTime?
+  activatedAt     DateTime?
+  activatedBy     String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  // Relations
+  sessions        Session[]
+  pinConfig       PinConfig?
+  personsOwned    Person[]         @relation("PersonOwner")
+  personsLinked   Person[]         @relation("PersonLinked")
+  transactions    Transaction[]
+  notifications   Notification[]
+  supportMessages SupportMessage[]
+  auditLogs       AuditLog[]
+  pushTokens      PushToken[]
+  activatedByUser User?            @relation("ActivatedBy", fields: [activatedBy], references: [id])
+  activatedUsers  User[]           @relation("ActivatedBy")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SESSIONS (Device management)
+// ─────────────────────────────────────────────────────────────────────────────
+model Session {
+  id           String    @id @default(uuid())
+  userId       String
+  refreshToken String    @unique
+  deviceName   String    @default("Unknown Device")
+  deviceType   String    @default("web") // web | android | ios
+  browser      String?
+  os           String?
+  ipAddress    String?
+  userAgent    String?
+  lastActiveAt DateTime  @default(now())
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pushTokens PushToken[]
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PIN CONFIG
+// ─────────────────────────────────────────────────────────────────────────────
+model PinConfig {
+  id               String    @id @default(uuid())
+  userId           String    @unique
+  pinHash          String
+  biometricEnabled Boolean   @default(false)
+  failedAttempts   Int       @default(0)
+  lockedUntil      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PUSH TOKENS
+// ─────────────────────────────────────────────────────────────────────────────
+model PushToken {
+  id        String   @id @default(uuid())
+  userId    String
+  sessionId String?
+  token     String   @unique
+  platform  String   @default("web") // web | fcm_android | fcm_ios
+  createdAt DateTime @default(now())
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session Session? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PERSONS (Ledger contacts)
+// ─────────────────────────────────────────────────────────────────────────────
+model Person {
+  id                 String    @id @default(uuid())
+  ownerId            String
+  linkedUserId       String?
+  name               String
+  phone              String?
+  avatarColor        String    @default("#34C759")
+  balance            Float     @default(0)
+  lastActivityAt     DateTime  @default(now())
+  deleteScheduledAt  DateTime?
+  notes              String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
+
+  owner        User          @relation("PersonOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  linkedUser   User?         @relation("PersonLinked", fields: [linkedUserId], references: [id], onDelete: SetNull)
+  transactions Transaction[]
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TRANSACTIONS
+// ─────────────────────────────────────────────────────────────────────────────
+model Transaction {
+  id                  String    @id @default(uuid())
+  personId            String
+  ownerId             String
+  type                String    // gave | got
+  amount              Float
+  currentAmount       Float
+  description         String?
+  interestRate        Float?
+  interestType        String    @default("simple") // simple | compound
+  balanceAfter        Float     @default(0)
+  transactionDate     DateTime  @default(now())
+  status              String    @default("current") // current | upcoming
+  lastInterestCalcAt  DateTime?
+  version             Int       @default(1)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime?
+
+  person          Person            @relation(fields: [personId], references: [id], onDelete: Cascade)
+  owner           User              @relation(fields: [ownerId], references: [id])
+  interestHistory InterestHistory[]
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INTEREST HISTORY
+// ─────────────────────────────────────────────────────────────────────────────
+model InterestHistory {
+  id             String   @id @default(uuid())
+  transactionId  String
+  date           String   // YYYY-MM-DD string for SQLite compatibility
+  principal      Float
+  rate           Float
+  interestAdded  Float
+  runningTotal   Float
+  createdAt      DateTime @default(now())
+
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  @@unique([transactionId, date])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NOTIFICATIONS
+// ─────────────────────────────────────────────────────────────────────────────
+model Notification {
+  id         String    @id @default(uuid())
+  userId     String
+  title      String
+  body       String
+  category   String    @default("system") // transaction | support | update | activation | announcement | system
+  deepLink   String?
+  isRead     Boolean   @default(false)
+  readAt     DateTime?
+  actionData String?   // JSON string
+  createdAt  DateTime  @default(now())
+  deletedAt  DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SUPPORT MESSAGES
+// ─────────────────────────────────────────────────────────────────────────────
+model SupportMessage {
+  id          String    @id @default(uuid())
+  userId      String    // conversation owner (the user)
+  senderId    String    // who sent this message
+  message     String
+  isRead      Boolean   @default(false)
+  readAt      DateTime?
+  createdAt   DateTime  @default(now())
+  deletedAt   DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AUDIT LOGS
+// ─────────────────────────────────────────────────────────────────────────────
+model AuditLog {
+  id           String   @id @default(uuid())
+  actorId      String?
+  actorName    String?
+  action       String
+  resourceType String
+  resourceId   String?
+  beforeData   String?  // JSON string
+  afterData    String?  // JSON string
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// APP VERSIONS (update system)
+// ─────────────────────────────────────────────────────────────────────────────
+model AppVersion {
+  id           String    @id @default(uuid())
+  version      String
+  platform     String    // android | ios | web
+  releaseNotes String?
+  downloadUrl  String?
+  fileSizeBytes Int?
+  isForced     Boolean   @default(false)
+  isPublished  Boolean   @default(false)
+  publishedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([version, platform])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FAMILY GROUPS
+// ─────────────────────────────────────────────────────────────────────────────
+model FamilyGroup {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  createdBy   String
+  createdAt   DateTime  @default(now())
+  deletedAt   DateTime?
+
+  members FamilyGroupMember[]
+}
+
+model FamilyGroupMember {
+  groupId  String
+  userId   String
+  role     String   @default("member") // owner | admin | member
+  joinedAt DateTime @default(now())
+
+  group FamilyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@id([groupId, userId])
+}

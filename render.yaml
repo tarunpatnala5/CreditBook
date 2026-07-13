@@ -1,0 +1,37 @@
+# Credit Book — Render Deployment Configuration
+# Docs: https://render.com/docs/render-yaml
+
+services:
+  - type: web
+    name: creditbook-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm run db:deploy && node server.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      # ⚠️  Set these in the Render dashboard — never commit secrets
+      - key: DATABASE_URL
+        sync: false   # Render will prompt you to enter this
+      - key: DIRECT_URL
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: JWT_ACCESS_EXPIRY
+        value: 7d
+      - key: JWT_REFRESH_EXPIRY
+        value: 365d
+      - key: ADMIN_PHONE
+        sync: false
+      - key: ADMIN_NAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: CLIENT_URL
+        sync: false   # Your Vercel URL e.g. https://creditbook.vercel.app

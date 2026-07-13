@@ -1,0 +1,56 @@
+# ─── Dependencies ──────────────────────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+
+# ─── Environment secrets ───────────────────────────────────────────────────
+.env
+.env.local
+.env.production
+.env.production.local
+.env.development.local
+
+# ─── Database (local only — never commit DB files) ─────────────────────────
+database/*.db
+database/*.db-journal
+database/*.db-shm
+database/*.db-wal
+*.db
+*.db-journal
+
+# ─── Build outputs ─────────────────────────────────────────────────────────
+dist/
+build/
+web/dist/
+mobile/build/
+mobile/android/build/
+mobile/ios/build/
+
+# ─── Prisma generated ──────────────────────────────────────────────────────
+# Keep migrations (they define schema history) but ignore generated client
+# database/migrations/ is committed so Render can run prisma migrate deploy
+
+# ─── Logs ──────────────────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ─── OS / Editor ───────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/settings.json
+
+# ─── Mobile / Native ───────────────────────────────────────────────────────
+*.jks
+*.keystore
+key.properties
+GoogleService-Info.plist
+google-services.json
+
+# ─── Reference / Media (large binary files) ────────────────────────────────
+reference/
+SF Pro/
