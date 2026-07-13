@@ -71,51 +71,51 @@ export default function AdminPendingPage() {
             {users.map((u, i) => {
               const isProcessing = processingId === u.id;
               return (
-                <div key={u.id} style={{ padding: '16px', position: 'relative' }}>
+                <div key={u.id} style={{ padding: '14px 16px', position: 'relative' }}>
                   {i > 0 && <div style={{ position: 'absolute', top: 0, left: 16, right: 0, height: '0.5px', background: 'var(--separator)' }} />}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    {/* Left: avatar + info */}
                     <Avatar name={u.name} color={u.avatarColor} size={44} />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 600, fontSize: 16, color: 'var(--label-primary)' }}>{u.name}</div>
-                      <div style={{ fontSize: 13, color: 'var(--label-secondary)', marginTop: 2 }}>{formatPhone(u.phone)}</div>
-                      <div style={{ fontSize: 11, color: 'var(--label-tertiary)', marginTop: 1 }}>
-                        Registered {formatRelative(u.createdAt)}
-                      </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 600, fontSize: 15, color: 'var(--label-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.name}</div>
+                      <div style={{ fontSize: 13, color: 'var(--label-secondary)', marginTop: 1 }}>{formatPhone(u.phone)}</div>
+                      <div style={{ fontSize: 11, color: 'var(--label-tertiary)', marginTop: 1 }}>Registered {formatRelative(u.createdAt)}</div>
                     </div>
-                  </div>
-                  <div style={{ display: 'flex', gap: 10 }}>
-                    <button
-                      id={`approve-${u.id}`}
-                      onClick={() => activate(u.id)}
-                      disabled={isProcessing}
-                      style={{
-                        flex: 1, height: 44, borderRadius: 12,
-                        background: 'var(--color-green)', color: 'white',
-                        border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 15,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                        fontFamily: 'var(--font-text)',
-                        opacity: isProcessing ? 0.7 : 1,
-                        transition: 'opacity 150ms ease',
-                      }}
-                    >
-                      {isProcessing && processingAction === 'activate' ? <Spinner size={18} color="white" /> : '✓ Approve'}
-                    </button>
-                    <button
-                      id={`reject-${u.id}`}
-                      onClick={() => reject(u.id)}
-                      disabled={isProcessing}
-                      style={{
-                        flex: 1, height: 44, borderRadius: 12,
-                        background: 'var(--fill-tertiary)', color: 'var(--color-red)',
-                        border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 15,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                        fontFamily: 'var(--font-text)',
-                        opacity: isProcessing ? 0.7 : 1,
-                        transition: 'opacity 150ms ease',
-                      }}
-                    >
-                      {isProcessing && processingAction === 'reject' ? <Spinner size={18} /> : '✕ Reject'}
-                    </button>
+                    {/* Right: Approve + Reject */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>
+                      <button
+                        id={`approve-${u.id}`}
+                        onClick={() => activate(u.id)}
+                        disabled={isProcessing}
+                        style={{
+                          width: 100, height: 34, borderRadius: 10,
+                          background: 'var(--color-green)', color: 'white',
+                          border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                          fontFamily: 'var(--font-text)',
+                          opacity: isProcessing ? 0.7 : 1,
+                          transition: 'opacity 150ms ease',
+                        }}
+                      >
+                        {isProcessing && processingAction === 'activate' ? <Spinner size={14} color="white" /> : '✓ Approve'}
+                      </button>
+                      <button
+                        id={`reject-${u.id}`}
+                        onClick={() => reject(u.id)}
+                        disabled={isProcessing}
+                        style={{
+                          width: 100, height: 34, borderRadius: 10,
+                          background: 'var(--fill-tertiary)', color: 'var(--color-red)',
+                          border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                          fontFamily: 'var(--font-text)',
+                          opacity: isProcessing ? 0.7 : 1,
+                          transition: 'opacity 150ms ease',
+                        }}
+                      >
+                        {isProcessing && processingAction === 'reject' ? <Spinner size={14} /> : '✕ Reject'}
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
