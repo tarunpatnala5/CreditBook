@@ -81,17 +81,17 @@ export default function AdminPendingPage() {
                       <div style={{ fontSize: 13, color: 'var(--label-secondary)', marginTop: 1 }}>{formatPhone(u.phone)}</div>
                       <div style={{ fontSize: 11, color: 'var(--label-tertiary)', marginTop: 1 }}>Registered {formatRelative(u.createdAt)}</div>
                     </div>
-                    {/* Right: Approve + Reject */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>
+                    {/* Right: Approve | Reject side by side */}
+                    <div style={{ display: 'flex', flexDirection: 'row', gap: 8, flexShrink: 0 }}>
                       <button
                         id={`approve-${u.id}`}
                         onClick={() => activate(u.id)}
                         disabled={isProcessing}
                         style={{
-                          width: 100, height: 34, borderRadius: 10,
+                          width: 88, height: 36, borderRadius: 10,
                           background: 'var(--color-green)', color: 'white',
                           border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
                           fontFamily: 'var(--font-text)',
                           opacity: isProcessing ? 0.7 : 1,
                           transition: 'opacity 150ms ease',
@@ -104,10 +104,10 @@ export default function AdminPendingPage() {
                         onClick={() => reject(u.id)}
                         disabled={isProcessing}
                         style={{
-                          width: 100, height: 34, borderRadius: 10,
+                          width: 80, height: 36, borderRadius: 10,
                           background: 'var(--fill-tertiary)', color: 'var(--color-red)',
                           border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
                           fontFamily: 'var(--font-text)',
                           opacity: isProcessing ? 0.7 : 1,
                           transition: 'opacity 150ms ease',
