@@ -65,6 +65,8 @@ apiClient.interceptors.response.use(
         localStorage.removeItem('cb_access_token');
         localStorage.removeItem('cb_refresh_token');
         localStorage.removeItem('cb_user');
+        // Also clear Zustand persisted auth so isAuthenticated rehydrates as false
+        localStorage.removeItem('creditbook-auth');
         window.location.href = '/login';
 
         return Promise.reject(refreshError);
