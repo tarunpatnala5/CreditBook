@@ -28,8 +28,24 @@ apiClient.interceptors.response.use(
   async (error) => {
     const original = error.config;
 
-    if (error.response?.status === 401 && !original._retried) {
+    // Skip refresh logic for auth endpoints — pass the real server error through
+    const isAuthEndpoint = original.url?.includes('/auth/login') ||
+      original.url?.includes('/auth/register') ||
+      original.url?.includes('/auth/refresh');
+
+    if (error.response?.status === 401 && !original._retried && !isAuthEndpoint) {
       original._retried = true;
+
+      const refreshToken = localStorage.getItem('cb_refresh_token');
+
+      // No refresh token stored — clear stale state and redirect without masking error
+      if (!refreshToken) {
+        localStorage.removeItem('cb_access_token');
+        localStorage.removeItem('cb_user');
+        localStorage.removeItem('creditbook-auth');
+        window.location.href = '/login';
+        return Promise.reject(error);
+      }
 
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -43,9 +59,6 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const refreshToken = localStorage.getItem('cb_refresh_token');
-        if (!refreshToken) throw new Error('No refresh token');
-
         const res = await axios.post(`${API_URL}/auth/refresh`, { refreshToken });
         const { accessToken, refreshToken: newRefreshToken } = res.data.data;
 
@@ -61,7 +74,7 @@ apiClient.interceptors.response.use(
         refreshQueue.forEach((p) => p.reject(refreshError));
         refreshQueue = [];
 
-        // Clear auth and redirect to login
+        // Clear all auth state and redirect to login
         localStorage.removeItem('cb_access_token');
         localStorage.removeItem('cb_refresh_token');
         localStorage.removeItem('cb_user');
