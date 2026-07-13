@@ -1,8 +1,13 @@
 // Credit Book — JWT Utilities
 const jwt = require('jsonwebtoken');
 
-const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || 'creditbook_access_secret_dev';
-const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'creditbook_refresh_secret_dev';
+// These MUST be set via environment variables — never fall back to a hardcoded string
+if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
+  throw new Error('FATAL: JWT_ACCESS_SECRET and JWT_REFRESH_SECRET must be set in environment variables');
+}
+
+const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET;
+const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 const ACCESS_EXPIRY = process.env.JWT_ACCESS_EXPIRY || '7d';
 const REFRESH_EXPIRY = process.env.JWT_REFRESH_EXPIRY || '365d';
 

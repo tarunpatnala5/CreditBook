@@ -9,7 +9,6 @@ const PORT = process.env.PORT || 3001;
 const server = app.listen(PORT, () => {
   console.log(`\n🚀 Credit Book API running at http://localhost:${PORT}`);
   console.log(`📦 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🗄️  Database: ${process.env.DATABASE_URL}`);
   console.log(`\n📋 Routes:`);
   console.log(`   POST /api/v1/auth/register`);
   console.log(`   POST /api/v1/auth/login`);
