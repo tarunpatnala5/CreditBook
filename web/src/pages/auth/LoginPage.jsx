@@ -42,7 +42,7 @@ export default function LoginPage() {
       <div className="auth-header">
         <img src="/logo.jpg" alt="Credit Book" className="auth-logo" />
         <h1 className="auth-title">Credit Book</h1>
-        <p className="auth-subtitle">Family Ledger</p>
+
       </div>
 
       <form className="auth-form" onSubmit={handleSubmit}>

@@ -6,7 +6,7 @@ import { PageNavigationBar } from '../../components/layout/AppLayout';
 const SECTIONS = [
   {
     title: '1. Getting Started',
-    content: `Credit Book is your private family ledger app. It helps you track money you've given or received from friends and family.\n\nAfter registration, an admin must activate your account before you can sign in.`,
+    content: `Credit Book is your private app to track money you've given or received from friends and family.\n\nAfter registration, an admin must activate your account before you can sign in.`,
   },
   {
     title: '2. Home Screen — My Entries (↑)',
@@ -112,7 +112,7 @@ export default function UserManualPage() {
         ))}
 
         <div style={{ textAlign: 'center', padding: '16px 0', color: 'var(--label-tertiary)', fontSize: 12 }}>
-          Credit Book · Private Family Ledger
+          Credit Book
         </div>
       </div>
     </div>

@@ -9,10 +9,10 @@
 ## 1. Introduction
 
 ### 1.1 Purpose
-This document defines the complete software requirements for **Credit Book**, a private family ledger application. It serves as the single source of truth for all stakeholders — designers, developers, testers, and administrators.
+This document defines the complete software requirements for **Credit Book**, a private credit tracking application. It serves as the single source of truth for all stakeholders — designers, developers, testers, and administrators.
 
 ### 1.2 Project Overview
-Credit Book is a modern, Apple-design-language-inspired financial ledger application for private family use. It enables recording and tracking of money given and received between family members and third parties. It is **NOT** a commercial application and will **NOT** be published on any public app store. Distribution is via direct APK sideloading (Android) and internal iOS builds. The web application is deployed on Vercel and Render for family access.
+Credit Book is a modern, Apple-design-language-inspired financial ledger application for private use. It enables recording and tracking of money given and received between members and third parties. It is **NOT** a commercial application and will **NOT** be published on any public app store. Distribution is via direct APK sideloading (Android) and internal iOS builds. The web application is deployed on Vercel and Render for access.
 
 ### 1.3 Scope
 - **Android APK** (sideloaded, private use)

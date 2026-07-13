@@ -1,6 +1,6 @@
-# Credit Book — Family Ledger
+# Credit Book
 
-A secure digital ledger for tracking money lent and borrowed within a family or close circle.
+A secure digital ledger for tracking money lent and borrowed within a close circle.
 
 ## Stack
 
