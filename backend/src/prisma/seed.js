@@ -7,9 +7,9 @@ const bcrypt = require('bcrypt');
 const prisma = new PrismaClient();
 
 async function main() {
-  const adminPhone = process.env.ADMIN_PHONE || '+917382286787';
-  const adminName = process.env.ADMIN_NAME || 'Tarun Kumar';
-  const adminPassword = process.env.ADMIN_PASSWORD || 'arun2568';
+  const adminPhone = process.env.ADMIN_PHONE || 'admin';
+  const adminName = process.env.ADMIN_NAME || 'Admin';
+  const adminPassword = process.env.ADMIN_PASSWORD || 'admin';
 
   console.log('🌱 Seeding Credit Book database...');
 
