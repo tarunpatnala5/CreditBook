@@ -1,5 +1,6 @@
 // Credit Book — Person Detail Page
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -23,7 +24,7 @@ const FREQ_LABELS = {
 
 const FREQ_OPTIONS = Object.entries(FREQ_LABELS);
 
-// ─── Interest Setup Modal ──────────────────────────────────────────────────
+// ─── Interest Setup Modal (Portal — renders above BottomSheet) ────────────
 function InterestSetupModal({ isOpen, onClose, onSave, initialFrequency = 'annually', initialRate = '' }) {
   const [frequency, setFrequency] = useState(initialFrequency);
   const [rate, setRate] = useState(initialRate);
@@ -48,8 +49,9 @@ function InterestSetupModal({ isOpen, onClose, onSave, initialFrequency = 'annua
 
   if (!isOpen) return null;
 
-  return (
-    <div className="interest-modal-overlay" onClick={onClose}>
+  // Use portal to escape BottomSheet stacking context (BottomSheet is z-index 200)
+  return createPortal(
+    <div className="interest-modal-overlay" onClick={onClose} style={{ zIndex: 600 }}>
       <div className="interest-modal" onClick={(e) => e.stopPropagation()}>
         <div className="interest-modal-header">
           <span className="interest-modal-title">Set Interest</span>
@@ -97,7 +99,8 @@ function InterestSetupModal({ isOpen, onClose, onSave, initialFrequency = 'annua
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -472,7 +475,7 @@ function BalanceCard({ balance, totalInterestAccrued, balanceLabel, balanceClass
           {/* Current */}
           <div className="balance-col">
             <div className="balance-col-value large">{formatCurrency(principal)}</div>
-            <div className="balance-col-label">current</div>
+            <div className="balance-col-label">Current</div>
           </div>
 
           <span className="balance-plus-sign">+</span>
@@ -480,7 +483,7 @@ function BalanceCard({ balance, totalInterestAccrued, balanceLabel, balanceClass
           {/* Interest */}
           <div className="balance-col center">
             <div className="balance-col-interest-value">{formatCurrency(interest)}</div>
-            <div className="balance-col-label">interest</div>
+            <div className="balance-col-label" style={{ textAlign: 'center' }}>Interest</div>
           </div>
 
           <span className="balance-equals-sign">=</span>
@@ -488,7 +491,7 @@ function BalanceCard({ balance, totalInterestAccrued, balanceLabel, balanceClass
           {/* Total */}
           <div className="balance-col right">
             <div className="balance-col-value total">{formatCurrency(total)}</div>
-            <div className="balance-col-label">total</div>
+            <div className="balance-col-label" style={{ textAlign: 'right' }}>Total</div>
           </div>
         </div>
       </div>
@@ -695,15 +698,6 @@ export default function PersonDetailPage() {
           </button>
           <button className="action-btn action-btn-got" onClick={() => setAddType('got')} id="btn-got">
             YOU GOT ₹
-          </button>
-        </div>
-      )}
-
-      {/* Also show add buttons on interest tab so users can add interest entries */}
-      {activeTab === 'interest' && (
-        <div className="action-buttons">
-          <button className="action-btn action-btn-gave" onClick={() => setAddType('gave')} id="btn-gave-interest">
-            + INTEREST ENTRY
           </button>
         </div>
       )}
