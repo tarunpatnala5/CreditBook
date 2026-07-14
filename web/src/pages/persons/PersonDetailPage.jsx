@@ -562,7 +562,7 @@ export default function PersonDetailPage() {
 
   const transactions = txnData?.transactions || [];
   const balance = parseFloat(person.balance) || 0;
-  const totalInterestAccrued = parseFloat(person.totalInterestAccrued) || 0;
+  const interestTabTotal = parseFloat(person.interestTabTotal) || 0;
 
   const balanceLabel = balance > 0
     ? `You will get`
@@ -630,7 +630,7 @@ export default function PersonDetailPage() {
       {/* Balance Card */}
       <BalanceCard
         balance={balance}
-        totalInterestAccrued={totalInterestAccrued}
+        totalInterestAccrued={interestTabTotal}
         balanceLabel={balanceLabel}
         balanceClass={balanceClass}
       />

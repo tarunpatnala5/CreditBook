@@ -32,15 +32,38 @@ async function getPersons(userId, { search, sort } = {}) {
     include: {
       linkedUser: { select: { id: true, name: true, phone: true } },
       _count: { select: { transactions: { where: { deletedAt: null } } } },
+      // Include interest transactions to compute live totals
+      transactions: {
+        where: { deletedAt: null, status: 'interest' },
+        select: { amount: true, interestRate: true, interestFrequency: true, transactionDate: true },
+      },
     },
   });
 
-  // Calculate totals
-  const totalGive = persons.reduce((sum, p) => p.balance < 0 ? sum + Math.abs(p.balance) : sum, 0);
-  const totalGet = persons.reduce((sum, p) => p.balance > 0 ? sum + p.balance : sum, 0);
+  // Compute interestTabTotal per person (sum of live Method B amounts)
+  const { computeLiveAmount } = require('./transactions.service');
+  const personsWithInterest = persons.map((p) => {
+    let interestTabTotal = 0;
+    for (const t of p.transactions) {
+      if (t.interestRate) {
+        interestTabTotal += computeLiveAmount(t.amount, t.interestRate, t.interestFrequency || 'annually', t.transactionDate);
+      }
+    }
+    return { ...p, interestTabTotal: parseFloat(interestTabTotal.toFixed(2)) };
+  });
+
+  // Totals include interest tab amounts
+  const totalGive = personsWithInterest.reduce((sum, p) => {
+    const total = p.balance < 0 ? Math.abs(p.balance) + p.interestTabTotal : p.interestTabTotal;
+    return sum + total;
+  }, 0);
+  const totalGet = personsWithInterest.reduce((sum, p) => {
+    const total = p.balance > 0 ? p.balance + p.interestTabTotal : p.interestTabTotal;
+    return sum + total;
+  }, 0);
 
   return {
-    persons: persons.map(formatPerson),
+    persons: personsWithInterest.map(formatPerson),
     totalGive,
     totalGet,
     total: persons.length,
@@ -81,25 +104,25 @@ async function getPerson(personId, userId) {
       linkedUser: { select: { id: true, name: true } },
       transactions: {
         where: { deletedAt: null, status: 'interest' },
-        select: { amount: true, interestRate: true, interestFrequency: true, transactionDate: true, type: true },
+        select: { amount: true, interestRate: true, interestFrequency: true, transactionDate: true },
       },
     },
   });
 
   if (!person) throw new NotFoundError('Person');
 
-  // Compute live interest accrued across all interest transactions (Method B)
+  // Compute interestTabTotal — sum of full live amounts of all interest transactions (Method B)
   const { computeLiveAmount } = require('./transactions.service');
-  let totalInterestAccrued = 0;
+  let interestTabTotal = 0;
   for (const t of person.transactions) {
     if (t.interestRate) {
-      const live = computeLiveAmount(t.amount, t.interestRate, t.interestFrequency || 'annually', t.transactionDate);
-      totalInterestAccrued += live - t.amount;
+      interestTabTotal += computeLiveAmount(t.amount, t.interestRate, t.interestFrequency || 'annually', t.transactionDate);
     }
   }
 
-  return { ...formatPerson(person), totalInterestAccrued: parseFloat(totalInterestAccrued.toFixed(2)) };
+  return { ...formatPerson(person), interestTabTotal: parseFloat(interestTabTotal.toFixed(2)) };
 }
+
 
 // ─── Create person ─────────────────────────────────────────────────────────
 async function createPerson(userId, { name, phone }) {
@@ -224,6 +247,7 @@ function formatPerson(p) {
     phone: p.phone,
     avatarColor: p.avatarColor,
     balance: p.balance,
+    interestTabTotal: p.interestTabTotal ?? 0,
     lastActivityAt: p.lastActivityAt,
     deleteScheduledAt: p.deleteScheduledAt,
     linkedUser: p.linkedUser || null,

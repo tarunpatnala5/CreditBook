@@ -87,6 +87,9 @@ function AddPersonSheet({ isOpen, onClose }) {
 // ─── Person Row ───────────────────────────────────────────────────────
 function PersonRow({ person, index, onClick }) {
   const balance = parseFloat(person.balance) || 0;
+  const interestTabTotal = parseFloat(person.interestTabTotal) || 0;
+  // Display total = current balance + full live interest tab amount
+  const displayTotal = Math.abs(balance) + interestTabTotal;
   const isScheduledDelete = !!person.deleteScheduledAt;
 
   return (
@@ -108,7 +111,7 @@ function PersonRow({ person, index, onClick }) {
       </div>
       <div className="person-row-balance" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
         <span className={`person-balance ${balance >= 0 ? 'positive' : 'negative'}`}>
-          {balance >= 0 ? '+' : ''}{formatCurrency(Math.abs(balance))}
+          {balance >= 0 ? '+' : '-'}{formatCurrency(displayTotal)}
         </span>
         {isScheduledDelete && (
           <span style={{ fontSize: 10, color: 'var(--color-orange)', marginTop: 2 }}>Deleting soon</span>
@@ -120,6 +123,7 @@ function PersonRow({ person, index, onClick }) {
     </div>
   );
 }
+
 
 // ─── Home Page ─────────────────────────────────────────────────────────────
 export default function HomePage() {
