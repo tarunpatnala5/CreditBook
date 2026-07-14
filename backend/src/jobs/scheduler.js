@@ -1,20 +1,67 @@
 // Credit Book — Background Job Scheduler
 const cron = require('node-cron');
 const prisma = require('../config/database');
+const { FREQUENCY_N } = require('../services/transactions.service');
+
+// ─── Check if a compounding event is due for this transaction ─────────────
+// Returns true if today is a compounding day based on frequency
+function isCompoundingDue(txn) {
+  const freq = txn.interestFrequency || 'annually';
+  const start = new Date(txn.transactionDate);
+  const now = new Date();
+  const lastCalc = txn.lastInterestCalcAt ? new Date(txn.lastInterestCalcAt) : null;
+
+  // For daily — always due (once per day, checked via interestHistory unique constraint)
+  if (freq === 'daily') return true;
+
+  const msPerDay = 24 * 60 * 60 * 1000;
+  const daysSinceStart = Math.floor((now - start) / msPerDay);
+  const daysSinceLastCalc = lastCalc ? Math.floor((now - lastCalc) / msPerDay) : daysSinceStart;
+
+  if (freq === 'monthly') {
+    // Due when it's the same day-of-month as transaction start, and ≥1 month since last calc
+    return now.getDate() === start.getDate() && daysSinceLastCalc >= 28;
+  }
+
+  if (freq === 'quarterly') {
+    // Due every 3 months (≈91 days since last calc)
+    return now.getDate() === start.getDate() && daysSinceLastCalc >= 88;
+  }
+
+  if (freq === 'semi-annually') {
+    // Due every 6 months (≈182 days)
+    return now.getDate() === start.getDate() && daysSinceLastCalc >= 178;
+  }
+
+  if (freq === 'annually') {
+    // Due once per year on anniversary date
+    return (
+      now.getDate() === start.getDate() &&
+      now.getMonth() === start.getMonth() &&
+      daysSinceLastCalc >= 360
+    );
+  }
+
+  return false;
+}
 
 // ─── Interest Calculation (Daily at midnight) ──────────────────────────────
+// Applies actual compounding events based on frequency
+// Note: liveAmount for display is computed on-the-fly in transactions.service.js
+// This job only updates currentAmount on actual compounding dates
 async function runInterestCalc() {
   console.log('[Jobs] Running interest calculation...');
   try {
     const transactions = await prisma.transaction.findMany({
       where: {
         deletedAt: null,
-        status: 'current',
+        status: 'interest',
         interestRate: { not: null },
       },
     });
 
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    let processed = 0;
 
     for (const txn of transactions) {
       // Skip if already calculated today
@@ -23,8 +70,14 @@ async function runInterestCalc() {
       });
       if (existing) continue;
 
-      const dailyRate = txn.interestRate / 100 / 365;
-      const interestAdded = txn.currentAmount * dailyRate;
+      // Only compound if the period is due
+      if (!isCompoundingDue(txn)) continue;
+
+      const freq = txn.interestFrequency || 'annually';
+      const n = FREQUENCY_N[freq] || 1;
+      // One compounding period step: currentAmount × (1 + R/n)
+      const periodRate = (txn.interestRate / 100) / n;
+      const interestAdded = txn.currentAmount * periodRate;
       const newAmount = txn.currentAmount + interestAdded;
 
       await prisma.transaction.update({
@@ -45,28 +98,11 @@ async function runInterestCalc() {
           runningTotal: parseFloat(newAmount.toFixed(2)),
         },
       });
+
+      processed++;
     }
 
-    // Recalculate all affected person balances
-    const personIds = [...new Set(transactions.map((t) => t.personId))];
-    for (const personId of personIds) {
-      const txns = await prisma.transaction.findMany({
-        where: { personId, deletedAt: null, status: 'current' },
-      });
-
-      let balance = 0;
-      for (const t of txns) {
-        if (t.type === 'got') balance += t.currentAmount;
-        else balance -= t.currentAmount;
-      }
-
-      await prisma.person.update({
-        where: { id: personId },
-        data: { balance },
-      });
-    }
-
-    console.log(`[Jobs] Interest calculated for ${transactions.length} transactions`);
+    console.log(`[Jobs] Interest compounding events: ${processed} / ${transactions.length} transactions`);
   } catch (err) {
     console.error('[Jobs] Interest calculation failed:', err.message);
   }
@@ -85,38 +121,43 @@ async function runUpcomingMover() {
     });
 
     for (const txn of toMove) {
+      // Interest transactions stay 'interest' status, not 'current'
+      const newStatus = txn.interestRate ? 'interest' : 'current';
+
       await prisma.transaction.update({
         where: { id: txn.id },
-        data: { status: 'current' },
+        data: { status: newStatus },
       });
 
-      // Recalculate person balance
-      const txns = await prisma.transaction.findMany({
-        where: { personId: txn.personId, deletedAt: null, status: 'current' },
-      });
-      let balance = 0;
-      for (const t of txns) {
-        balance += t.type === 'got' ? t.currentAmount : -t.currentAmount;
+      // Recalculate person balance (only affects non-interest transactions)
+      if (newStatus === 'current') {
+        const txns = await prisma.transaction.findMany({
+          where: { personId: txn.personId, deletedAt: null, status: 'current' },
+        });
+        let balance = 0;
+        for (const t of txns) {
+          balance += t.type === 'got' ? t.currentAmount : -t.currentAmount;
+        }
+        await prisma.person.update({
+          where: { id: txn.personId },
+          data: { balance, lastActivityAt: new Date() },
+        });
+
+        // Notify the person's owner
+        await prisma.notification.create({
+          data: {
+            userId: txn.ownerId,
+            title: 'Entry is now active',
+            body: `₹${txn.amount.toLocaleString('en-IN')} upcoming entry is now in Current`,
+            category: 'transaction',
+            deepLink: `/persons/${txn.personId}`,
+          },
+        });
       }
-      await prisma.person.update({
-        where: { id: txn.personId },
-        data: { balance, lastActivityAt: new Date() },
-      });
-
-      // Notify the person's owner
-      await prisma.notification.create({
-        data: {
-          userId: txn.ownerId,
-          title: 'Entry is now active',
-          body: `₹${txn.amount.toLocaleString('en-IN')} upcoming entry is now in Current`,
-          category: 'transaction',
-          deepLink: `/persons/${txn.personId}`,
-        },
-      });
     }
 
     if (toMove.length > 0) {
-      console.log(`[Jobs] Moved ${toMove.length} upcoming → current`);
+      console.log(`[Jobs] Moved ${toMove.length} upcoming → current/interest`);
     }
   } catch (err) {
     console.error('[Jobs] Upcoming mover failed:', err.message);
@@ -170,7 +211,7 @@ async function runSessionCleanup() {
 
 // ─── Start all jobs ────────────────────────────────────────────────────────
 function startJobs() {
-  // Interest: daily at midnight
+  // Interest: daily at midnight — checks frequency inside
   cron.schedule('0 0 * * *', runInterestCalc);
 
   // Upcoming mover: every hour

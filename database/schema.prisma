@@ -137,9 +137,10 @@ model Transaction {
   description         String?
   interestRate        Float?
   interestType        String    @default("simple") // simple | compound
+  interestFrequency   String    @default("annually") // annually | semi-annually | quarterly | monthly | daily
   balanceAfter        Float     @default(0)
   transactionDate     DateTime  @default(now())
-  status              String    @default("current") // current | upcoming
+  status              String    @default("current") // current | upcoming | interest
   lastInterestCalcAt  DateTime?
   version             Int       @default(1)
   createdAt           DateTime  @default(now())

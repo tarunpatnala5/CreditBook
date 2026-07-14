@@ -12,13 +12,103 @@ import {
 } from '../../components/ui/Components';
 import './PersonDetail.css';
 
+// ─── Frequency label map ───────────────────────────────────────────────────
+const FREQ_LABELS = {
+  'annually':      'Annually',
+  'semi-annually': 'Semi-Annually',
+  'quarterly':     'Quarterly',
+  'monthly':       'Monthly',
+  'daily':         'Daily',
+};
+
+const FREQ_OPTIONS = Object.entries(FREQ_LABELS);
+
+// ─── Interest Setup Modal ──────────────────────────────────────────────────
+function InterestSetupModal({ isOpen, onClose, onSave, initialFrequency = 'annually', initialRate = '' }) {
+  const [frequency, setFrequency] = useState(initialFrequency);
+  const [rate, setRate] = useState(initialRate);
+  const [error, setError] = useState('');
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setFrequency(initialFrequency);
+      setRate(initialRate);
+      setError('');
+    }
+  }, [isOpen, initialFrequency, initialRate]);
+
+  function handleSave() {
+    if (!rate || parseFloat(rate) <= 0) {
+      setError('Enter a valid interest rate');
+      return;
+    }
+    onSave({ frequency, rate: parseFloat(rate) });
+    onClose();
+  }
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="interest-modal-overlay" onClick={onClose}>
+      <div className="interest-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="interest-modal-header">
+          <span className="interest-modal-title">Set Interest</span>
+          <button className="interest-modal-close" onClick={onClose}>✕</button>
+        </div>
+
+        {/* Frequency Dropdown */}
+        <div>
+          <div className="interest-field-label">Compounding Frequency</div>
+          <select
+            className="interest-frequency-select"
+            value={frequency}
+            onChange={(e) => setFrequency(e.target.value)}
+            id="interest-frequency-select"
+          >
+            {FREQ_OPTIONS.map(([val, label]) => (
+              <option key={val} value={val}>{label}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Rate Input */}
+        <div>
+          <div className="interest-field-label">Interest Rate % per year</div>
+          <input
+            className="interest-rate-input"
+            type="number"
+            inputMode="decimal"
+            placeholder="e.g. 12"
+            value={rate}
+            onChange={(e) => { setRate(e.target.value); setError(''); }}
+            id="interest-rate-input"
+            autoFocus
+          />
+          {error && <div style={{ color: 'var(--color-red)', fontSize: 12, marginTop: 4 }}>{error}</div>}
+        </div>
+
+        {/* Actions */}
+        <div className="interest-modal-actions">
+          <button className="interest-modal-cancel" onClick={onClose} id="interest-modal-cancel">
+            Cancel
+          </button>
+          <button className="interest-modal-save" onClick={handleSave} id="interest-modal-save">
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Add Transaction Sheet ─────────────────────────────────────────────────
 function AddTransactionSheet({ isOpen, onClose, personId, type }) {
   const queryClient = useQueryClient();
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
-  const [interestRate, setInterestRate] = useState('');
+  const [interestData, setInterestData] = useState(null); // { frequency, rate }
+  const [interestModalOpen, setInterestModalOpen] = useState(false);
   const [error, setError] = useState('');
 
   const { mutate, isPending } = useMutation({
@@ -28,7 +118,7 @@ function AddTransactionSheet({ isOpen, onClose, personId, type }) {
       queryClient.invalidateQueries({ queryKey: ['person', personId] });
       queryClient.invalidateQueries({ queryKey: ['persons'] });
       toast.success(`Entry saved!`);
-      setAmount(''); setDescription(''); setDate(''); setInterestRate('');
+      setAmount(''); setDescription(''); setDate(''); setInterestData(null);
       onClose();
     },
     onError: (err) => setError(err.message || 'Failed to save'),
@@ -43,7 +133,8 @@ function AddTransactionSheet({ isOpen, onClose, personId, type }) {
       amount: parseFloat(amount),
       description: description.trim() || undefined,
       transactionDate: date || undefined,
-      interestRate: interestRate ? parseFloat(interestRate) : undefined,
+      interestRate: interestData?.rate ?? undefined,
+      interestFrequency: interestData?.frequency ?? undefined,
     });
   }
 
@@ -51,66 +142,86 @@ function AddTransactionSheet({ isOpen, onClose, personId, type }) {
   const title = isGave ? 'You Gave ₹' : 'You Got ₹';
 
   return (
-    <BottomSheet isOpen={isOpen} onClose={onClose} title={title}>
-      <form className="add-txn-form" onSubmit={handleSubmit}>
-        <TextField
-          id="txn-amount"
-          label="Amount"
-          value={amount}
-          onChange={setAmount}
-          placeholder="0"
-          type="number"
-          inputMode="decimal"
-          prefix="₹"
-          autoFocus
-          error={error && !amount ? error : ''}
-        />
-        <TextField
-          id="txn-description"
-          label="Note (optional)"
-          value={description}
-          onChange={setDescription}
-          placeholder="What's this for?"
-          autoComplete="off"
-        />
-        <TextField
-          id="txn-date"
-          label="Date & Time (optional)"
-          value={date}
-          onChange={setDate}
-          type="datetime-local"
-        />
-        <TextField
-          id="txn-interest"
-          label="Interest Rate % / year (optional)"
-          value={interestRate}
-          onChange={setInterestRate}
-          placeholder="e.g. 12"
-          type="number"
-          inputMode="decimal"
-        />
-        {error && amount && <div style={{ color: 'var(--color-red)', fontSize: 13 }}>{error}</div>}
-        <div className="txn-form-actions">
-          <Button
-            id="txn-cancel-btn"
-            variant="secondary"
-            size="md"
-            onClick={onClose}
+    <>
+      <BottomSheet isOpen={isOpen} onClose={onClose} title={title}>
+        <form className="add-txn-form" onSubmit={handleSubmit}>
+          <TextField
+            id="txn-amount"
+            label="Amount"
+            value={amount}
+            onChange={setAmount}
+            placeholder="0"
+            type="number"
+            inputMode="decimal"
+            prefix="₹"
+            autoFocus
+            error={error && !amount ? error : ''}
+          />
+          <TextField
+            id="txn-description"
+            label="Note (optional)"
+            value={description}
+            onChange={setDescription}
+            placeholder="What's this for?"
+            autoComplete="off"
+          />
+          <TextField
+            id="txn-date"
+            label="Date & Time (optional)"
+            value={date}
+            onChange={setDate}
+            type="datetime-local"
+          />
+
+          {/* Interest Button */}
+          <button
             type="button"
+            className="interest-btn-card"
+            onClick={() => setInterestModalOpen(true)}
+            id="interest-btn-card"
           >
-            Cancel
-          </Button>
-          <Button
-            id="txn-save-btn"
-            variant={isGave ? 'destructive' : 'positive'}
-            size="md"
-            loading={isPending}
-          >
-            Save
-          </Button>
-        </div>
-      </form>
-    </BottomSheet>
+            <div className="interest-btn-left">
+              <span className="interest-btn-title">Interest (optional)</span>
+              {interestData ? (
+                <span className="interest-btn-subtitle">
+                  {interestData.rate}% p.a. · {FREQ_LABELS[interestData.frequency]}
+                </span>
+              ) : null}
+            </div>
+            <span className="interest-btn-arrow">›</span>
+          </button>
+
+          {error && amount && <div style={{ color: 'var(--color-red)', fontSize: 13 }}>{error}</div>}
+          <div className="txn-form-actions">
+            <Button
+              id="txn-cancel-btn"
+              variant="secondary"
+              size="md"
+              onClick={onClose}
+              type="button"
+            >
+              Cancel
+            </Button>
+            <Button
+              id="txn-save-btn"
+              variant={isGave ? 'destructive' : 'positive'}
+              size="md"
+              loading={isPending}
+            >
+              Save
+            </Button>
+          </div>
+        </form>
+      </BottomSheet>
+
+      <InterestSetupModal
+        isOpen={interestModalOpen}
+        onClose={() => setInterestModalOpen(false)}
+        onSave={(data) => setInterestData(data)}
+        initialFrequency={interestData?.frequency || 'annually'}
+        initialRate={interestData?.rate?.toString() || ''}
+      />
+    </>
   );
 }
 
@@ -119,14 +230,23 @@ function EditTransactionSheet({ isOpen, onClose, transaction, personId }) {
   const queryClient = useQueryClient();
   const [amount, setAmount] = useState(transaction?.amount?.toString() || '');
   const [description, setDescription] = useState(transaction?.description || '');
-  const [interestRate, setInterestRate] = useState(transaction?.interestRate?.toString() || '');
+  const [interestData, setInterestData] = useState(
+    transaction?.interestRate
+      ? { rate: transaction.interestRate, frequency: transaction.interestFrequency || 'annually' }
+      : null
+  );
+  const [interestModalOpen, setInterestModalOpen] = useState(false);
   const [error, setError] = useState('');
 
   React.useEffect(() => {
     if (transaction) {
       setAmount(transaction.amount?.toString() || '');
       setDescription(transaction.description || '');
-      setInterestRate(transaction.interestRate?.toString() || '');
+      setInterestData(
+        transaction.interestRate
+          ? { rate: transaction.interestRate, frequency: transaction.interestFrequency || 'annually' }
+          : null
+      );
     }
   }, [transaction]);
 
@@ -146,6 +266,7 @@ function EditTransactionSheet({ isOpen, onClose, transaction, personId }) {
     mutationFn: () => transactionsApi.delete(personId, transaction.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions', personId] });
+      queryClient.invalidateQueries({ queryKey: ['person', personId] });
       queryClient.invalidateQueries({ queryKey: ['persons'] });
       toast.success('Entry deleted');
       onClose();
@@ -159,44 +280,81 @@ function EditTransactionSheet({ isOpen, onClose, transaction, personId }) {
     updateTxn({
       amount: parseFloat(amount),
       description: description.trim() || undefined,
-      interestRate: interestRate ? parseFloat(interestRate) : null,
+      interestRate: interestData?.rate || null,
+      interestFrequency: interestData?.frequency || null,
     });
   }
 
   if (!transaction) return null;
 
   return (
-    <BottomSheet isOpen={isOpen} onClose={onClose} title="Edit Entry">
-      <form className="add-txn-form" onSubmit={handleSave}>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', background: 'var(--fill-tertiary)', borderRadius: 12, padding: '10px 16px', marginBottom: 4 }}>
-          <span style={{ fontSize: 13, color: 'var(--label-secondary)' }}>Type:</span>
-          <span style={{ fontWeight: 600, color: transaction.type === 'got' ? 'var(--app-positive)' : 'var(--app-negative)' }}>
-            {transaction.type === 'got' ? 'You Got' : 'You Gave'}
-          </span>
-          <span style={{ marginLeft: 'auto', fontSize: 13, color: 'var(--label-tertiary)' }}>{formatDate(transaction.transactionDate)}</span>
-        </div>
-        <TextField id="edit-txn-amount" label="Amount" value={amount} onChange={setAmount} placeholder="0" type="number" inputMode="decimal" prefix="₹" error={error} />
-        <TextField id="edit-txn-desc" label="Note (optional)" value={description} onChange={setDescription} placeholder="What's this for?" autoComplete="off" />
-        <TextField id="edit-txn-interest" label="Interest % / year (optional)" value={interestRate} onChange={setInterestRate} placeholder="e.g. 12" type="number" inputMode="decimal" />
+    <>
+      <BottomSheet isOpen={isOpen} onClose={onClose} title="Edit Entry">
+        <form className="add-txn-form" onSubmit={handleSave}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', background: 'var(--fill-tertiary)', borderRadius: 12, padding: '10px 16px', marginBottom: 4 }}>
+            <span style={{ fontSize: 13, color: 'var(--label-secondary)' }}>Type:</span>
+            <span style={{ fontWeight: 600, color: transaction.type === 'got' ? 'var(--app-positive)' : 'var(--app-negative)' }}>
+              {transaction.type === 'got' ? 'You Got' : 'You Gave'}
+            </span>
+            <span style={{ marginLeft: 'auto', fontSize: 13, color: 'var(--label-tertiary)' }}>{formatDate(transaction.transactionDate)}</span>
+          </div>
+          <TextField id="edit-txn-amount" label="Amount" value={amount} onChange={setAmount} placeholder="0" type="number" inputMode="decimal" prefix="₹" error={error} />
+          <TextField id="edit-txn-desc" label="Note (optional)" value={description} onChange={setDescription} placeholder="What's this for?" autoComplete="off" />
 
-        <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
-          <Button id="edit-txn-delete" variant="destructive" size="md" style={{ flex: 1 }} loading={isDeleting} onClick={(e) => { e.preventDefault(); deleteTxn(); }}>Delete</Button>
-          <Button id="edit-txn-save" variant="primary" size="md" style={{ flex: 1 }} loading={isUpdating}>Save</Button>
-        </div>
-      </form>
-    </BottomSheet>
+          {/* Interest Button */}
+          <button
+            type="button"
+            className="interest-btn-card"
+            onClick={() => setInterestModalOpen(true)}
+            id="edit-interest-btn-card"
+          >
+            <div className="interest-btn-left">
+              <span className="interest-btn-title">Interest (optional)</span>
+              {interestData ? (
+                <span className="interest-btn-subtitle">
+                  {interestData.rate}% p.a. · {FREQ_LABELS[interestData.frequency]}
+                </span>
+              ) : null}
+            </div>
+            <span className="interest-btn-arrow">›</span>
+          </button>
+
+          <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
+            <Button id="edit-txn-delete" variant="destructive" size="md" style={{ flex: 1 }} loading={isDeleting} onClick={(e) => { e.preventDefault(); deleteTxn(); }}>Delete</Button>
+            <Button id="edit-txn-save" variant="primary" size="md" style={{ flex: 1 }} loading={isUpdating}>Save</Button>
+          </div>
+        </form>
+      </BottomSheet>
+
+      <InterestSetupModal
+        isOpen={interestModalOpen}
+        onClose={() => setInterestModalOpen(false)}
+        onSave={(data) => setInterestData(data)}
+        initialFrequency={interestData?.frequency || 'annually'}
+        initialRate={interestData?.rate?.toString() || ''}
+      />
+    </>
   );
 }
 
 // ─── Transaction Card ──────────────────────────────────────────────────────
 function TransactionCard({ txn, index, onClick }) {
   const isGot = txn.type === 'got';
+  const isInterest = txn.status === 'interest';
   const hasInterest = !!txn.interestRate;
-  const interestAccrued = txn.currentAmount - txn.amount;
+
+  // For interest transactions — show live amount (Method B real-time)
+  // For regular — show currentAmount
+  const displayAmount = isInterest ? txn.liveAmount : txn.currentAmount;
+  const interestAccrued = txn.interestAccrued || 0;
 
   return (
-    <div className="transaction-card" onClick={onClick} style={{ animationDelay: `${index * 35}ms` }}>
-      {/* Row 1: Description (left, prominent) + Amount (right) */}
+    <div
+      className={`transaction-card${isInterest ? ' interest-txn' : ''}`}
+      onClick={onClick}
+      style={{ animationDelay: `${index * 35}ms` }}
+    >
+      {/* Row 1: Description (left) + Amount (right) */}
       <div className="transaction-card-top">
         <div className="transaction-desc-left">
           {txn.description
@@ -206,25 +364,43 @@ function TransactionCard({ txn, index, onClick }) {
           <div className="transaction-amount-label">
             {txn.description ? (isGot ? 'You Got' : 'You Gave') : ''}
             {hasInterest && interestAccrued > 0.01 && (
-              <> · <span style={{ color: 'var(--color-orange)' }}>+{formatCurrency(interestAccrued)} int.</span></>
+              <> · <span style={{ color: 'hsl(38, 70%, 42%)' }}>+{formatCurrency(interestAccrued)} int.</span></>
             )}
           </div>
         </div>
+
         <div className="transaction-right-col">
-          <div className={`transaction-amount ${txn.type}`}>
-            {formatCurrency(txn.currentAmount)}
-          </div>
+          {isInterest ? (
+            <>
+              <div className="transaction-live-amount">
+                {formatCurrency(displayAmount)}
+              </div>
+              <div className="transaction-live-label">live · as of today</div>
+            </>
+          ) : (
+            <div className={`transaction-amount ${txn.type}`}>
+              {formatCurrency(displayAmount)}
+            </div>
+          )}
           {hasInterest && (
-            <div className="transaction-interest-badge">{txn.interestRate}% p.a.</div>
+            <div className="transaction-interest-badge">
+              {txn.interestRate}% · {FREQ_LABELS[txn.interestFrequency] || 'Annually'}
+            </div>
           )}
         </div>
       </div>
-      {/* Row 2: Date/Time (left) + Balance chip (right) */}
+
+      {/* Row 2: Date + Balance chip */}
       <div className="transaction-card-meta">
         <span className="transaction-date">{formatDate(txn.transactionDate)}</span>
-        {txn.balanceAfter !== undefined && (
+        {!isInterest && txn.balanceAfter !== undefined && (
           <div className="transaction-balance-chip">
             Bal: {formatCurrency(Math.abs(txn.balanceAfter))}
+          </div>
+        )}
+        {isInterest && (
+          <div className="transaction-balance-chip" style={{ background: 'hsla(38,80%,55%,0.12)', color: 'hsl(38,60%,38%)' }}>
+            Principal: {formatCurrency(txn.amount)}
           </div>
         )}
       </div>
@@ -282,6 +458,45 @@ function EditPersonSheet({ isOpen, onClose, person, personId }) {
   );
 }
 
+// ─── Balance Card ─────────────────────────────────────────────────────────
+function BalanceCard({ balance, totalInterestAccrued, balanceLabel, balanceClass }) {
+  const principal = Math.abs(balance);
+  const interest  = totalInterestAccrued || 0;
+  const total     = principal + interest;
+
+  return (
+    <div className={`balance-card ${balanceClass}`}>
+      <div className="balance-card-interest">
+        <div className="balance-card-top-label">{balanceLabel}</div>
+        <div className="balance-three-col">
+          {/* Current */}
+          <div className="balance-col">
+            <div className="balance-col-value large">{formatCurrency(principal)}</div>
+            <div className="balance-col-label">current</div>
+          </div>
+
+          <span className="balance-plus-sign">+</span>
+
+          {/* Interest */}
+          <div className="balance-col center">
+            <div className="balance-col-interest-value">{formatCurrency(interest)}</div>
+            <div className="balance-col-label">interest</div>
+          </div>
+
+          <span className="balance-equals-sign">=</span>
+
+          {/* Total */}
+          <div className="balance-col right">
+            <div className="balance-col-value total">{formatCurrency(total)}</div>
+            <div className="balance-col-label">total</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 // ─── Person Detail Page ────────────────────────────────────────────────────
 export default function PersonDetailPage() {
   const { personId } = useParams();
@@ -307,6 +522,8 @@ export default function PersonDetailPage() {
     queryKey: ['transactions', personId, activeTab],
     queryFn: () => transactionsApi.getAll(personId, { status: activeTab }),
     select: (d) => d?.data,
+    // Refresh every 60 seconds for live interest amounts
+    refetchInterval: 60000,
   });
 
   const { mutate: scheduleDeletion, isPending: isDeleting } = useMutation({
@@ -345,6 +562,7 @@ export default function PersonDetailPage() {
 
   const transactions = txnData?.transactions || [];
   const balance = parseFloat(person.balance) || 0;
+  const totalInterestAccrued = parseFloat(person.totalInterestAccrued) || 0;
 
   const balanceLabel = balance > 0
     ? `You will get`
@@ -392,7 +610,7 @@ export default function PersonDetailPage() {
         </button>
       </div>
 
-      {/* Share dialog — desktop only (mobile uses Web Share API) */}
+      {/* Share dialog — desktop only */}
       {shareDialogOpen && (
         <div className="share-dialog-overlay" onClick={() => setShareDialogOpen(false)}>
           <div className="share-dialog" onClick={(e) => e.stopPropagation()}>
@@ -410,14 +628,14 @@ export default function PersonDetailPage() {
       )}
 
       {/* Balance Card */}
-      <div className={`balance-card ${balanceClass}`}>
-        <div className="balance-row">
-          <span className="balance-label">{balanceLabel}</span>
-          <span className="balance-amount">{formatCurrency(Math.abs(balance))}</span>
-        </div>
-      </div>
+      <BalanceCard
+        balance={balance}
+        totalInterestAccrued={totalInterestAccrued}
+        balanceLabel={balanceLabel}
+        balanceClass={balanceClass}
+      />
 
-      {/* Tab Switcher */}
+      {/* Tab Switcher — Current | Upcoming | Interest */}
       <div className="tab-pills">
         <button
           className={`tab-pill ${activeTab === 'current' ? 'active' : ''}`}
@@ -433,6 +651,13 @@ export default function PersonDetailPage() {
         >
           ⏰ Upcoming
         </button>
+        <button
+          className={`tab-pill ${activeTab === 'interest' ? 'active interest-tab' : ''}`}
+          onClick={() => setActiveTab('interest')}
+          id="tab-interest"
+        >
+          💰 Interest
+        </button>
       </div>
 
       {/* Transactions */}
@@ -443,11 +668,17 @@ export default function PersonDetailPage() {
           ))
         ) : transactions.length === 0 ? (
           <EmptyState
-            icon={activeTab === 'upcoming' ? '⏰' : '📋'}
-            title={activeTab === 'upcoming' ? 'No upcoming entries' : 'No entries yet'}
-            body={activeTab === 'upcoming'
-              ? 'Entries with a future date will appear here'
-              : 'Use the buttons below to add an entry'}
+            icon={activeTab === 'upcoming' ? '⏰' : activeTab === 'interest' ? '💰' : '📋'}
+            title={
+              activeTab === 'upcoming' ? 'No upcoming entries' :
+              activeTab === 'interest' ? 'No interest entries' :
+              'No entries yet'
+            }
+            body={
+              activeTab === 'upcoming' ? 'Entries with a future date will appear here' :
+              activeTab === 'interest' ? 'Add an entry with interest to track it here' :
+              'Use the buttons below to add an entry'
+            }
           />
         ) : (
           transactions.map((txn, i) => (
@@ -456,7 +687,7 @@ export default function PersonDetailPage() {
         )}
       </div>
 
-      {/* Action Buttons (You Gave / You Got) */}
+      {/* Action Buttons — only on current tab */}
       {activeTab === 'current' && (
         <div className="action-buttons">
           <button className="action-btn action-btn-gave" onClick={() => setAddType('gave')} id="btn-gave">
@@ -468,12 +699,21 @@ export default function PersonDetailPage() {
         </div>
       )}
 
+      {/* Also show add buttons on interest tab so users can add interest entries */}
+      {activeTab === 'interest' && (
+        <div className="action-buttons">
+          <button className="action-btn action-btn-gave" onClick={() => setAddType('gave')} id="btn-gave-interest">
+            + INTEREST ENTRY
+          </button>
+        </div>
+      )}
+
       {/* Sheets & Dialogs */}
       <AddTransactionSheet
         isOpen={!!addType}
         onClose={() => setAddType(null)}
         personId={personId}
-        type={addType}
+        type={addType || 'gave'}
       />
       <EditTransactionSheet
         isOpen={!!editTxn}

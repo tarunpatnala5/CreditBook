@@ -79,11 +79,26 @@ async function getPerson(personId, userId) {
     where: { id: personId, ownerId: userId, deletedAt: null },
     include: {
       linkedUser: { select: { id: true, name: true } },
+      transactions: {
+        where: { deletedAt: null, status: 'interest' },
+        select: { amount: true, interestRate: true, interestFrequency: true, transactionDate: true, type: true },
+      },
     },
   });
 
   if (!person) throw new NotFoundError('Person');
-  return formatPerson(person);
+
+  // Compute live interest accrued across all interest transactions (Method B)
+  const { computeLiveAmount } = require('./transactions.service');
+  let totalInterestAccrued = 0;
+  for (const t of person.transactions) {
+    if (t.interestRate) {
+      const live = computeLiveAmount(t.amount, t.interestRate, t.interestFrequency || 'annually', t.transactionDate);
+      totalInterestAccrued += live - t.amount;
+    }
+  }
+
+  return { ...formatPerson(person), totalInterestAccrued: parseFloat(totalInterestAccrued.toFixed(2)) };
 }
 
 // ─── Create person ─────────────────────────────────────────────────────────
@@ -181,6 +196,7 @@ async function restorePerson(personId, userId) {
 }
 
 // ─── Recalculate balance ──────────────────────────────────────────────────
+// Note: interest-status transactions are excluded — they are for display only
 async function recalculateBalance(personId) {
   const transactions = await prisma.transaction.findMany({
     where: { personId, deletedAt: null, status: 'current' },
