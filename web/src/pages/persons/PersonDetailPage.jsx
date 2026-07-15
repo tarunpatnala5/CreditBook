@@ -463,27 +463,23 @@ function BalanceCard({ balance, totalInterestAccrued, balanceLabel, balanceClass
     <div className={`balance-card ${balanceClass}`}>
       <div className="balance-card-interest">
         <div className="balance-card-top-label">{balanceLabel}</div>
-        <div className="balance-three-col">
-          {/* Current */}
-          <div className="balance-col">
-            <div className="balance-col-value large">{formatCurrency(principal)}</div>
-            <div className="balance-col-label">Current</div>
+
+        <div className="balance-rows">
+          <div className="balance-row-item">
+            <span className="balance-row-label">Current</span>
+            <span className="balance-row-value">{formatCurrency(principal)}</span>
           </div>
 
-          <span className="balance-plus-sign">+</span>
-
-          {/* Interest */}
-          <div className="balance-col center">
-            <div className="balance-col-interest-value">{formatCurrency(interest)}</div>
-            <div className="balance-col-label" style={{ textAlign: 'center' }}>Interest</div>
+          <div className="balance-row-item">
+            <span className="balance-row-label">Interest</span>
+            <span className="balance-row-value">{formatCurrency(interest)}</span>
           </div>
 
-          <span className="balance-equals-sign">=</span>
+          <div className="balance-row-divider" />
 
-          {/* Total */}
-          <div className="balance-col right">
-            <div className="balance-col-value total">{formatCurrency(total)}</div>
-            <div className="balance-col-label" style={{ textAlign: 'right' }}>Total</div>
+          <div className="balance-row-item total">
+            <span className="balance-row-label">Total</span>
+            <span className="balance-row-value">{formatCurrency(total)}</span>
           </div>
         </div>
       </div>

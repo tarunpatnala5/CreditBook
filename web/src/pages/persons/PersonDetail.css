@@ -64,77 +64,54 @@
   font-size: 13px;
   color: rgba(255, 255, 255, 0.75);
   font-weight: 400;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
+  text-align: center;
 }
 
-.balance-three-col {
-  display: flex;
-  align-items: flex-end;
-  gap: 0;
-}
-
-.balance-col {
+/* ─── Balance rows — vertical stack, equal font sizes, always fits ──────── */
+.balance-rows {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  flex: 1;
+  gap: 8px;
+  margin-top: 2px;
 }
 
-.balance-col.center {
-  align-items: center;
-  flex: 0.8;
+.balance-row-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
 }
 
-.balance-col.right {
-  align-items: flex-end;
-}
-
-.balance-col-value {
-  font-family: var(--font-display);
-  font-weight: 700;
-  color: white;
-  line-height: 1.1;
-}
-
-.balance-col-value.large { font-size: 26px; }
-.balance-col-value.medium { font-size: 18px; }
-.balance-col-value.total {
-  font-size: 28px;
-  color: white;
-}
-
-.balance-col-label {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.60);
+.balance-row-label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.70);
   font-weight: 400;
-  margin-top: 4px;
-  letter-spacing: 0.2px;
+  white-space: nowrap;
 }
 
-.balance-col-interest-value {
+.balance-row-value {
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
-  color: rgba(255, 220, 120, 0.95);
+  color: white;
   line-height: 1.1;
+  white-space: nowrap;
 }
 
-.balance-plus-sign {
-  font-size: 16px;
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.50);
-  padding: 0 4px;
-  align-self: flex-end;
-  margin-bottom: 18px;
+.balance-row-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.20);
+  margin: 2px 0;
 }
 
-.balance-equals-sign {
-  font-size: 16px;
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.50);
-  padding: 0 4px;
-  align-self: flex-end;
-  margin-bottom: 18px;
+.balance-row-item.total .balance-row-label {
+  color: rgba(255, 255, 255, 0.88);
+  font-weight: 500;
+}
+
+.balance-row-item.total .balance-row-value {
+  font-size: 20px;
 }
 
 /* ─── Pill Tabs (Current/Upcoming/Interest) ──────────────────────────────── */
