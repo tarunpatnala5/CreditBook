@@ -1,6 +1,7 @@
 // Credit Book — Shared Entries Page (Tab 2)
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { personsApi } from '../../api';
 import { formatCurrency } from '../../utils';
 import { Avatar, LoadingScreen, EmptyState, SkeletonRow } from '../../components/ui/Components';
@@ -48,6 +49,7 @@ function DeletionCountdown({ deleteScheduledAt }) {
 }
 
 export default function SharedEntriesPage() {
+  const navigate = useNavigate();
   const { data, isLoading } = useQuery({
     queryKey: ['shared-persons'],
     queryFn: () => personsApi.getShared(),
@@ -83,9 +85,10 @@ export default function SharedEntriesPage() {
               return (
                 <div
                   key={person.id}
+                  onClick={() => !isDeleting && navigate(`/persons/${person.id}`)}
                   style={{
                     display: 'flex', alignItems: 'center', padding: '12px 16px', gap: 12,
-                    position: 'relative', cursor: 'default',
+                    position: 'relative', cursor: isDeleting ? 'default' : 'pointer',
                     opacity: isDeleting ? 0.75 : 1,
                     background: isDeleting ? 'hsla(4, 65%, 50%, 0.04)' : undefined,
                   }}
