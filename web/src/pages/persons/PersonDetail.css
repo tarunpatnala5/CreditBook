@@ -308,7 +308,7 @@
 .action-btn {
   flex: 1;
   height: 46px;
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-pill);
   font-size: var(--text-caption-1);
   font-weight: 600;
   border: none;
