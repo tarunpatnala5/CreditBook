@@ -66,12 +66,13 @@ async function register({ name, phone, email, password, confirmPassword }) {
   const normalizedPhone = phone.replace(/\s/g, '');
   const normalizedEmail = email.trim().toLowerCase();
 
-  // Check duplicates
-  const existingPhone = await prisma.user.findUnique({ where: { phone: normalizedPhone } });
+  // Check duplicates (exclude soft-deleted users)
+  const existingPhone = await prisma.user.findFirst({ where: { phone: normalizedPhone, deletedAt: null } });
   if (existingPhone) throw new ConflictError('Phone number already registered');
 
-  const existingEmail = await prisma.user.findUnique({ where: { email: normalizedEmail } });
+  const existingEmail = await prisma.user.findFirst({ where: { email: normalizedEmail, deletedAt: null } });
   if (existingEmail) throw new ConflictError('Email address already registered');
+
 
   const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
