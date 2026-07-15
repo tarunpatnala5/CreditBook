@@ -321,7 +321,7 @@ function EditTransactionSheet({ isOpen, onClose, transaction, personId }) {
         </form>
       </BottomSheet>
 
-      <InterestSetupModal
+      <InterestSetupSheet
         isOpen={interestModalOpen}
         onClose={() => setInterestModalOpen(false)}
         onSave={(data) => setInterestData(data)}
@@ -572,7 +572,7 @@ export default function PersonDetailPage() {
     <div className="person-detail-page">
       {/* Navigation Bar */}
       <div className="nav-bar-page">
-        <button className="nav-back-btn" onClick={() => navigate(-1)} id="nav-back-btn">
+        <button className="nav-back-btn" onClick={() => navigate('/')} id="nav-back-btn">
           <svg width="10" height="16" viewBox="0 0 10 18" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 1L1 9l8 8" />
           </svg>
