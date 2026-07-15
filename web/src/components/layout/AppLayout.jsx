@@ -91,11 +91,11 @@ function PillTabBar() {
               onClick={() => handleNavigate(tab.path)}
               aria-label={tab.label}
               aria-current={active ? 'page' : undefined}
+              title={tab.label}
             >
               <span className="pill-tab-icon">
                 <Icon active={active} />
               </span>
-              <span className="pill-tab-label">{tab.label}</span>
               {tab.badge > 0 && (
                 <span className="pill-tab-badge">
                   {tab.badge > 99 ? '99+' : tab.badge}

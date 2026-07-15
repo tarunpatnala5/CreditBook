@@ -268,15 +268,14 @@
   animation: scaleIn 400ms var(--ease-spring) both;
 }
 
-/* Each tab — no background of its own; only the icon gets a highlight when active */
+/* Each tab — icon only, no label. No background of its own; only the icon gets a highlight when active */
 .pill-tab {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  min-width: 58px;
-  padding: 5px 10px;
+  min-width: 52px;
+  height: 44px;
+  padding: 0 8px;
   border-radius: 999px;
   cursor: pointer;
   position: relative;
@@ -297,13 +296,13 @@
 
 .pill-tab:active { transform: scale(0.9); }
 
-/* Icon container — compact, tightly wraps the icon like the iOS reference */
+/* Icon container — compact circle, sized for icon-only layout */
 .pill-tab-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 20px;
+  width: 36px;
+  height: 34px;
   border-radius: 999px;         /* single capsule shape, not a square */
   pointer-events: none;
   background: transparent;
@@ -322,8 +321,8 @@
 }
 
 .tab-icon-svg {
-  width: 17px;
-  height: 17px;
+  width: 20px;
+  height: 20px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.75;
@@ -337,24 +336,11 @@
   stroke-width: 2.1;
 }
 
-/* Label */
-.pill-tab-label {
-  font-size: 10px;
-  font-weight: 500;
-  font-family: var(--font-text);
-  line-height: 1;
-  letter-spacing: 0.01em;
-  pointer-events: none;
-  white-space: nowrap;
-}
-
-.pill-tab.active .pill-tab-label { font-weight: 600; }
-
-/* Badge — repositioned for the new layout */
+/* Badge — repositioned for icon-only layout */
 .pill-tab-badge {
   position: absolute;
   top: 2px;
-  right: 8px;
+  right: 4px;
   min-width: 15px;
   height: 15px;
   background: var(--color-red);
