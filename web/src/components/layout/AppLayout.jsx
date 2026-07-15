@@ -164,7 +164,7 @@ export default function AppLayout() {
 }
 
 // ─── NavigationBar (Home page — with Desktop Tab Nav embedded) ─────────────
-export function NavigationBar({ title, logo, onSearch, onAdd, onAction, actionLabel, searchActive, onSearchChange, searchValue, onSearchClose }) {
+export function NavigationBar({ title, logo, onSearch, onAdd, onAction, actionLabel, searchActive, onSearchChange, searchValue, onSearchClose, titleBadge }) {
   const location = useLocation();
 
   // Only show desktop tabs on main app pages
@@ -187,6 +187,25 @@ export function NavigationBar({ title, logo, onSearch, onAdd, onAction, actionLa
               />
             )}
             <span className="nav-title">{title}</span>
+            {titleBadge && (
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                background: 'hsla(214, 100%, 54%, 0.12)',
+                color: 'hsl(214, 80%, 48%)',
+                fontSize: 10,
+                fontWeight: 600,
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase',
+                borderRadius: 20,
+                padding: '3px 8px',
+                marginLeft: 6,
+                lineHeight: 1,
+                whiteSpace: 'nowrap',
+              }}>
+                {titleBadge}
+              </span>
+            )}
           </div>
 
           {/* Center: desktop tab nav — absolutely centered, hidden on mobile */}

@@ -60,22 +60,8 @@ export default function SharedEntriesPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%', background: 'var(--bg-primary)' }}>
-      {/* Nav Bar with desktop tab nav */}
-      <NavigationBar title="Shared With Me" />
-
-      {/* Info Banner */}
-      <div style={{
-        margin: '12px 16px 4px',
-        background: 'hsla(214, 100%, 50%, 0.08)',
-        border: '1px solid hsla(214, 100%, 50%, 0.15)',
-        borderRadius: 12,
-        padding: '10px 14px',
-        fontSize: 13,
-        color: 'var(--label-secondary)',
-        lineHeight: 1.4,
-      }}>
-        👁 View-only. These are entries others made using your phone number.
-      </div>
+      {/* Nav Bar */}
+      <NavigationBar title="Shared With Me" titleBadge="View only" />
 
       {/* List */}
       <div style={{ padding: '12px 16px', flex: 1 }}>
