@@ -259,12 +259,12 @@
   position: fixed;
   /* 15px lower than the original resting position, then nudged 10px back up */
   bottom: calc(var(--safe-bottom) + 10px - 15px + 10px);
-  left: 50%;
-  transform: translateX(-50%);
+  /* Squeezed in 10px from each screen edge */
+  left: 10px;
+  right: 10px;
   z-index: 100;
   pointer-events: none;
   display: flex;
-  width: min(92vw, 420px);
   justify-content: center;
 }
 
@@ -281,7 +281,7 @@
   justify-content: space-between;
   /* stretched to fill the wider wrapper — tabs spread out, icons/text stay their own size */
   width: 100%;
-  padding: 3px;
+  padding: 10px 3px;
   /* tight outer gap — matches Apple */
   gap: 0;
   /* solid fallback color first — if backdrop-filter is unsupported/ignored
@@ -314,11 +314,11 @@
 /* Sliding indicator — sits behind the active tab, full tab height, smooth slide */
 .pill-nav-indicator {
   position: absolute;
-  top: 3px;
+  top: 10px;
   /* match outer padding */
   left: 0;
-  bottom: 2.5px;
-  /* 1px less than top to compensate for font descender space */
+  bottom: 9.5px;
+  /* 0.5px less than top to compensate for font descender space */
   border-radius: 999px;
   background: #E5E5EA;
   /* Apple iOS grey — same as system grouped fill */
@@ -370,16 +370,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   pointer-events: none;
   position: relative;
   z-index: 1;
 }
 
 .tab-icon-svg {
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 26px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.75;
