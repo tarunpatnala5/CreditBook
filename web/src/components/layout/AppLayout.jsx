@@ -84,9 +84,12 @@ function PillTabBar() {
     if (!tabEl || !navEl) return;
     const tabRect = tabEl.getBoundingClientRect();
     const navRect = navEl.getBoundingClientRect();
+    // Round to whole pixels — fractional flex widths (e.g. 91.75px per tab)
+    // otherwise leave the indicator's right edge a fraction of a pixel off
+    // from its left edge, which reads as an uneven gap once painted.
     setIndicator({
-      x: tabRect.left - navRect.left,
-      w: tabRect.width,
+      x: Math.round(tabRect.left - navRect.left),
+      w: Math.round(tabRect.width),
       ready: true,
       slide: !!slide,
     });
