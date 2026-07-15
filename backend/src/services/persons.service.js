@@ -96,12 +96,17 @@ async function getSharedPersons(userId) {
   };
 }
 
-// ─── Get single person (verify ownership) ─────────────────────────────────
+// ─── Get single person (owner OR shared/linked user — view-only for the latter) ─
 async function getPerson(personId, userId) {
   const person = await prisma.person.findFirst({
-    where: { id: personId, ownerId: userId, deletedAt: null },
+    where: {
+      id: personId,
+      deletedAt: null,
+      OR: [{ ownerId: userId }, { linkedUserId: userId }],
+    },
     include: {
       linkedUser: { select: { id: true, name: true } },
+      owner: { select: { id: true, name: true, avatarColor: true } },
       transactions: {
         where: { deletedAt: null, status: 'interest' },
         select: { amount: true, interestRate: true, interestFrequency: true, transactionDate: true },
@@ -120,7 +125,12 @@ async function getPerson(personId, userId) {
     }
   }
 
-  return { ...formatPerson(person), interestTabTotal };
+  return {
+    ...formatPerson(person),
+    interestTabTotal,
+    isOwner: person.ownerId === userId,
+    owner: person.ownerId === userId ? null : person.owner,
+  };
 }
 
 

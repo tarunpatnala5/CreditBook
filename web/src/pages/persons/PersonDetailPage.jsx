@@ -14,11 +14,11 @@ import './PersonDetail.css';
 
 // ─── Frequency label map ───────────────────────────────────────────────────
 const FREQ_LABELS = {
-  'annually': 'Annually',
+  'annually':      'Annually',
   'semi-annually': 'Semi-Annually',
-  'quarterly': 'Quarterly',
-  'monthly': 'Monthly',
-  'daily': 'Daily',
+  'quarterly':     'Quarterly',
+  'monthly':       'Monthly',
+  'daily':         'Daily',
 };
 
 const FREQ_OPTIONS = Object.entries(FREQ_LABELS);
@@ -345,9 +345,9 @@ function TransactionCard({ txn, index, onClick }) {
 
   return (
     <div
-      className={`transaction-card${isInterest ? ' interest-txn' : ''}`}
+      className={`transaction-card${isInterest ? ' interest-txn' : ''}${!onClick ? ' readonly' : ''}`}
       onClick={onClick}
-      style={{ animationDelay: `${index * 35}ms` }}
+      style={{ animationDelay: `${index * 35}ms`, cursor: onClick ? 'pointer' : 'default' }}
     >
       {/* Row 1: Description (left) + Amount (right) */}
       <div className="transaction-card-top">
@@ -456,8 +456,8 @@ function EditPersonSheet({ isOpen, onClose, person, personId }) {
 // ─── Balance Card ─────────────────────────────────────────────────────────
 function BalanceCard({ balance, totalInterestAccrued, balanceLabel, balanceClass }) {
   const principal = Math.abs(balance);
-  const interest = totalInterestAccrued || 0;
-  const total = principal + interest;
+  const interest  = totalInterestAccrued || 0;
+  const total     = principal + interest;
 
   return (
     <div className={`balance-card ${balanceClass}`}>
@@ -471,7 +471,7 @@ function BalanceCard({ balance, totalInterestAccrued, balanceLabel, balanceClass
           </div>
 
           <div className="balance-row-item">
-            <span className="balance-row-label">Interest (Inc Principal)</span>
+            <span className="balance-row-label">Interest</span>
             <span className="balance-row-value">{formatCurrency(interest)}</span>
           </div>
 
@@ -535,7 +535,7 @@ export default function PersonDetailPage() {
       const url = res.data?.shareUrl || '';
       setShareUrl(url);
       if (navigator.share && /Mobi/i.test(navigator.userAgent)) {
-        navigator.share({ title: `${personData?.name}'s ledger on Credit Book`, url }).catch(() => { });
+        navigator.share({ title: `${personData?.name}'s ledger on Credit Book`, url }).catch(() => {});
       } else {
         setShareDialogOpen(true);
       }
@@ -552,6 +552,8 @@ export default function PersonDetailPage() {
   const person = personData;
   if (!person) return <><PageNavigationBar title="Not Found" /><EmptyState icon="❓" title="Person not found" body="This person may have been deleted." /></>;
 
+  const isOwner = person.isOwner !== false; // default true for safety/back-compat
+
   const transactions = txnData?.transactions || [];
   const balance = parseFloat(person.balance) || 0;
   const interestTabTotal = parseFloat(person.interestTabTotal) || 0;
@@ -559,8 +561,8 @@ export default function PersonDetailPage() {
   const balanceLabel = balance > 0
     ? `You will get`
     : balance < 0
-      ? `You will give`
-      : 'All settled up';
+    ? `You will give`
+    : 'All settled up';
 
   const balanceClass = balance > 0 ? 'positive' : balance < 0 ? 'negative' : 'zero';
 
@@ -575,9 +577,17 @@ export default function PersonDetailPage() {
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, justifyContent: 'center' }}>
           <Avatar name={person.name} color={person.avatarColor} size={32} />
-          <span className="nav-page-title" style={{ textAlign: 'left' }}>{person.name}</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+            <span className="nav-page-title" style={{ textAlign: 'left' }}>{person.name}</span>
+            {!isOwner && (
+              <span style={{ fontSize: 11, color: 'var(--label-tertiary)', fontWeight: 500 }}>
+                View only
+              </span>
+            )}
+          </div>
         </div>
-        {/* Share button */}
+        {/* Share button — owner only */}
+        {isOwner && (
         <button
           className="nav-page-action"
           onClick={() => generateShare()}
@@ -593,13 +603,16 @@ export default function PersonDetailPage() {
             </svg>
           )}
         </button>
-        {/* Settings button */}
+        )}
+        {/* Settings button — owner only */}
+        {isOwner && (
         <button className="nav-page-action" onClick={() => setOptionsOpen(true)} id="person-options-btn">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="3" />
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
           </svg>
         </button>
+        )}
       </div>
 
       {/* Share dialog — desktop only */}
@@ -663,24 +676,29 @@ export default function PersonDetailPage() {
             icon={activeTab === 'upcoming' ? '⏰' : activeTab === 'interest' ? '💰' : '📋'}
             title={
               activeTab === 'upcoming' ? 'No upcoming entries' :
-                activeTab === 'interest' ? 'No interest entries' :
-                  'No entries yet'
+              activeTab === 'interest' ? 'No interest entries' :
+              'No entries yet'
             }
             body={
               activeTab === 'upcoming' ? 'Entries with a future date will appear here' :
-                activeTab === 'interest' ? 'Add an entry with interest to track it here' :
-                  'Use the buttons below to add an entry'
+              activeTab === 'interest' ? 'Add an entry with interest to track it here' :
+              'Use the buttons below to add an entry'
             }
           />
         ) : (
           transactions.map((txn, i) => (
-            <TransactionCard key={txn.id} txn={txn} index={i} onClick={() => setEditTxn(txn)} />
+            <TransactionCard
+              key={txn.id}
+              txn={txn}
+              index={i}
+              onClick={isOwner ? () => setEditTxn(txn) : undefined}
+            />
           ))
         )}
       </div>
 
-      {/* Action Buttons — only on current tab */}
-      {activeTab === 'current' && (
+      {/* Action Buttons — only on current tab, and only for the owner */}
+      {activeTab === 'current' && isOwner && (
         <div className="action-buttons">
           <button className="action-btn action-btn-gave" onClick={() => setAddType('gave')} id="btn-gave">
             YOU GAVE ₹

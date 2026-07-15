@@ -172,6 +172,11 @@
   transform: scale(0.98);
 }
 
+.transaction-card.readonly:active {
+  background: var(--bg-secondary);
+  transform: none;
+}
+
 /* Interest transaction card */
 .transaction-card.interest-txn {
   background: var(--bg-secondary);
