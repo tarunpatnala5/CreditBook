@@ -14,11 +14,11 @@ import './PersonDetail.css';
 
 // ─── Frequency label map ───────────────────────────────────────────────────
 const FREQ_LABELS = {
-  'annually':      'Annually',
+  'annually': 'Annually',
   'semi-annually': 'Semi-Annually',
-  'quarterly':     'Quarterly',
-  'monthly':       'Monthly',
-  'daily':         'Daily',
+  'quarterly': 'Quarterly',
+  'monthly': 'Monthly',
+  'daily': 'Daily',
 };
 
 const FREQ_OPTIONS = Object.entries(FREQ_LABELS);
@@ -456,8 +456,8 @@ function EditPersonSheet({ isOpen, onClose, person, personId }) {
 // ─── Balance Card ─────────────────────────────────────────────────────────
 function BalanceCard({ balance, totalInterestAccrued, balanceLabel, balanceClass }) {
   const principal = Math.abs(balance);
-  const interest  = totalInterestAccrued || 0;
-  const total     = principal + interest;
+  const interest = totalInterestAccrued || 0;
+  const total = principal + interest;
 
   return (
     <div className={`balance-card ${balanceClass}`}>
@@ -471,7 +471,7 @@ function BalanceCard({ balance, totalInterestAccrued, balanceLabel, balanceClass
           </div>
 
           <div className="balance-row-item">
-            <span className="balance-row-label">Interest</span>
+            <span className="balance-row-label">Interest (Inc Principal)</span>
             <span className="balance-row-value">{formatCurrency(interest)}</span>
           </div>
 
@@ -535,7 +535,7 @@ export default function PersonDetailPage() {
       const url = res.data?.shareUrl || '';
       setShareUrl(url);
       if (navigator.share && /Mobi/i.test(navigator.userAgent)) {
-        navigator.share({ title: `${personData?.name}'s ledger on Credit Book`, url }).catch(() => {});
+        navigator.share({ title: `${personData?.name}'s ledger on Credit Book`, url }).catch(() => { });
       } else {
         setShareDialogOpen(true);
       }
@@ -559,8 +559,8 @@ export default function PersonDetailPage() {
   const balanceLabel = balance > 0
     ? `You will get`
     : balance < 0
-    ? `You will give`
-    : 'All settled up';
+      ? `You will give`
+      : 'All settled up';
 
   const balanceClass = balance > 0 ? 'positive' : balance < 0 ? 'negative' : 'zero';
 
@@ -663,13 +663,13 @@ export default function PersonDetailPage() {
             icon={activeTab === 'upcoming' ? '⏰' : activeTab === 'interest' ? '💰' : '📋'}
             title={
               activeTab === 'upcoming' ? 'No upcoming entries' :
-              activeTab === 'interest' ? 'No interest entries' :
-              'No entries yet'
+                activeTab === 'interest' ? 'No interest entries' :
+                  'No entries yet'
             }
             body={
               activeTab === 'upcoming' ? 'Entries with a future date will appear here' :
-              activeTab === 'interest' ? 'Add an entry with interest to track it here' :
-              'Use the buttons below to add an entry'
+                activeTab === 'interest' ? 'Add an entry with interest to track it here' :
+                  'Use the buttons below to add an entry'
             }
           />
         ) : (
