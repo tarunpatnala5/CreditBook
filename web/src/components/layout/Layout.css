@@ -276,19 +276,18 @@
   left: 0;
   bottom: 6px;            /* match outer padding */
   border-radius: 999px;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.13), 0 0.5px 1px rgba(0, 0, 0, 0.08);
-  /* height is auto via top/bottom; only width + translateX animate */
+  background: #E5E5EA;    /* Apple iOS grey — same as system grouped fill */
+  /* No static transition here — transition is set inline from JS so we can
+     skip it on first paint (avoids the off-center slide from 0 → correct pos) */
   pointer-events: none;
   z-index: 0;
-  transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1), width 300ms ease;
 }
 
 [data-theme='dark'] .pill-nav-indicator,
 .dark .pill-nav-indicator {
   background: rgba(255, 255, 255, 0.18);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4), 0 0.5px 1px rgba(0, 0, 0, 0.2);
 }
+
 
 /* Each tab — icon + label stacked, full pill height */
 .pill-tab {

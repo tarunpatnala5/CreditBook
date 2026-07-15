@@ -90,28 +90,54 @@ function PillTabBar() {
       x: tabRect.left - navRect.left,
       w: tabRect.width,
       ready: true,
-      skipTransition: !!skipTransition,
+      animate: !!animate,
     });
   }
 
-  // On first mount + on tab change: measure synchronously after layout
   useLayoutEffect(() => {
-    // Small rAF to ensure the browser has painted and getBoundingClientRect returns real values
-    const id = requestAnimationFrame(() => {
-      measure(isFirstMount.current); // skip transition on first mount
-      isFirstMount.current = false;
-    });
-    return () => cancelAnimationFrame(id);
+    const nav = navRef.current;
+    if (!nav) return;
+
+    if (isFirstMount.current) {
+      // The outer pill has a scaleIn CSS animation. getBoundingClientRect during
+      // that animation returns scaled-down coordinates → indicator ends up off-center.
+      // We listen for animationend before measuring so we always get final values.
+      const onAnimEnd = () => {
+        measure(false); // instant placement, no slide transition on first paint
+        isFirstMount.current = false;
+      };
+      nav.addEventListener('animationend', onAnimEnd, { once: true });
+
+      // Fallback: if no animation fires within 500ms (reduced-motion, cached, etc.)
+      const fallbackId = setTimeout(() => {
+        if (isFirstMount.current) {
+          nav.removeEventListener('animationend', onAnimEnd);
+          measure(false);
+          isFirstMount.current = false;
+        }
+      }, 500);
+
+      return () => {
+        nav.removeEventListener('animationend', onAnimEnd);
+        clearTimeout(fallbackId);
+      };
+    } else {
+      // Tab switch after first mount: pill is fully visible, measure next rAF
+      const id = requestAnimationFrame(() => measure(true)); // animate = slide
+      return () => cancelAnimationFrame(id);
+    }
   }, [activeIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Re-measure on resize
+  // Re-measure on resize (instant snap, no animation)
   useEffect(() => {
     const nav = navRef.current;
     if (!nav) return;
-    const ro = new ResizeObserver(() => measure(true));
+    const ro = new ResizeObserver(() => {
+      if (!isFirstMount.current) measure(false);
+    });
     ro.observe(nav);
     return () => ro.disconnect();
-  }, [activeIndex]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleNavigate(path) {
     _forceCloseAllSheets();
@@ -121,16 +147,17 @@ function PillTabBar() {
   return (
     <div className="pill-nav-wrapper">
       <nav className="pill-nav" role="navigation" aria-label="Main navigation" ref={navRef}>
-        {/* Sliding white indicator pill behind the active tab */}
+        {/* Sliding grey indicator pill behind the active tab */}
         <div
           className="pill-nav-indicator"
           style={{
             transform: `translateX(${indicator.x}px)`,
             width: indicator.w,
             opacity: indicator.ready ? 1 : 0,
-            transition: indicator.skipTransition
-              ? 'opacity 150ms ease'
-              : 'transform 320ms cubic-bezier(0.25, 0.46, 0.45, 0.94), width 320ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 150ms ease',
+            // Only slide-animate on tab switch, not on first paint
+            transition: indicator.animate
+              ? 'transform 320ms cubic-bezier(0.25, 0.46, 0.45, 0.94), width 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 200ms ease'
+              : 'opacity 200ms ease',
           }}
         />
         {tabs.map((tab, i) => {
