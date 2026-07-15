@@ -7,7 +7,7 @@
   flex-direction: column;
   background: var(--bg-primary);
   position: relative;
-  overflow: hidden;
+  overflow: clip; /* clip instead of hidden — doesn't create stacking context, preserves backdrop-filter on fixed children */
 }
 
 /* ─── Navigation Bar ─────────────────────────────────────────────────────── */
