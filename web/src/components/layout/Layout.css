@@ -274,7 +274,7 @@
   position: absolute;
   top: 3px;               /* match outer padding */
   left: 0;
-  bottom: 3px;            /* match outer padding */
+  bottom: 2px;            /* 1px less than top to compensate for font descender space */
   border-radius: 999px;
   background: #E5E5EA;    /* Apple iOS grey — same as system grouped fill */
   /* No static transition here — transition is set inline from JS so we can
