@@ -59,7 +59,7 @@ export default function RegisterPage() {
     return (
       <div className="auth-page">
         <div className="auth-header">
-          <div className="auth-logo">₹</div>
+          <img src="/logo.png" alt="Credit Book" className="auth-logo" />
           <h1 className="auth-title">Account Created</h1>
         </div>
         <div className="auth-pending-notice">
@@ -81,7 +81,7 @@ export default function RegisterPage() {
   return (
     <div className="auth-page">
       <div className="auth-header">
-        <div className="auth-logo">₹</div>
+        <img src="/logo.png" alt="Credit Book" className="auth-logo" />
         <h1 className="auth-title">Create Account</h1>
         <p className="auth-subtitle">Join Credit Book</p>
       </div>

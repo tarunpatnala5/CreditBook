@@ -112,13 +112,11 @@ export default function UserManualPage() {
       <div style={{ padding: '16px', flex: 1 }}>
         {/* Header */}
         <div style={{ textAlign: 'center', padding: '16px 0 24px' }}>
-          <div style={{
-            width: 64, height: 64, borderRadius: 16,
-            background: 'linear-gradient(135deg, var(--color-blue), hsl(260,80%,60%))',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 12px', fontSize: 32, color: 'white', fontWeight: 700,
-            fontFamily: 'var(--font-rounded)',
-          }}>₹</div>
+          <img
+            src="/logo.png"
+            alt="Credit Book"
+            style={{ width: 64, height: 64, objectFit: 'contain', margin: '0 auto 12px', display: 'block' }}
+          />
           <h1 style={{ fontSize: 24, fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--label-primary)' }}>
             Credit Book
           </h1>

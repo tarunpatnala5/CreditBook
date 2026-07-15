@@ -56,7 +56,7 @@ export default function SharePage() {
       {/* Header */}
       <div className="share-header">
         <div className="share-logo">
-          <img src="/logo.jpg" alt="Credit Book" className="share-logo-img" />
+          <img src="/logo.png" alt="Credit Book" className="share-logo-img" />
           <span className="share-logo-text">Credit Book</span>
         </div>
         <div className="share-badge">View Only</div>

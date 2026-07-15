@@ -180,7 +180,7 @@ export function NavigationBar({ title, logo, onSearch, onAdd, onAction, actionLa
           <div className="nav-left">
             {logo && (
               <img
-                src="/logo.jpg"
+                src="/logo.png"
                 alt="Credit Book"
                 className="nav-logo-img"
                 aria-hidden="true"

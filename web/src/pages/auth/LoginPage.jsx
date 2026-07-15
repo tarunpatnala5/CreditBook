@@ -40,7 +40,7 @@ export default function LoginPage() {
   return (
     <div className="auth-page">
       <div className="auth-header">
-        <img src="/logo.jpg" alt="Credit Book" className="auth-logo" />
+        <img src="/logo.png" alt="Credit Book" className="auth-logo" />
         <h1 className="auth-title">Credit Book</h1>
 
       </div>
