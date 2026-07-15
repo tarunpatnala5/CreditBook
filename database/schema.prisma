@@ -19,8 +19,8 @@ datasource db {
 model User {
   id              String    @id @default(uuid())
   name            String
-  phone           String    @unique
-  email           String?   @unique
+  phone           String
+  email           String?
   passwordHash    String
   role            String    @default("user") // user | admin
   status          String    @default("pending") // pending | active | suspended
@@ -45,6 +45,10 @@ model User {
   pushTokens      PushToken[]
   activatedByUser User?            @relation("ActivatedBy", fields: [activatedBy], references: [id])
   activatedUsers  User[]           @relation("ActivatedBy")
+
+  // Partial unique indexes enforced at DB level (see migration)
+  // phone unique only when deletedAt IS NULL
+  // email unique only when deletedAt IS NULL
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
