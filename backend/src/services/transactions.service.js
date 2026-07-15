@@ -148,7 +148,28 @@ async function createTransaction(personId, userId, data) {
     await personsService.recalculateBalance(personId);
   }
 
+  // Notify the linked user about the new entry
+  try {
+    const person = await prisma.person.findUnique({
+      where: { id: personId },
+      include: { owner: { select: { name: true } }, linkedUser: { select: { id: true } } },
+    });
+    if (person?.linkedUser?.id) {
+      const { createNotification } = require('./notifications.service');
+      const amountStr = `₹${parseFloat(amount).toLocaleString('en-IN')}`;
+      const actionLabel = type === 'gave' ? 'gave you' : 'received from you';
+      await createNotification(person.linkedUser.id, {
+        title: 'New entry added',
+        body: `${person.owner.name} ${actionLabel} ${amountStr}.`,
+        category: 'transaction',
+      });
+    }
+  } catch (_) {
+    // Non-critical
+  }
+
   return formatTransaction(transaction);
+
 }
 
 // ─── Update transaction ────────────────────────────────────────────────────
@@ -204,7 +225,26 @@ async function deleteTransaction(personId, transactionId, userId) {
 
   // Recalculate balance
   await personsService.recalculateBalance(personId);
+
+  // Notify the linked user so their shared view updates
+  try {
+    const person = await prisma.person.findUnique({
+      where: { id: personId },
+      include: { owner: { select: { name: true } }, linkedUser: { select: { id: true } } },
+    });
+    if (person?.linkedUser?.id) {
+      const { createNotification } = require('./notifications.service');
+      await createNotification(person.linkedUser.id, {
+        title: 'Entry removed',
+        body: `${person.owner.name} deleted an entry from your shared ledger.`,
+        category: 'transaction',
+      });
+    }
+  } catch (_) {
+    // Non-critical — don't fail the delete if notification fails
+  }
 }
+
 
 // ─── Get interest history for a transaction ────────────────────────────────
 async function getInterestHistory(transactionId) {

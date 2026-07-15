@@ -525,8 +525,9 @@ export default function PersonDetailPage() {
     queryKey: ['transactions', personId, activeTab],
     queryFn: () => transactionsApi.getAll(personId, { status: activeTab }),
     select: (d) => d?.data,
-    // Refresh every 60 seconds for live interest amounts
-    refetchInterval: 60000,
+    // Refresh every 30s for live interest amounts + cross-user sync
+    refetchInterval: 30000,
+    refetchOnWindowFocus: true,
   });
 
   const { mutate: scheduleDeletion, isPending: isDeleting } = useMutation({

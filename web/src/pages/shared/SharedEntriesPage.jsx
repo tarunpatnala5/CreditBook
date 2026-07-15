@@ -52,7 +52,8 @@ export default function SharedEntriesPage() {
     queryKey: ['shared-persons'],
     queryFn: () => personsApi.getShared(),
     select: (d) => d?.data,
-    refetchInterval: 30000,
+    refetchInterval: 15000,
+    refetchOnWindowFocus: true,
   });
 
   const persons = data?.persons || [];
