@@ -1,5 +1,5 @@
 // Credit Book — App Layout with NavigationBar and PillTabBar
-import React, { useCallback, useRef, useState, useLayoutEffect, useEffect } from 'react';
+import React, { useRef, useState, useLayoutEffect, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { notificationsApi } from '../../api';
@@ -74,49 +74,63 @@ function PillTabBar() {
   const activeIndex = tabs.findIndex((tab) => isActive(tab.path, location.pathname));
 
   const navRef = useRef(null);
-  const iconRefs = useRef([]);
-  const [indicator, setIndicator] = useState({ x: 0, y: 0, w: 0, h: 0, ready: false });
+  const tabRefs = useRef([]);
+  // Start with ready:false so indicator is invisible until measured
+  const [indicator, setIndicator] = useState({ x: 0, w: 0, ready: false });
+  // Track whether this is first mount (no transition) or a tab switch (transition)
+  const isFirstMount = useRef(true);
 
-  const measure = useCallback(() => {
-    const iconEl = iconRefs.current[activeIndex];
+  function measure(skipTransition) {
+    const tabEl = tabRefs.current[activeIndex];
     const navEl = navRef.current;
-    if (!iconEl || !navEl) return;
-    const iconRect = iconEl.getBoundingClientRect();
+    if (!tabEl || !navEl) return;
+    const tabRect = tabEl.getBoundingClientRect();
     const navRect = navEl.getBoundingClientRect();
     setIndicator({
-      x: iconRect.left - navRect.left,
-      y: iconRect.top - navRect.top,
-      w: iconRect.width,
-      h: iconRect.height,
+      x: tabRect.left - navRect.left,
+      w: tabRect.width,
       ready: true,
+      skipTransition: !!skipTransition,
     });
-  }, [activeIndex]);
+  }
 
+  // On first mount + on tab change: measure synchronously after layout
   useLayoutEffect(() => {
-    measure();
-  }, [measure]);
+    // Small rAF to ensure the browser has painted and getBoundingClientRect returns real values
+    const id = requestAnimationFrame(() => {
+      measure(isFirstMount.current); // skip transition on first mount
+      isFirstMount.current = false;
+    });
+    return () => cancelAnimationFrame(id);
+  }, [activeIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Re-measure on resize
   useEffect(() => {
-    window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
-  }, [measure]);
+    const nav = navRef.current;
+    if (!nav) return;
+    const ro = new ResizeObserver(() => measure(true));
+    ro.observe(nav);
+    return () => ro.disconnect();
+  }, [activeIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleNavigate(path) {
-    _forceCloseAllSheets(); // directly force-close any open sheet before route change
+    _forceCloseAllSheets();
     navigate(path);
   }
 
   return (
     <div className="pill-nav-wrapper">
       <nav className="pill-nav" role="navigation" aria-label="Main navigation" ref={navRef}>
-        {/* Sliding grey indicator — bounces to the active icon */}
+        {/* Sliding white indicator pill behind the active tab */}
         <div
           className="pill-nav-indicator"
           style={{
-            transform: `translate(${indicator.x}px, ${indicator.y}px)`,
+            transform: `translateX(${indicator.x}px)`,
             width: indicator.w,
-            height: indicator.h,
             opacity: indicator.ready ? 1 : 0,
+            transition: indicator.skipTransition
+              ? 'opacity 150ms ease'
+              : 'transform 320ms cubic-bezier(0.25, 0.46, 0.45, 0.94), width 320ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 150ms ease',
           }}
         />
         {tabs.map((tab, i) => {
@@ -130,11 +144,12 @@ function PillTabBar() {
               onClick={() => handleNavigate(tab.path)}
               aria-label={tab.label}
               aria-current={active ? 'page' : undefined}
-              title={tab.label}
+              ref={(el) => (tabRefs.current[i] = el)}
             >
-              <span className="pill-tab-icon" ref={(el) => (iconRefs.current[i] = el)}>
+              <span className="pill-tab-icon">
                 <Icon active={active} />
               </span>
+              <span className="pill-tab-label">{tab.label}</span>
               {tab.badge > 0 && (
                 <span className="pill-tab-badge">
                   {tab.badge > 99 ? '99+' : tab.badge}

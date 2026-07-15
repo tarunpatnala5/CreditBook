@@ -237,10 +237,10 @@
   }
 }
 
-/* ─── Pill Navigation — MOBILE ONLY (bottom floating) ──────────────────── */
+/* ─── Pill Navigation — MOBILE ONLY (bottom floating) ─────────────────────────── */
 .pill-nav-wrapper {
   position: fixed;
-  bottom: calc(var(--safe-bottom) + 14px);
+  bottom: calc(var(--safe-bottom) + 10px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;
@@ -252,49 +252,53 @@
   .pill-nav-wrapper { display: none; }
 }
 
-/* ─── Outer pill — Apple floating tab bar ───────────────────────────────── */
+/* ─── Outer pill — Apple floating tab bar ───────────────────────────────────── */
 .pill-nav {
   display: flex;
-  align-items: stretch;       /* tabs fill the full pill height */
-  padding: 4px;                /* tight outer gap — matches iOS */
+  align-items: center;
+  padding: 6px;           /* outer gap all around */
+  gap: 0;
   background: var(--pill-bg);
   backdrop-filter: var(--blur-pill);
   -webkit-backdrop-filter: var(--blur-pill);
   border-radius: 999px;
   box-shadow: var(--pill-shadow);
   border: 0.5px solid var(--separator);
-  gap: 0;
   pointer-events: all;
   position: relative;
   animation: scaleIn 400ms var(--ease-spring) both;
 }
 
-/* Sliding grey indicator — bounces behind the active icon on tab switch */
+/* Sliding indicator — sits behind the active tab, full tab height, smooth slide */
 .pill-nav-indicator {
   position: absolute;
-  top: 0;
+  top: 6px;               /* match outer padding */
   left: 0;
+  bottom: 6px;            /* match outer padding */
   border-radius: 999px;
-  background: #E5E5EA;
-  transition: transform 480ms cubic-bezier(0.34, 1.56, 0.64, 1),
-              width 300ms ease, height 300ms ease, opacity 200ms ease;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.13), 0 0.5px 1px rgba(0, 0, 0, 0.08);
+  /* height is auto via top/bottom; only width + translateX animate */
   pointer-events: none;
   z-index: 0;
+  transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1), width 300ms ease;
 }
 
 [data-theme='dark'] .pill-nav-indicator,
 .dark .pill-nav-indicator {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4), 0 0.5px 1px rgba(0, 0, 0, 0.2);
 }
 
-/* Each tab — icon only, no label. Sits above the sliding grey indicator */
+/* Each tab — icon + label stacked, full pill height */
 .pill-tab {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 50px;
-  height: 40px;
-  padding: 0 6px;
+  gap: 2px;
+  min-width: 64px;
+  padding: 6px 8px;
   border-radius: 999px;
   cursor: pointer;
   position: relative;
@@ -302,36 +306,33 @@
   border: none;
   background: none;
   color: var(--label-tertiary);
-  transition: color var(--duration-fast) var(--ease-standard),
-              transform var(--duration-instant) var(--ease-spring);
   -webkit-tap-highlight-color: transparent;
+  transition: color 200ms ease;
 }
 
-/* Active tab: icon color turns blue — the grey background comes from the shared sliding indicator, not from here */
+/* Active tab: icon + label turn accent blue */
 .pill-tab.active {
   background: none;
   color: var(--app-accent);
-  box-shadow: none;
 }
 
-.pill-tab:active { transform: scale(0.9); }
+.pill-tab:active { transform: scale(0.92); transition: transform 80ms ease; }
 
-/* Icon container — compact circle, sized for icon-only layout */
+/* Icon container */
 .pill-tab-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 32px;
-  border-radius: 999px;
+  width: 24px;
+  height: 24px;
   pointer-events: none;
   position: relative;
   z-index: 1;
 }
 
 .tab-icon-svg {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.75;
@@ -340,16 +341,29 @@
   display: block;
 }
 
-/* Active icon: slightly bolder stroke */
 .pill-tab.active .tab-icon-svg {
   stroke-width: 2.1;
 }
 
-/* Badge — repositioned for icon-only layout */
+/* Label under icon */
+.pill-tab-label {
+  font-size: 10px;
+  font-weight: 500;
+  font-family: var(--font-text);
+  letter-spacing: 0.01em;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  position: relative;
+  z-index: 1;
+  color: currentColor;
+}
+
+/* Badge */
 .pill-tab-badge {
   position: absolute;
-  top: 2px;
-  right: 4px;
+  top: 3px;
+  right: 6px;
   min-width: 15px;
   height: 15px;
   background: var(--color-red);
@@ -364,13 +378,14 @@
   border: 1.5px solid var(--pill-bg);
   animation: badgeAppear 250ms var(--ease-spring) both;
   pointer-events: none;
+  z-index: 2;
 }
 
 .pill-tab.active .pill-tab-badge {
-  border-color: var(--pill-bg);
+  border-color: white;
 }
 
-/* (Active tab is color-only now — no dark-mode background override needed) */
+
 
 /* ─── Desktop Inline Tab Nav (inside top nav bar center) ──────────────── */
 .desktop-tab-nav {
