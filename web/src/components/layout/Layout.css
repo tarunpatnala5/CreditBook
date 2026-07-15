@@ -257,8 +257,8 @@
 /* ─── Pill Navigation — MOBILE ONLY (bottom floating) ─────────────────────────── */
 .pill-nav-wrapper {
   position: fixed;
-  /* 15px lower than the original resting position */
-  bottom: calc(var(--safe-bottom) + 10px - 15px);
+  /* 15px lower than the original resting position, then nudged 10px back up */
+  bottom: calc(var(--safe-bottom) + 10px - 15px + 10px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;
