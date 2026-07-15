@@ -49,7 +49,7 @@ async function getPersons(userId, { search, sort } = {}) {
         interestTabTotal += computeLiveAmount(t.amount, t.interestRate, t.interestFrequency || 'annually', t.transactionDate);
       }
     }
-    return { ...p, interestTabTotal: parseFloat(interestTabTotal.toFixed(2)) };
+    return { ...p, interestTabTotal };
   });
 
   // Totals include interest tab amounts
@@ -120,7 +120,7 @@ async function getPerson(personId, userId) {
     }
   }
 
-  return { ...formatPerson(person), interestTabTotal: parseFloat(interestTabTotal.toFixed(2)) };
+  return { ...formatPerson(person), interestTabTotal };
 }
 
 

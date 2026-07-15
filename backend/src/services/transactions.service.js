@@ -12,16 +12,20 @@ const FREQUENCY_N = {
   'daily':         365,
 };
 
-// ─── Method B: real-time live amount (for display only) ───────────────────
-// A = P × (1 + R/n)^(n×T)  — T in years (fractional OK)
+// ─── Standard Compound Interest Formula ───────────────────────────────────
+// A = P × (1 + R/n)^(n × T)
+// This is the universal standard used in finance, CAGR, investments, Excel FV()
+// Handles fractional periods correctly via the exponent (no broken-period hack)
 function computeLiveAmount(principal, rate, frequency, startDate) {
   if (!rate || !startDate) return principal;
   const n = FREQUENCY_N[frequency] || 1;
   const r = rate / 100;
-  const T = (Date.now() - new Date(startDate).getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+  const T = (Date.now() - new Date(startDate).getTime()) / (365 * 24 * 60 * 60 * 1000);
   if (T <= 0) return principal;
+  // A = P × (1 + R/n)^(n × T)
   return principal * Math.pow(1 + r / n, n * T);
 }
+
 
 // ─── Get transactions for a person ────────────────────────────────────────
 async function getTransactions(personId, userId, { status, type, page = 1, limit = 50 } = {}) {
@@ -225,8 +229,8 @@ function formatTransaction(t) {
     type: t.type,
     amount: t.amount,
     currentAmount: t.currentAmount,
-    liveAmount: parseFloat(liveAmount.toFixed(2)),
-    interestAccrued: parseFloat(Math.max(0, interestAccrued).toFixed(2)),
+    liveAmount,
+    interestAccrued: Math.max(0, interestAccrued),
     description: t.description,
     interestRate: t.interestRate,
     interestFrequency: t.interestFrequency || 'annually',
