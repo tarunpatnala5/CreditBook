@@ -570,15 +570,15 @@ export default function PersonDetailPage() {
     <div className="person-detail-page">
       {/* Navigation Bar */}
       <div className="nav-bar-page">
-        <button className="nav-back-btn" onClick={() => navigate('/')} id="nav-back-btn">
+        <button className="nav-back-btn" onClick={() => navigate(isOwner ? '/' : '/shared')} id="nav-back-btn">
           <svg width="10" height="16" viewBox="0 0 10 18" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 1L1 9l8 8" />
           </svg>
         </button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, justifyContent: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, justifyContent: 'flex-start', marginLeft: 12, minWidth: 0 }}>
           <Avatar name={person.name} color={person.avatarColor} size={32} />
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-            <span className="nav-page-title" style={{ textAlign: 'left' }}>{person.name}</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 0 }}>
+            <span className="nav-page-title" style={{ textAlign: 'left', flex: 'unset' }}>{person.name}</span>
             {!isOwner && (
               <span style={{ fontSize: 11, color: 'var(--label-tertiary)', fontWeight: 500 }}>
                 View only
