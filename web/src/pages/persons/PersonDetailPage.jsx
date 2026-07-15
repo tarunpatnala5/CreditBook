@@ -1,6 +1,5 @@
 // Credit Book — Person Detail Page
 import React, { useState } from 'react';
-import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -24,8 +23,8 @@ const FREQ_LABELS = {
 
 const FREQ_OPTIONS = Object.entries(FREQ_LABELS);
 
-// ─── Interest Setup Modal (Portal — renders above BottomSheet) ────────────
-function InterestSetupModal({ isOpen, onClose, onSave, initialFrequency = 'annually', initialRate = '' }) {
+// ─── Interest Setup Sheet (uses BottomSheet — same as all other popups) ─────
+function InterestSetupSheet({ isOpen, onClose, onSave, initialFrequency = 'annually', initialRate = '' }) {
   const [frequency, setFrequency] = useState(initialFrequency);
   const [rate, setRate] = useState(initialRate);
   const [error, setError] = useState('');
@@ -47,60 +46,53 @@ function InterestSetupModal({ isOpen, onClose, onSave, initialFrequency = 'annua
     onClose();
   }
 
-  if (!isOpen) return null;
-
-  // Use portal to escape BottomSheet stacking context (BottomSheet is z-index 200)
-  return createPortal(
-    <div className="interest-modal-overlay" onClick={onClose} style={{ zIndex: 1000 }}>
-      <div className="interest-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="interest-modal-header">
-          <span className="interest-modal-title">Set Interest</span>
-          <button className="interest-modal-close" onClick={onClose}>✕</button>
-        </div>
-
-        {/* Frequency Dropdown */}
-        <div>
-          <div className="interest-field-label">Compounding Frequency</div>
-          <select
-            className="interest-frequency-select"
-            value={frequency}
-            onChange={(e) => setFrequency(e.target.value)}
-            id="interest-frequency-select"
-          >
-            {FREQ_OPTIONS.map(([val, label]) => (
-              <option key={val} value={val}>{label}</option>
-            ))}
-          </select>
+  return (
+    <BottomSheet isOpen={isOpen} onClose={onClose} title="Set Interest">
+      <div className="add-txn-form">
+        {/* Frequency Select */}
+        <div className="text-field">
+          <label className="text-field-label" htmlFor="interest-frequency-select">
+            Compounding Frequency
+          </label>
+          <div className="text-field-input-wrap">
+            <select
+              className="interest-frequency-select"
+              value={frequency}
+              onChange={(e) => setFrequency(e.target.value)}
+              id="interest-frequency-select"
+            >
+              {FREQ_OPTIONS.map(([val, label]) => (
+                <option key={val} value={val}>{label}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* Rate Input */}
-        <div>
-          <div className="interest-field-label">Interest Rate % per year</div>
-          <input
-            className="interest-rate-input"
-            type="number"
-            inputMode="decimal"
-            placeholder="e.g. 12"
-            value={rate}
-            onChange={(e) => { setRate(e.target.value); setError(''); }}
-            id="interest-rate-input"
-            autoFocus
-          />
-          {error && <div style={{ color: 'var(--color-red)', fontSize: 12, marginTop: 4 }}>{error}</div>}
-        </div>
+        <TextField
+          id="interest-rate-input"
+          label="Interest Rate (% per year)"
+          value={rate}
+          onChange={(v) => { setRate(v); setError(''); }}
+          placeholder="e.g. 12"
+          type="number"
+          inputMode="decimal"
+          autoFocus
+          error={error}
+          suffix="%"
+        />
 
         {/* Actions */}
-        <div className="interest-modal-actions">
-          <button className="interest-modal-cancel" onClick={onClose} id="interest-modal-cancel">
+        <div className="txn-form-actions">
+          <Button id="interest-cancel" variant="secondary" size="md" type="button" onClick={onClose}>
             Cancel
-          </button>
-          <button className="interest-modal-save" onClick={handleSave} id="interest-modal-save">
+          </Button>
+          <Button id="interest-save" variant="primary" size="md" type="button" onClick={handleSave}>
             Save
-          </button>
+          </Button>
         </div>
       </div>
-    </div>,
-    document.body
+    </BottomSheet>
   );
 }
 
@@ -217,7 +209,7 @@ function AddTransactionSheet({ isOpen, onClose, personId, type }) {
         </form>
       </BottomSheet>
 
-      <InterestSetupModal
+      <InterestSetupSheet
         isOpen={interestModalOpen}
         onClose={() => setInterestModalOpen(false)}
         onSave={(data) => setInterestData(data)}

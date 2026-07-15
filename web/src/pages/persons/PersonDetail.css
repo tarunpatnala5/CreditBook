@@ -421,77 +421,16 @@
   flex-shrink: 0;
 }
 
-/* ─── Interest Setup Modal (Popup) ────────────────────────────────────────── */
-.interest-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 20px;
-  animation: fadeIn 150ms ease both;
-}
-
-.interest-modal {
-  background: var(--bg-secondary);
-  border-radius: 20px;
-  padding: 24px 20px 24px;
-  width: 100%;
-  max-width: 360px;
-  max-height: 90dvh;
-  overflow-y: auto;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.28);
-  animation: scaleIn 200ms var(--ease-spring) both;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-@keyframes scaleIn {
-  from { transform: scale(0.92); opacity: 0; }
-  to   { transform: scale(1);    opacity: 1; }
-}
-
-.interest-modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.interest-modal-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--label-primary);
-}
-
-.interest-modal-close {
-  background: var(--fill-tertiary);
+/* ─── Interest Frequency Select (inside BottomSheet form) ─────────────────── */
+/* When inside text-field-input-wrap it must fill the container */
+.text-field-input-wrap .interest-frequency-select {
+  flex: 1;
+  background-color: transparent;
   border: none;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  font-size: 14px;
-  color: var(--label-tertiary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.interest-field-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--label-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 6px;
+  height: 100%;
+  padding: 0;
+  padding-right: 28px;
+  background-position: right 0 center;
 }
 
 .interest-frequency-select {
@@ -518,68 +457,6 @@
 .interest-frequency-select:focus {
   border-color: var(--app-accent);
 }
-
-.interest-rate-input {
-  width: 100%;
-  height: 46px;
-  border-radius: var(--radius-md);
-  background: var(--fill-tertiary);
-  border: 1.5px solid transparent;
-  color: var(--label-primary);
-  font-size: var(--text-subheadline);
-  font-family: var(--font-text);
-  padding: 0 14px;
-  outline: none;
-  box-sizing: border-box;
-  transition: border-color 0.15s;
-}
-
-.interest-rate-input:focus {
-  border-color: var(--app-accent);
-}
-
-.interest-rate-input::placeholder {
-  color: var(--label-tertiary);
-}
-
-.interest-modal-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 4px;
-}
-
-.interest-modal-cancel {
-  flex: 1;
-  height: 46px;
-  border-radius: var(--radius-xl);
-  background: var(--fill-tertiary);
-  color: var(--label-primary);
-  border: none;
-  font-size: var(--text-subheadline);
-  font-weight: 500;
-  cursor: pointer;
-  font-family: var(--font-text);
-  transition: background var(--duration-instant) ease;
-}
-
-.interest-modal-cancel:active { background: var(--fill-secondary); }
-
-.interest-modal-save {
-  flex: 1;
-  height: 46px;
-  border-radius: var(--radius-xl);
-  background: linear-gradient(135deg, hsl(38, 90%, 48%), hsl(32, 85%, 40%));
-  color: white;
-  border: none;
-  font-size: var(--text-subheadline);
-  font-weight: 600;
-  cursor: pointer;
-  font-family: var(--font-text);
-  box-shadow: 0 3px 12px hsla(38, 90%, 48%, 0.30);
-  transition: opacity var(--duration-instant) ease;
-}
-
-.interest-modal-save:active { opacity: 0.85; }
 
 /* ─── Person Options Sheet ───────────────────────────────────────────────── */
 .person-options {
