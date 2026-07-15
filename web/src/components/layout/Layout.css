@@ -283,8 +283,9 @@
   justify-content: space-between;
   /* stretched to fill the wider wrapper — tabs spread out, icons/text stay their own size */
   width: 100%;
-  /* top stretched to 10px (grows upward only); sides/bottom unchanged */
-  padding: 10px 3px 3px;
+  /* symmetric top/bottom padding so tab content is vertically centered
+     inside the outer pill shape (asymmetric padding was pushing icons down) */
+  padding: 6px 3px;
   /* tight outer gap — matches Apple */
   gap: 0;
   /* solid fallback color first — if backdrop-filter is unsupported/ignored
@@ -317,11 +318,11 @@
 /* Sliding indicator — sits behind the active tab, full tab height, smooth slide */
 .pill-nav-indicator {
   position: absolute;
-  top: 10px;
+  top: 6px;
   /* match outer padding */
   left: 0;
-  bottom: 2.5px;
-  /* unchanged — bottom padding didn't grow */
+  bottom: 6px;
+  /* match outer padding */
   border-radius: 999px;
   background: #E5E5EA;
   /* Apple iOS grey — same as system grouped fill */
