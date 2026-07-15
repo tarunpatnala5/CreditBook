@@ -257,12 +257,15 @@
 /* ─── Pill Navigation — MOBILE ONLY (bottom floating) ─────────────────────────── */
 .pill-nav-wrapper {
   position: fixed;
-  bottom: calc(var(--safe-bottom) + 10px);
+  /* 15px lower than the original resting position */
+  bottom: calc(var(--safe-bottom) + 10px - 15px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;
   pointer-events: none;
   display: flex;
+  width: min(92vw, 420px);
+  justify-content: center;
 }
 
 @media (min-width: 768px) {
@@ -275,12 +278,16 @@
 .pill-nav {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  /* stretched to fill the wider wrapper — tabs spread out, icons/text stay their own size */
+  width: 100%;
   padding: 3px;
   /* tight outer gap — matches Apple */
   gap: 0;
-  background: var(--pill-bg);
-  backdrop-filter: var(--blur-pill);
-  -webkit-backdrop-filter: var(--blur-pill);
+  /* solid fallback color first — if backdrop-filter is unsupported/ignored
+     (some Android webviews silently drop it) the pill still reads as an
+     opaque surface instead of letting page content show through */
+  background: var(--pill-bg-fallback);
   border-radius: 999px;
   box-shadow: var(--pill-shadow);
   border: 0.5px solid var(--separator);
@@ -292,6 +299,16 @@
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
   will-change: backdrop-filter;
+  isolation: isolate;
+}
+
+/* Where backdrop-filter actually works, swap in the true frosted-glass look */
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .pill-nav {
+    background: var(--pill-bg);
+    backdrop-filter: var(--blur-pill);
+    -webkit-backdrop-filter: var(--blur-pill);
+  }
 }
 
 /* Sliding indicator — sits behind the active tab, full tab height, smooth slide */
@@ -324,6 +341,9 @@
   align-items: center;
   justify-content: center;
   gap: 2px;
+  /* flex-grow spreads the tabs across the now-wider pill; the icon and
+     label inside keep their own fixed sizes and just get more breathing room */
+  flex: 1 1 0;
   min-width: 64px;
   padding: 6px 8px;
   border-radius: 999px;
