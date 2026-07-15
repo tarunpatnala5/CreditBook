@@ -1,5 +1,5 @@
 // Credit Book — App Layout with NavigationBar and PillTabBar
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef, useState, useLayoutEffect, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { notificationsApi } from '../../api';
@@ -71,6 +71,35 @@ function PillTabBar() {
   const navigate = useNavigate();
   const location = useLocation();
   const tabs = useTabs();
+  const activeIndex = tabs.findIndex((tab) => isActive(tab.path, location.pathname));
+
+  const navRef = useRef(null);
+  const iconRefs = useRef([]);
+  const [indicator, setIndicator] = useState({ x: 0, y: 0, w: 0, h: 0, ready: false });
+
+  const measure = useCallback(() => {
+    const iconEl = iconRefs.current[activeIndex];
+    const navEl = navRef.current;
+    if (!iconEl || !navEl) return;
+    const iconRect = iconEl.getBoundingClientRect();
+    const navRect = navEl.getBoundingClientRect();
+    setIndicator({
+      x: iconRect.left - navRect.left,
+      y: iconRect.top - navRect.top,
+      w: iconRect.width,
+      h: iconRect.height,
+      ready: true,
+    });
+  }, [activeIndex]);
+
+  useLayoutEffect(() => {
+    measure();
+  }, [measure]);
+
+  useEffect(() => {
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [measure]);
 
   function handleNavigate(path) {
     _forceCloseAllSheets(); // directly force-close any open sheet before route change
@@ -79,9 +108,19 @@ function PillTabBar() {
 
   return (
     <div className="pill-nav-wrapper">
-      <nav className="pill-nav" role="navigation" aria-label="Main navigation">
-        {tabs.map((tab) => {
-          const active = isActive(tab.path, location.pathname);
+      <nav className="pill-nav" role="navigation" aria-label="Main navigation" ref={navRef}>
+        {/* Sliding grey indicator — bounces to the active icon */}
+        <div
+          className="pill-nav-indicator"
+          style={{
+            transform: `translate(${indicator.x}px, ${indicator.y}px)`,
+            width: indicator.w,
+            height: indicator.h,
+            opacity: indicator.ready ? 1 : 0,
+          }}
+        />
+        {tabs.map((tab, i) => {
+          const active = i === activeIndex;
           const Icon = TabIcons[tab.id];
           return (
             <button
@@ -93,7 +132,7 @@ function PillTabBar() {
               aria-current={active ? 'page' : undefined}
               title={tab.label}
             >
-              <span className="pill-tab-icon">
+              <span className="pill-tab-icon" ref={(el) => (iconRefs.current[i] = el)}>
                 <Icon active={active} />
               </span>
               {tab.badge > 0 && (
