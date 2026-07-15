@@ -266,7 +266,7 @@
   border: 0.5px solid var(--separator);
   pointer-events: all;
   position: relative;
-  animation: scaleIn 400ms var(--ease-spring) both;
+  animation: fadeIn 250ms ease both;
 }
 
 /* Sliding indicator — sits behind the active tab, full tab height, smooth slide */

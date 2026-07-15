@@ -75,12 +75,10 @@ function PillTabBar() {
 
   const navRef = useRef(null);
   const tabRefs = useRef([]);
-  // Start with ready:false so indicator is invisible until measured
-  const [indicator, setIndicator] = useState({ x: 0, w: 0, ready: false });
-  // Track whether this is first mount (no transition) or a tab switch (transition)
-  const isFirstMount = useRef(true);
+  const [indicator, setIndicator] = useState({ x: 0, w: 0, ready: false, slide: false });
+  const mounted = useRef(false);
 
-  function measure(skipTransition) {
+  function measure(slide) {
     const tabEl = tabRefs.current[activeIndex];
     const navEl = navRef.current;
     if (!tabEl || !navEl) return;
@@ -90,50 +88,26 @@ function PillTabBar() {
       x: tabRect.left - navRect.left,
       w: tabRect.width,
       ready: true,
-      animate: !!animate,
+      slide: !!slide,
     });
   }
 
   useLayoutEffect(() => {
-    const nav = navRef.current;
-    if (!nav) return;
+    const isFirstPaint = !mounted.current;
+    if (!mounted.current) mounted.current = true;
 
-    if (isFirstMount.current) {
-      // The outer pill has a scaleIn CSS animation. getBoundingClientRect during
-      // that animation returns scaled-down coordinates → indicator ends up off-center.
-      // We listen for animationend before measuring so we always get final values.
-      const onAnimEnd = () => {
-        measure(false); // instant placement, no slide transition on first paint
-        isFirstMount.current = false;
-      };
-      nav.addEventListener('animationend', onAnimEnd, { once: true });
-
-      // Fallback: if no animation fires within 500ms (reduced-motion, cached, etc.)
-      const fallbackId = setTimeout(() => {
-        if (isFirstMount.current) {
-          nav.removeEventListener('animationend', onAnimEnd);
-          measure(false);
-          isFirstMount.current = false;
-        }
-      }, 500);
-
-      return () => {
-        nav.removeEventListener('animationend', onAnimEnd);
-        clearTimeout(fallbackId);
-      };
-    } else {
-      // Tab switch after first mount: pill is fully visible, measure next rAF
-      const id = requestAnimationFrame(() => measure(true)); // animate = slide
-      return () => cancelAnimationFrame(id);
-    }
+    // Single rAF is enough now that the pill uses opacity-only fadeIn (no scale transform).
+    // On first paint → place indicator instantly (no slide). On tab switch → slide.
+    const id = requestAnimationFrame(() => measure(!isFirstPaint));
+    return () => cancelAnimationFrame(id);
   }, [activeIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Re-measure on resize (instant snap, no animation)
+  // Re-measure on resize — instant snap
   useEffect(() => {
     const nav = navRef.current;
     if (!nav) return;
     const ro = new ResizeObserver(() => {
-      if (!isFirstMount.current) measure(false);
+      if (mounted.current) measure(false);
     });
     ro.observe(nav);
     return () => ro.disconnect();
@@ -147,17 +121,16 @@ function PillTabBar() {
   return (
     <div className="pill-nav-wrapper">
       <nav className="pill-nav" role="navigation" aria-label="Main navigation" ref={navRef}>
-        {/* Sliding grey indicator pill behind the active tab */}
+        {/* Grey indicator pill — slides to active tab */}
         <div
           className="pill-nav-indicator"
           style={{
             transform: `translateX(${indicator.x}px)`,
             width: indicator.w,
             opacity: indicator.ready ? 1 : 0,
-            // Only slide-animate on tab switch, not on first paint
-            transition: indicator.animate
-              ? 'transform 320ms cubic-bezier(0.25, 0.46, 0.45, 0.94), width 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 200ms ease'
-              : 'opacity 200ms ease',
+            transition: indicator.slide
+              ? 'transform 320ms cubic-bezier(0.25, 0.46, 0.45, 0.94), width 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 150ms ease'
+              : 'opacity 150ms ease',
           }}
         />
         {tabs.map((tab, i) => {
@@ -189,6 +162,7 @@ function PillTabBar() {
     </div>
   );
 }
+
 
 // ─── Desktop Tab Nav (inside top bar, center) ──────────────────────────────
 function DesktopTabNav() {
