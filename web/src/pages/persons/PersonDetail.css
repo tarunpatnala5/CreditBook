@@ -195,10 +195,9 @@
   transform: scale(0.98);
 }
 
-/* Interest transaction card — subtle warm tint */
+/* Interest transaction card */
 .transaction-card.interest-txn {
   background: var(--bg-secondary);
-  border-left: 3px solid hsl(38, 80%, 55%);
 }
 
 /* Row 1: Amount + Description */
@@ -313,10 +312,9 @@
 }
 
 .transaction-live-label {
-  font-size: 10px;
-  color: var(--label-tertiary);
+  font-size: var(--text-caption-2);
+  color: var(--label-secondary);
   text-align: right;
-  font-style: italic;
 }
 
 /* ─── Bottom Action Buttons ──────────────────────────────────────────────── */

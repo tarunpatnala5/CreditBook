@@ -370,7 +370,7 @@ function TransactionCard({ txn, index, onClick }) {
               <div className="transaction-live-amount">
                 {formatCurrency(displayAmount)}
               </div>
-              <div className="transaction-live-label">live · as of today</div>
+              <div className="transaction-live-label">Principal + Interest (Live)</div>
             </>
           ) : (
             <div className={`transaction-amount ${txn.type}`}>
