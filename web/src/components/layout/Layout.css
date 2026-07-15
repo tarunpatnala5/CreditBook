@@ -287,6 +287,11 @@
   pointer-events: all;
   position: relative;
   animation: fadeIn 250ms ease both;
+  /* Force GPU compositing layer — required for backdrop-filter to render on
+     Android Chrome (without this, blur is silently ignored on mobile) */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: backdrop-filter;
 }
 
 /* Sliding indicator — sits behind the active tab, full tab height, smooth slide */
