@@ -169,18 +169,12 @@ export default function HomePage() {
       {/* Summary Cards */}
       <div className="summary-cards">
         <div className="summary-card">
-          <div className="summary-card-text">
-            <span className="summary-card-label">You Will Get</span>
-            <span className="summary-card-sub">Total receivable</span>
-          </div>
-          <span className={`summary-card-amount positive`}>{formatCurrency(totalGet)}</span>
+          <span className="summary-card-label">You Will Give</span>
+          <span className={`summary-card-amount negative`}>{formatCurrency(totalGive)}</span>
         </div>
         <div className="summary-card">
-          <div className="summary-card-text">
-            <span className="summary-card-label">You Will Give</span>
-            <span className="summary-card-sub">Total payable</span>
-          </div>
-          <span className={`summary-card-amount negative`}>{formatCurrency(totalGive)}</span>
+          <span className="summary-card-label">You Will Get</span>
+          <span className={`summary-card-amount positive`}>{formatCurrency(totalGet)}</span>
         </div>
       </div>
 
