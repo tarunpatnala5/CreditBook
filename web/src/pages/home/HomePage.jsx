@@ -141,7 +141,7 @@ export default function HomePage() {
     });
   }, []);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['persons', searchValue],
     queryFn: () => personsApi.getAll({ search: searchValue || undefined }),
     select: (d) => d?.data,
@@ -198,6 +198,13 @@ export default function HomePage() {
           <div className="persons-container">
             {[1, 2, 3, 4].map((i) => <SkeletonRow key={i} />)}
           </div>
+        ) : isError ? (
+          <EmptyState
+            icon="⚠️"
+            title="Couldn't load entries"
+            body={error?.message || 'Something went wrong. Please try again.'}
+            action={{ label: 'Retry', onClick: () => refetch() }}
+          />
         ) : persons.length === 0 ? (
           <EmptyState
             icon={searchActive ? '🔍' : '👥'}
