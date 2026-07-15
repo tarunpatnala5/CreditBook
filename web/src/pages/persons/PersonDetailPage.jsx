@@ -51,7 +51,7 @@ function InterestSetupModal({ isOpen, onClose, onSave, initialFrequency = 'annua
 
   // Use portal to escape BottomSheet stacking context (BottomSheet is z-index 200)
   return createPortal(
-    <div className="interest-modal-overlay" onClick={onClose} style={{ zIndex: 600 }}>
+    <div className="interest-modal-overlay" onClick={onClose} style={{ zIndex: 1000 }}>
       <div className="interest-modal" onClick={(e) => e.stopPropagation()}>
         <div className="interest-modal-header">
           <span className="interest-modal-title">Set Interest</span>
