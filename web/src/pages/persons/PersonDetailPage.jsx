@@ -162,7 +162,7 @@ function AddTransactionSheet({ isOpen, onClose, personId, type }) {
           />
           <TextField
             id="txn-description"
-            label="Note (optional)"
+            label="Note (Optional)"
             value={description}
             onChange={setDescription}
             placeholder="What's this for?"
@@ -170,7 +170,7 @@ function AddTransactionSheet({ isOpen, onClose, personId, type }) {
           />
           <TextField
             id="txn-date"
-            label="Date & Time (optional)"
+            label="Date & Time (Optional)"
             value={date}
             onChange={setDate}
             type="datetime-local"
@@ -184,7 +184,7 @@ function AddTransactionSheet({ isOpen, onClose, personId, type }) {
             id="interest-btn-card"
           >
             <div className="interest-btn-left">
-              <span className="interest-btn-title">Interest (optional)</span>
+              <span className="interest-btn-title">Interest (Optional)</span>
               {interestData ? (
                 <span className="interest-btn-subtitle">
                   {interestData.rate}% p.a. · {FREQ_LABELS[interestData.frequency]}
