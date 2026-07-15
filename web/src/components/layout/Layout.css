@@ -256,7 +256,7 @@
 .pill-nav {
   display: flex;
   align-items: center;
-  padding: 6px;           /* outer gap all around */
+  padding: 3px;           /* tight outer gap — matches Apple */
   gap: 0;
   background: var(--pill-bg);
   backdrop-filter: var(--blur-pill);
@@ -272,9 +272,9 @@
 /* Sliding indicator — sits behind the active tab, full tab height, smooth slide */
 .pill-nav-indicator {
   position: absolute;
-  top: 6px;               /* match outer padding */
+  top: 3px;               /* match outer padding */
   left: 0;
-  bottom: 6px;            /* match outer padding */
+  bottom: 3px;            /* match outer padding */
   border-radius: 999px;
   background: #E5E5EA;    /* Apple iOS grey — same as system grouped fill */
   /* No static transition here — transition is set inline from JS so we can
@@ -315,7 +315,7 @@
   color: var(--app-accent);
 }
 
-.pill-tab:active { transform: scale(0.92); transition: transform 80ms ease; }
+
 
 /* Icon container */
 .pill-tab-icon {
