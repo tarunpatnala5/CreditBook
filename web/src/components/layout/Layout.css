@@ -349,7 +349,7 @@
      label inside keep their own fixed sizes and just get more breathing room */
   flex: 1 1 0;
   min-width: 64px;
-  padding: 6px 8px;
+  padding: 6px 6px;
   border-radius: 999px;
   cursor: pointer;
   position: relative;
