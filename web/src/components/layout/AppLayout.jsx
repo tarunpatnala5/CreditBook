@@ -84,12 +84,17 @@ function PillTabBar() {
     if (!tabEl || !navEl) return;
     const tabRect = tabEl.getBoundingClientRect();
     const navRect = navEl.getBoundingClientRect();
-    // Round to whole pixels — fractional flex widths (e.g. 91.75px per tab)
-    // otherwise leave the indicator's right edge a fraction of a pixel off
-    // from its left edge, which reads as an uneven gap once painted.
+    // The indicator is position:absolute inside the nav, so left:0 is the
+    // nav's *padding* edge.  But getBoundingClientRect() returns the
+    // *border* edge.  Subtract the border so the indicator lands exactly
+    // on the tab — giving equal gaps on every side (left, right, top, bottom).
+    // Don't Math.round — translateX handles sub-pixels perfectly and
+    // independent rounding of x & w caused the last tab's right gap to
+    // shrink by up to 1px vs the first tab's left gap.
+    const borderLeft = navEl.clientLeft || 0;
     setIndicator({
-      x: Math.round(tabRect.left - navRect.left),
-      w: Math.round(tabRect.width),
+      x: tabRect.left - navRect.left - borderLeft,
+      w: tabRect.width,
       ready: true,
       slide: !!slide,
     });
