@@ -53,7 +53,7 @@ function AddPersonSheet({ isOpen, onClose }) {
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} title="Add Person">
-      <form className="add-person-form" onSubmit={handleSubmit} noValidate>
+      <form className="add-person-form" onSubmit={handleSubmit} noValidate autoComplete="off">
         <TextField
           id="add-person-name"
           label="Name"

@@ -139,7 +139,7 @@ function AddTransactionSheet({ isOpen, onClose, personId, type }) {
   return (
     <>
       <BottomSheet isOpen={isOpen} onClose={onClose} title={title}>
-        <form className="add-txn-form" onSubmit={handleSubmit}>
+        <form className="add-txn-form" onSubmit={handleSubmit} autoComplete="off">
           <TextField
             id="txn-amount"
             label="Amount"
@@ -302,7 +302,7 @@ function EditTransactionSheet({ isOpen, onClose, transaction, personId }) {
   return (
     <>
       <BottomSheet isOpen={isOpen} onClose={onClose} title="Edit Entry">
-        <form className="add-txn-form" onSubmit={handleSave}>
+        <form className="add-txn-form" onSubmit={handleSave} autoComplete="off">
 
           {/* Type toggle: gave / got */}
           <div className="edit-type-toggle">
@@ -445,7 +445,7 @@ function TransactionCard({ txn, index, onClick }) {
           </div>
         )}
         {isInterest && (
-          <div className="transaction-balance-chip">
+          <div className="transaction-balance-chip" style={{ background: 'hsla(38,80%,55%,0.14)', color: 'hsl(38,60%,38%)' }}>
             Principal: {formatCurrency(txn.amount)}
           </div>
         )}
@@ -493,7 +493,7 @@ function EditPersonSheet({ isOpen, onClose, person, personId }) {
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} title="Edit Person">
-      <form className="add-txn-form" onSubmit={(e) => { e.preventDefault(); mutate({ name, phone }); }}>
+      <form className="add-txn-form" onSubmit={(e) => { e.preventDefault(); mutate({ name, phone }); }} autoComplete="off">
         <TextField id="edit-person-name" label="Name" value={name} onChange={setName} placeholder="Full name" />
         <TextField id="edit-person-phone" label="Phone Number" value={phone} onChange={setPhone} placeholder="98765 43210" type="tel" />
         <Button id="edit-person-save" variant="primary" size="md" fullWidth loading={isPending}>
@@ -538,7 +538,7 @@ function BalanceCard({ balance, totalInterestAccrued, balanceLabel, balanceClass
     );
   }
 
-  // Interest only (balance = 0 but has interest): compact 2-row card
+  // Interest only (balance = 0 but has interest): compact single-row card
   if (!hasBalance && hasInterest) {
     const interestLabel = balanceClass === 'positive' ? 'You will get' : 'You will give';
     return (
@@ -550,11 +550,6 @@ function BalanceCard({ balance, totalInterestAccrued, balanceLabel, balanceClass
                 <span className="balance-row-label">{interestLabel}</span>
                 <span className="balance-row-sublabel">(Interest)</span>
               </div>
-              <span className="balance-row-value">{formatCurrency(interest)}</span>
-            </div>
-            <div className="balance-row-divider" />
-            <div className="balance-row-item total">
-              <span className="balance-row-label">Total</span>
               <span className="balance-row-value">{formatCurrency(interest)}</span>
             </div>
           </div>

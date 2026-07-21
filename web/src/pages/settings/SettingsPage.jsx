@@ -27,7 +27,7 @@ function EditFieldSheet({ isOpen, onClose, title, initialValue, onSave, loading,
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} title={title}>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }} autoComplete="off">
         <TextField id="edit-field-input" label={label} value={value} onChange={setValue} placeholder={placeholder} type={type} inputMode={inputMode} autoFocus />
         <Button id="edit-field-save" variant="primary" size="md" fullWidth loading={loading}>
           Save

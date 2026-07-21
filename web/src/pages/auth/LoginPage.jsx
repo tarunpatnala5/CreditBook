@@ -45,7 +45,7 @@ export default function LoginPage() {
 
       </div>
 
-      <form className="auth-form" onSubmit={handleSubmit}>
+      <form className="auth-form" onSubmit={handleSubmit} autoComplete="off">
         <div className="auth-card">
           <TextField
             id="login-phone"
