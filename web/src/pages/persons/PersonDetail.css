@@ -13,21 +13,16 @@
   padding: var(--space-4) var(--space-5);
   border-radius: var(--radius-xl);
   animation: scaleIn 300ms var(--ease-spring) both;
+  background: var(--bg-secondary); /* same as transaction cards */
+  box-shadow: 0 1px 8px rgba(0,0,0,0.07);
 }
 
-.balance-card.positive {
-  background: linear-gradient(135deg, hsl(152, 50%, 40%), hsl(152, 55%, 32%));
-  box-shadow: 0 6px 24px hsla(152, 50%, 40%, 0.28);
-}
-
-.balance-card.negative {
-  background: linear-gradient(135deg, hsl(4, 65%, 50%), hsl(4, 70%, 40%));
-  box-shadow: 0 6px 24px hsla(4, 65%, 50%, 0.28);
-}
-
+/* Remove colored gradient backgrounds — color is now on the text/amounts */
+.balance-card.positive,
+.balance-card.negative,
 .balance-card.zero {
-  background: linear-gradient(135deg, hsl(220, 15%, 48%), hsl(220, 18%, 38%));
-  box-shadow: 0 4px 16px hsla(0,0%,0%,0.12);
+  background: var(--bg-secondary);
+  box-shadow: 0 1px 8px rgba(0,0,0,0.07);
 }
 
 /* ─── Balance Card — simple mode (no interest) ───────────────────────────── */
@@ -40,7 +35,7 @@
 
 .balance-label {
   font-size: var(--text-subheadline);
-  color: rgba(255, 255, 255, 0.80);
+  color: var(--label-secondary);
   font-weight: 400;
   white-space: nowrap;
 }
@@ -48,7 +43,7 @@
 /* "(Current)" or "(Interest)" sublabel under the balance label in compact card */
 .balance-sublabel {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--label-tertiary);
   font-weight: 400;
   margin-top: 1px;
 }
@@ -57,9 +52,9 @@
   font-family: var(--font-display);
   font-size: 20px;
   font-weight: 700;
-  color: white;
   line-height: 1.1;
   white-space: nowrap;
+  /* color set by .amount-positive or .amount-negative */
 }
 
 /* ─── Balance Card — 3-column interest mode ─────────────────────────────── */
@@ -71,10 +66,10 @@
 
 .balance-card-top-label {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.75);
-  font-weight: 400;
+  font-weight: 500;
   margin-bottom: 4px;
   text-align: center;
+  /* color set by .label-positive or .label-negative or .label-neutral */
 }
 
 /* ─── Balance rows — vertical stack, equal font sizes, always fits ──────── */
@@ -94,7 +89,7 @@
 
 .balance-row-label {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.70);
+  color: var(--label-secondary);
   font-weight: 400;
   white-space: nowrap;
 }
@@ -103,25 +98,35 @@
   font-family: var(--font-display);
   font-size: 17px;
   font-weight: 700;
-  color: white;
   line-height: 1.1;
   white-space: nowrap;
+  /* color set by .amount-positive or .amount-negative */
 }
 
 .balance-row-divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.20);
+  background: var(--separator);
   margin: 2px 0;
 }
 
 .balance-row-item.total .balance-row-label {
-  color: rgba(255, 255, 255, 0.88);
-  font-weight: 500;
+  color: var(--label-primary);
+  font-weight: 600;
 }
 
 .balance-row-item.total .balance-row-value {
   font-size: 17px;
 }
+
+/* Amount direction color helpers */
+.amount-positive { color: hsl(152, 50%, 38%); }
+.amount-negative { color: hsl(4, 65%, 48%); }
+.amount-neutral  { color: var(--label-primary); }
+
+/* Top label direction colors */
+.label-positive { color: hsl(152, 50%, 35%); }
+.label-negative { color: hsl(4, 65%, 44%); }
+.label-neutral  { color: var(--label-secondary); }
 
 /* ─── Pill Tabs (Current/Upcoming/Interest) ──────────────────────────────── */
 .tab-pills {
@@ -302,7 +307,7 @@
 
 .balance-row-sublabel {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.60);
+  color: var(--label-tertiary);
   font-weight: 400;
 }
 

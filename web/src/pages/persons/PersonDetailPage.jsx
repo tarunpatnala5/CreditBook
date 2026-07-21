@@ -511,9 +511,9 @@ function EditPersonSheet({ isOpen, onClose, person, personId }) {
 // ─── Balance Card ─────────────────────────────────────────────────────────
 // Props: balance (signed, from DB) and signedInterest (signed net, got=pos, gave=neg)
 function BalanceCard({ balance, signedInterest }) {
-  const principal  = Math.abs(balance);
+  const principal   = Math.abs(balance);
   const interestAbs = Math.abs(signedInterest);
-  const netBalance = balance + signedInterest; // true signed net
+  const netBalance  = balance + signedInterest; // true signed net
 
   const hasBalance  = principal   > 0.005;
   const hasInterest = interestAbs > 0.005;
@@ -526,27 +526,29 @@ function BalanceCard({ balance, signedInterest }) {
   const effClass = effValue > 0.005 ? 'positive' : effValue < -0.005 ? 'negative' : 'zero';
   const effLabel = effValue > 0 ? 'You will get' : effValue < 0 ? 'You will give' : 'All settled up';
 
+  // Color class helpers for amounts and labels
+  const amtClass  = (v) => v > 0.005 ? 'amount-positive' : v < -0.005 ? 'amount-negative' : 'amount-neutral';
+  const lblClass  = (v) => v > 0.005 ? 'label-positive'  : v < -0.005 ? 'label-negative'  : 'label-neutral';
+
   // ── Case A+B: Both current balance AND interest exist → always 3-row layout ──
-  // Card color + label + Total all use the TRUE SIGNED NET.
-  // Current and Interest rows show absolute values (informational).
   if (hasBalance && hasInterest) {
     return (
       <div className={`balance-card ${effClass}`}>
         <div className="balance-card-interest">
-          <div className="balance-card-top-label">{effLabel}</div>
+          <div className={`balance-card-top-label ${lblClass(netBalance)}`}>{effLabel}</div>
           <div className="balance-rows">
             <div className="balance-row-item">
               <span className="balance-row-label">Current</span>
-              <span className="balance-row-value">{formatCurrency(principal)}</span>
+              <span className={`balance-row-value ${amtClass(balance)}`}>{formatCurrency(principal)}</span>
             </div>
             <div className="balance-row-item">
               <span className="balance-row-label">Interest</span>
-              <span className="balance-row-value">{formatCurrency(interestAbs)}</span>
+              <span className={`balance-row-value ${amtClass(signedInterest)}`}>{formatCurrency(interestAbs)}</span>
             </div>
             <div className="balance-row-divider" />
             <div className="balance-row-item total">
               <span className="balance-row-label">Total</span>
-              <span className="balance-row-value">{formatCurrency(Math.abs(netBalance))}</span>
+              <span className={`balance-row-value ${amtClass(netBalance)}`}>{formatCurrency(Math.abs(netBalance))}</span>
             </div>
           </div>
         </div>
@@ -557,17 +559,16 @@ function BalanceCard({ balance, signedInterest }) {
   // ── Case C: Interest only (balance = 0) ─────────────────────────────────
   if (!hasBalance && hasInterest) {
     const interestLabel = signedInterest > 0 ? 'You will get' : 'You will give';
-    const interestClass = signedInterest > 0 ? 'positive' : 'negative';
     return (
-      <div className={`balance-card ${interestClass}`}>
+      <div className={`balance-card ${effClass}`}>
         <div className="balance-card-interest">
           <div className="balance-rows">
             <div className="balance-row-item">
               <div className="balance-row-label-stack">
-                <span className="balance-row-label">{interestLabel}</span>
+                <span className={`balance-row-label ${lblClass(signedInterest)}`}>{interestLabel}</span>
                 <span className="balance-row-sublabel">(Interest)</span>
               </div>
-              <span className="balance-amount">{formatCurrency(interestAbs)}</span>
+              <span className={`balance-amount ${amtClass(signedInterest)}`}>{formatCurrency(interestAbs)}</span>
             </div>
           </div>
         </div>
@@ -580,10 +581,10 @@ function BalanceCard({ balance, signedInterest }) {
     <div className={`balance-card ${effClass}`}>
       <div className="balance-row">
         <div className="balance-row-label-stack">
-          <span className="balance-label">{effLabel}</span>
+          <span className={`balance-label ${lblClass(balance)}`}>{effLabel}</span>
           {hasBalance && <span className="balance-sublabel">(Current)</span>}
         </div>
-        <span className="balance-amount">{formatCurrency(principal)}</span>
+        <span className={`balance-amount ${amtClass(balance)}`}>{formatCurrency(principal)}</span>
       </div>
     </div>
   );
