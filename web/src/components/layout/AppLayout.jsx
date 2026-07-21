@@ -78,6 +78,11 @@ function PillTabBar() {
   const [indicator, setIndicator] = useState({ x: 0, w: 0, ready: false, slide: false });
   const mounted = useRef(false);
 
+  // The outer pill has 3px padding on all sides. The indicator must be
+  // inset by that same amount on left & right so all four sides of the
+  // gap between the outer pill and the indicator pill are equal.
+  const PILL_PADDING = 3;
+
   function measure(slide) {
     const tabEl = tabRefs.current[activeIndex];
     const navEl = navRef.current;
@@ -87,9 +92,13 @@ function PillTabBar() {
     // Round to whole pixels — fractional flex widths (e.g. 91.75px per tab)
     // otherwise leave the indicator's right edge a fraction of a pixel off
     // from its left edge, which reads as an uneven gap once painted.
+    const rawX = Math.round(tabRect.left - navRect.left);
+    const rawW = Math.round(tabRect.width);
     setIndicator({
-      x: Math.round(tabRect.left - navRect.left),
-      w: Math.round(tabRect.width),
+      // Shift right by PILL_PADDING and shrink by 2×PILL_PADDING so the
+      // indicator is inset equally from the outer pill on all four sides.
+      x: rawX + PILL_PADDING,
+      w: rawW - PILL_PADDING * 2,
       ready: true,
       slide: !!slide,
     });
