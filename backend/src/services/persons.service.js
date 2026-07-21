@@ -54,14 +54,16 @@ async function getPersons(userId, { search, sort } = {}) {
     return { ...p, interestTabTotal };
   });
 
-  // Totals include interest tab amounts
+  // True net per person = balance + signedInterest (both signed: negative=gave, positive=got)
+  // totalGive = sum of nets where person owes user (net < 0 means user gave more)
+  // totalGet  = sum of nets where user owes person  (net > 0 means user got more)
   const totalGive = personsWithInterest.reduce((sum, p) => {
-    const total = p.balance < 0 ? Math.abs(p.balance) + p.interestTabTotal : p.interestTabTotal;
-    return sum + total;
+    const net = p.balance + p.interestTabTotal;
+    return sum + (net < 0 ? Math.abs(net) : 0);
   }, 0);
   const totalGet = personsWithInterest.reduce((sum, p) => {
-    const total = p.balance > 0 ? p.balance + p.interestTabTotal : p.interestTabTotal;
-    return sum + total;
+    const net = p.balance + p.interestTabTotal;
+    return sum + (net > 0 ? net : 0);
   }, 0);
 
   return {

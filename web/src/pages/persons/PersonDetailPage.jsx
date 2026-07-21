@@ -514,12 +514,7 @@ function BalanceCard({ balance, signedInterest }) {
   const hasBalance  = principal   > 0.005;
   const hasInterest = interestAbs > 0.005;
 
-  // Same direction = both positive, both negative, or one is zero
-  const sameDir = !hasBalance || !hasInterest ||
-    (balance > 0 && signedInterest > 0) ||
-    (balance < 0 && signedInterest < 0);
-
-  // Effective value drives card color and label
+  // Effective value: when both exist use true net, otherwise use whichever has a value
   const effValue = (hasBalance && hasInterest) ? netBalance
     : hasBalance ? balance
     : signedInterest;
@@ -527,9 +522,10 @@ function BalanceCard({ balance, signedInterest }) {
   const effClass = effValue > 0.005 ? 'positive' : effValue < -0.005 ? 'negative' : 'zero';
   const effLabel = effValue > 0 ? 'You will get' : effValue < 0 ? 'You will give' : 'All settled up';
 
-  // ── Case A: Both present & SAME direction → 3-row breakdown (math adds up) ──────
-  if (hasBalance && hasInterest && sameDir) {
-    const total = principal + interestAbs;
+  // ── Case A+B: Both current balance AND interest exist → always 3-row layout ──
+  // Card color + label + Total all use the TRUE SIGNED NET.
+  // Current and Interest rows show absolute values (informational).
+  if (hasBalance && hasInterest) {
     return (
       <div className={`balance-card ${effClass}`}>
         <div className="balance-card-interest">
@@ -546,24 +542,9 @@ function BalanceCard({ balance, signedInterest }) {
             <div className="balance-row-divider" />
             <div className="balance-row-item total">
               <span className="balance-row-label">Total</span>
-              <span className="balance-row-value">{formatCurrency(total)}</span>
+              <span className="balance-row-value">{formatCurrency(Math.abs(netBalance))}</span>
             </div>
           </div>
-        </div>
-      </div>
-    );
-  }
-
-  // ── Case B: Both present & OPPOSITE directions → compact net card ────────────
-  if (hasBalance && hasInterest && !sameDir) {
-    return (
-      <div className={`balance-card ${effClass}`}>
-        <div className="balance-row">
-          <div className="balance-row-label-stack">
-            <span className="balance-label">{effLabel}</span>
-            <span className="balance-sublabel">(Net)</span>
-          </div>
-          <span className="balance-amount">{formatCurrency(Math.abs(netBalance))}</span>
         </div>
       </div>
     );
