@@ -248,6 +248,11 @@
   padding-bottom: calc(var(--pill-nav-height) + var(--safe-bottom) + var(--space-4));
 }
 
+/* Sub-pages (support chat, manual) manage their own scroll internally */
+.page-content-subpage {
+  overflow: hidden;
+}
+
 /* Desktop — no extra bottom padding, pill is in top bar */
 @media (min-width: 768px) {
   .page-content-padded {

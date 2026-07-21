@@ -92,7 +92,7 @@
 
 .balance-row-value {
   font-family: var(--font-display);
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 700;
   color: white;
   line-height: 1.1;
@@ -111,7 +111,7 @@
 }
 
 .balance-row-item.total .balance-row-value {
-  font-size: 20px;
+  font-size: 17px;
 }
 
 /* ─── Pill Tabs (Current/Upcoming/Interest) ──────────────────────────────── */
@@ -192,7 +192,7 @@
 
 .transaction-amount {
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 700;
   line-height: 1.15;
 }
@@ -284,10 +284,10 @@
   font-weight: 600;
 }
 
-/* Live amount for interest transactions */
+/* Amount for interest transactions (principal + accrued) */
 .transaction-live-amount {
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 700;
   line-height: 1.15;
   color: hsl(38, 70%, 38%);

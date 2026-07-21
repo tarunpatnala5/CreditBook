@@ -222,7 +222,8 @@ export default function AppLayout() {
 
   return (
     <div className="app-layout">
-      <div className="page-content page-content-padded">
+      {/* Sub-pages manage their own full-screen layout; don't add pill padding */}
+      <div className={`page-content${isSubPage ? ' page-content-subpage' : ' page-content-padded'}`}>
         <Outlet />
       </div>
       {showNav && <PillTabBar />}
