@@ -109,9 +109,9 @@ function PersonRow({ person, index, onClick }) {
           <span className="person-row-sub">{formatRelative(person.lastActivityAt)}</span>
         )}
       </div>
-      <div className="person-row-balance" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-        <span className={`person-balance ${balance >= 0 ? 'positive' : 'negative'}`}>
-          {balance >= 0 ? '+' : '-'}{formatCurrency(displayTotal)}
+      <div className={`person-row-balance ${balance >= 0 ? 'positive' : 'negative'}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+        <span>
+          {formatCurrency(displayTotal)}
         </span>
         {isScheduledDelete && (
           <span style={{ fontSize: 10, color: 'var(--color-orange)', marginTop: 2 }}>Deleting soon</span>

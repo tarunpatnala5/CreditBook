@@ -78,7 +78,7 @@
 
 .balance-row-item {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
 }
@@ -284,19 +284,18 @@
   font-weight: 600;
 }
 
-/* Amount for interest transactions (principal + accrued) */
-.transaction-live-amount {
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1.15;
-  color: hsl(38, 70%, 38%);
+/* Label stack — for interest-only balance card rows */
+.balance-row-label-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.transaction-live-label {
-  font-size: var(--text-caption-2);
-  color: var(--label-secondary);
-  text-align: right;
+.balance-row-sublabel {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 400;
+  font-style: italic;
 }
 
 /* ─── Bottom Action Buttons ──────────────────────────────────────────────── */

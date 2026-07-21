@@ -419,7 +419,7 @@ function TransactionCard({ txn, index, onClick }) {
         <div className="transaction-right-col">
           {isInterest ? (
             <>
-              <div className="transaction-live-amount">
+              <div className={`transaction-amount ${txn.type}`}>
                 {formatCurrency(displayAmount)}
               </div>
             </>
@@ -445,7 +445,7 @@ function TransactionCard({ txn, index, onClick }) {
           </div>
         )}
         {isInterest && (
-          <div className="transaction-balance-chip" style={{ background: 'hsla(38,80%,55%,0.12)', color: 'hsl(38,60%,38%)' }}>
+          <div className="transaction-balance-chip">
             Principal: {formatCurrency(txn.amount)}
           </div>
         )}
@@ -510,9 +510,10 @@ function BalanceCard({ balance, totalInterestAccrued, balanceLabel, balanceClass
   const interest  = totalInterestAccrued || 0;
   const total     = principal + interest;
   const hasInterest = interest > 0.005;
+  const hasBalance  = principal > 0.005;
 
-  // When interest exists: show Current + Interest + Total breakdown
-  if (hasInterest) {
+  // When both balance AND interest exist: full 3-row breakdown
+  if (hasBalance && hasInterest) {
     return (
       <div className={`balance-card ${balanceClass}`}>
         <div className="balance-card-interest">
@@ -537,7 +538,32 @@ function BalanceCard({ balance, totalInterestAccrued, balanceLabel, balanceClass
     );
   }
 
-  // Compact single-row card (no interest)
+  // Interest only (balance = 0 but has interest): compact 2-row card
+  if (!hasBalance && hasInterest) {
+    const interestLabel = balanceClass === 'positive' ? 'You will get' : 'You will give';
+    return (
+      <div className={`balance-card ${balanceClass}`}>
+        <div className="balance-card-interest">
+          <div className="balance-rows">
+            <div className="balance-row-item">
+              <div className="balance-row-label-stack">
+                <span className="balance-row-label">{interestLabel}</span>
+                <span className="balance-row-sublabel">(Interest)</span>
+              </div>
+              <span className="balance-row-value">{formatCurrency(interest)}</span>
+            </div>
+            <div className="balance-row-divider" />
+            <div className="balance-row-item total">
+              <span className="balance-row-label">Total</span>
+              <span className="balance-row-value">{formatCurrency(interest)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Compact single-row card (no interest, has balance)
   return (
     <div className={`balance-card ${balanceClass}`}>
       <div className="balance-row">

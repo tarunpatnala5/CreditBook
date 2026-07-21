@@ -326,12 +326,17 @@ export function NavigationBar({ title, logo, onSearch, onAdd, onAction, actionLa
               <path d="m21 21-4.35-4.35" />
             </svg>
             <input
-              type="text"
+              type="search"
               placeholder="Search people..."
               value={searchValue}
               onChange={(e) => onSearchChange(e.target.value)}
               autoFocus
               id="home-search-input"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck="false"
+              inputMode="search"
             />
             {searchValue && (
               <button onClick={() => onSearchChange('')} style={{ color: 'var(--label-tertiary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, lineHeight: 1 }}>
