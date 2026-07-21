@@ -505,19 +505,35 @@ function EditPersonSheet({ isOpen, onClose, person, personId }) {
 }
 
 // ─── Balance Card ─────────────────────────────────────────────────────────
-function BalanceCard({ balance, totalInterestAccrued, balanceLabel, balanceClass }) {
-  const principal = Math.abs(balance);
-  const interest  = totalInterestAccrued || 0;
-  const total     = principal + interest;
-  const hasInterest = interest > 0.005;
-  const hasBalance  = principal > 0.005;
+// Props: balance (signed, from DB) and signedInterest (signed net, got=pos, gave=neg)
+function BalanceCard({ balance, signedInterest }) {
+  const principal  = Math.abs(balance);
+  const interestAbs = Math.abs(signedInterest);
+  const netBalance = balance + signedInterest; // true signed net
 
-  // When both balance AND interest exist: full 3-row breakdown
-  if (hasBalance && hasInterest) {
+  const hasBalance  = principal   > 0.005;
+  const hasInterest = interestAbs > 0.005;
+
+  // Same direction = both positive, both negative, or one is zero
+  const sameDir = !hasBalance || !hasInterest ||
+    (balance > 0 && signedInterest > 0) ||
+    (balance < 0 && signedInterest < 0);
+
+  // Effective value drives card color and label
+  const effValue = (hasBalance && hasInterest) ? netBalance
+    : hasBalance ? balance
+    : signedInterest;
+
+  const effClass = effValue > 0.005 ? 'positive' : effValue < -0.005 ? 'negative' : 'zero';
+  const effLabel = effValue > 0 ? 'You will get' : effValue < 0 ? 'You will give' : 'All settled up';
+
+  // ── Case A: Both present & SAME direction → 3-row breakdown (math adds up) ──────
+  if (hasBalance && hasInterest && sameDir) {
+    const total = principal + interestAbs;
     return (
-      <div className={`balance-card ${balanceClass}`}>
+      <div className={`balance-card ${effClass}`}>
         <div className="balance-card-interest">
-          <div className="balance-card-top-label">{balanceLabel}</div>
+          <div className="balance-card-top-label">{effLabel}</div>
           <div className="balance-rows">
             <div className="balance-row-item">
               <span className="balance-row-label">Current</span>
@@ -525,7 +541,7 @@ function BalanceCard({ balance, totalInterestAccrued, balanceLabel, balanceClass
             </div>
             <div className="balance-row-item">
               <span className="balance-row-label">Interest</span>
-              <span className="balance-row-value">{formatCurrency(interest)}</span>
+              <span className="balance-row-value">{formatCurrency(interestAbs)}</span>
             </div>
             <div className="balance-row-divider" />
             <div className="balance-row-item total">
@@ -538,11 +554,27 @@ function BalanceCard({ balance, totalInterestAccrued, balanceLabel, balanceClass
     );
   }
 
-  // Interest only (balance = 0 but has interest): compact single-row card
-  if (!hasBalance && hasInterest) {
-    const interestLabel = balanceClass === 'positive' ? 'You will get' : 'You will give';
+  // ── Case B: Both present & OPPOSITE directions → compact net card ────────────
+  if (hasBalance && hasInterest && !sameDir) {
     return (
-      <div className={`balance-card ${balanceClass}`}>
+      <div className={`balance-card ${effClass}`}>
+        <div className="balance-row">
+          <div className="balance-row-label-stack">
+            <span className="balance-label">{effLabel}</span>
+            <span className="balance-sublabel">(Net)</span>
+          </div>
+          <span className="balance-amount">{formatCurrency(Math.abs(netBalance))}</span>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Case C: Interest only (balance = 0) ─────────────────────────────────
+  if (!hasBalance && hasInterest) {
+    const interestLabel = signedInterest > 0 ? 'You will get' : 'You will give';
+    const interestClass = signedInterest > 0 ? 'positive' : 'negative';
+    return (
+      <div className={`balance-card ${interestClass}`}>
         <div className="balance-card-interest">
           <div className="balance-rows">
             <div className="balance-row-item">
@@ -550,7 +582,7 @@ function BalanceCard({ balance, totalInterestAccrued, balanceLabel, balanceClass
                 <span className="balance-row-label">{interestLabel}</span>
                 <span className="balance-row-sublabel">(Interest)</span>
               </div>
-              <span className="balance-amount">{formatCurrency(interest)}</span>
+              <span className="balance-amount">{formatCurrency(interestAbs)}</span>
             </div>
           </div>
         </div>
@@ -558,12 +590,12 @@ function BalanceCard({ balance, totalInterestAccrued, balanceLabel, balanceClass
     );
   }
 
-  // Compact single-row card (no interest, has balance or fully settled)
+  // ── Case D: Balance only (no interest) or fully settled ─────────────────────
   return (
-    <div className={`balance-card ${balanceClass}`}>
+    <div className={`balance-card ${effClass}`}>
       <div className="balance-row">
         <div className="balance-row-label-stack">
-          <span className="balance-label">{balanceLabel}</span>
+          <span className="balance-label">{effLabel}</span>
           {hasBalance && <span className="balance-sublabel">(Current)</span>}
         </div>
         <span className="balance-amount">{formatCurrency(principal)}</span>
@@ -642,20 +674,7 @@ export default function PersonDetailPage() {
 
   const transactions = txnData?.transactions || [];
   const balance = parseFloat(person.balance) || 0;
-  const interestTabTotal = parseFloat(person.interestTabTotal) || 0;  // signed: >0 = will get, <0 = will give
-  const interestAbs = Math.abs(interestTabTotal);
-
-  const balanceLabel = balance > 0
-    ? `You will get`
-    : balance < 0
-    ? `You will give`
-    : 'All settled up';
-
-  // Effective class: when balance=0 but interest exists, use interest direction
-  const balanceClass = balance > 0 ? 'positive' : balance < 0 ? 'negative'
-    : interestTabTotal > 0.005 ? 'positive'
-    : interestTabTotal < -0.005 ? 'negative'
-    : 'zero';
+  const interestTabTotal = parseFloat(person.interestTabTotal) || 0; // signed: got=pos, gave=neg
 
   return (
     <div className="person-detail-page">
@@ -726,9 +745,7 @@ export default function PersonDetailPage() {
       {/* Balance Card */}
       <BalanceCard
         balance={balance}
-        totalInterestAccrued={interestAbs}
-        balanceLabel={balanceLabel}
-        balanceClass={balanceClass}
+        signedInterest={interestTabTotal}
       />
 
       {/* Tab Switcher — Current | Upcoming | Interest */}
