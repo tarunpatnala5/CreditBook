@@ -123,11 +123,13 @@ function AddTransactionSheet({ isOpen, onClose, personId, type }) {
     e.preventDefault();
     if (!amount || parseFloat(amount) <= 0) { setError('Enter a valid amount'); return; }
     setError('');
+    // Convert datetime-local (local time) to UTC ISO string so server stores the correct time
+    const txnDate = date ? new Date(date).toISOString() : undefined;
     mutate({
       type,
       amount: parseFloat(amount),
       description: description.trim() || undefined,
-      transactionDate: date || undefined,
+      transactionDate: txnDate,
       interestRate: interestData?.rate ?? undefined,
       interestFrequency: interestData?.frequency ?? undefined,
     });
@@ -287,11 +289,13 @@ function EditTransactionSheet({ isOpen, onClose, transaction, personId }) {
   function handleSave(e) {
     e.preventDefault();
     if (!amount || parseFloat(amount) <= 0) { setError('Enter a valid amount'); return; }
+    // Convert datetime-local (local time) to UTC ISO string so server stores the correct time
+    const txnDate = date ? new Date(date).toISOString() : undefined;
     updateTxn({
       type: txnType,
       amount: parseFloat(amount),
       description: description.trim() || undefined,
-      transactionDate: date || undefined,
+      transactionDate: txnDate,
       interestRate: interestData?.rate ?? null,
       interestFrequency: interestData?.frequency ?? null,
     });
