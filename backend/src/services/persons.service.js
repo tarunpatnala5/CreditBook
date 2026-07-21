@@ -47,8 +47,8 @@ async function getPersons(userId, { search, sort } = {}) {
     for (const t of p.transactions) {
       if (t.interestRate) {
         const live = computeLiveAmount(t.amount, t.interestRate, t.interestFrequency || 'annually', t.transactionDate);
-        // gave = user lent (positive: they owe user) | got = user borrowed (negative: user owes them)
-        interestTabTotal += t.type === 'gave' ? live : -live;
+        // got = user received (positive: user owes them) | gave = user lent (negative: they owe user)
+        interestTabTotal += t.type === 'got' ? live : -live;
       }
     }
     return { ...p, interestTabTotal };
@@ -124,7 +124,8 @@ async function getPerson(personId, userId) {
   for (const t of person.transactions) {
     if (t.interestRate) {
       const live = computeLiveAmount(t.amount, t.interestRate, t.interestFrequency || 'annually', t.transactionDate);
-      interestTabTotal += t.type === 'gave' ? live : -live;
+      // got = user received (positive: user owes them) | gave = user lent (negative: they owe user)
+      interestTabTotal += t.type === 'got' ? live : -live;
     }
   }
 
