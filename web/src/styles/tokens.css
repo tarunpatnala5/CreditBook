@@ -112,13 +112,13 @@
   --nav-border: hsla(0, 0%, 0%, 0.10);
 
   /* Pill Nav */
-  --pill-bg: hsla(0, 0%, 100%, 0.78); /* frosted glass — opaque enough to stay readable even if backdrop-filter isn't rendered */
-  --pill-bg-fallback: hsla(0, 0%, 100%, 0.96); /* solid fallback for browsers without backdrop-filter support */
-  --pill-shadow: 0 8px 40px hsla(0,0%,0%,0.20), 0 2px 8px hsla(0,0%,0%,0.12);
+  --pill-bg: hsla(0, 0%, 100%, 0.93); /* frosted glass — high enough opacity that background content is blurred/invisible */
+  --pill-bg-fallback: hsl(0, 0%, 100%); /* solid white fallback for browsers without backdrop-filter */
+  --pill-shadow: 0 8px 40px hsla(0,0%,0%,0.22), 0 2px 10px hsla(0,0%,0%,0.14);
 
   /* Blur */
   --blur-nav: saturate(180%) blur(20px);
-  --blur-pill: saturate(180%) blur(28px);
+  --blur-pill: saturate(200%) blur(40px);
   --blur-sheet: saturate(180%) blur(40px);
 
   /* ─── Spacing (8pt grid) ─── */

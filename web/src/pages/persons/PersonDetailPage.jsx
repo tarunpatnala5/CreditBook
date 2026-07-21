@@ -388,11 +388,11 @@ function TransactionCard({ txn, index, onClick }) {
   const isInterest = txn.status === 'interest';
   const hasInterest = !!txn.interestRate;
 
-  // Interest tab: show currentAmount — the daily midnight snapshot.
-  // The actual compound formula still runs nightly; this just freezes the display
-  // so the number doesn't tick every second.
+  // Interest tab: show liveAmount — the compound-interest total (principal + interest)
+  // computed server-side at the time of each page load. Since refetchInterval is off,
+  // the number only updates when the user re-opens the page, not every second.
   // Non-interest: show currentAmount as before.
-  const displayAmount = txn.currentAmount;
+  const displayAmount = isInterest ? txn.liveAmount : txn.currentAmount;
   const interestAccrued = txn.interestAccrued || 0;
 
   return (

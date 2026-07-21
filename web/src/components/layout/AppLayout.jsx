@@ -212,7 +212,11 @@ function DesktopTabNav() {
 export default function AppLayout() {
   const location = useLocation();
 
-  const showNav = ['/', '/shared', '/notifications', '/settings'].some(
+  // Sub-pages that have their own back button and don't need the bottom pill:
+  const NO_PILL_PATHS = ['/settings/support', '/settings/manual'];
+  const isSubPage = NO_PILL_PATHS.some((p) => location.pathname.startsWith(p));
+
+  const showNav = !isSubPage && ['/', '/shared', '/notifications', '/settings'].some(
     (p) => p === location.pathname || (p !== '/' && location.pathname.startsWith(p))
   );
 

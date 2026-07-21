@@ -74,7 +74,7 @@ export default function SupportChatPage() {
   const isUserMessage = (msg) => msg.senderId === user?.id;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: 'var(--bg-primary)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: 'var(--bg-primary)', overflow: 'hidden' }}>
       {/* Nav Bar */}
       <div className="nav-bar-page">
         <button className="nav-back-btn" onClick={() => navigate(-1)} id="support-back-btn">
@@ -90,7 +90,7 @@ export default function SupportChatPage() {
         <div style={{ width: 60 }} />
       </div>
 
-      {/* Messages */}
+      {/* Messages — flex:1 scrolls, pushes input to bottom */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 8px', display: 'flex', flexDirection: 'column', gap: 4 }}>
         {isLoading ? (
           <LoadingScreen />
@@ -153,15 +153,17 @@ export default function SupportChatPage() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Bar */}
+      {/* Input Bar — sits at the very bottom; dvh shrinks when keyboard opens so this stays visible */}
       <div style={{
-        padding: '8px 16px 24px',
+        padding: `8px 16px calc(8px + env(safe-area-inset-bottom, 0px))`,
         background: 'var(--nav-bg)',
         backdropFilter: 'var(--blur-nav)',
+        WebkitBackdropFilter: 'var(--blur-nav)',
         borderTop: '0.5px solid var(--separator)',
         display: 'flex',
         alignItems: 'flex-end',
         gap: 10,
+        flexShrink: 0,
       }}>
         <div style={{
           flex: 1,
