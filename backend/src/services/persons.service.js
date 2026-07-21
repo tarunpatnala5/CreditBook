@@ -35,18 +35,20 @@ async function getPersons(userId, { search, sort } = {}) {
       // Include interest transactions to compute live totals
       transactions: {
         where: { deletedAt: null, status: 'interest' },
-        select: { amount: true, interestRate: true, interestFrequency: true, transactionDate: true },
+        select: { amount: true, type: true, interestRate: true, interestFrequency: true, transactionDate: true },
       },
     },
   });
 
-  // Compute interestTabTotal per person (sum of live Method B amounts)
+  // Compute interestTabTotal per person (signed NET: gave=positive, got=negative)
   const { computeLiveAmount } = require('./transactions.service');
   const personsWithInterest = persons.map((p) => {
     let interestTabTotal = 0;
     for (const t of p.transactions) {
       if (t.interestRate) {
-        interestTabTotal += computeLiveAmount(t.amount, t.interestRate, t.interestFrequency || 'annually', t.transactionDate);
+        const live = computeLiveAmount(t.amount, t.interestRate, t.interestFrequency || 'annually', t.transactionDate);
+        // gave = user lent (positive: they owe user) | got = user borrowed (negative: user owes them)
+        interestTabTotal += t.type === 'gave' ? live : -live;
       }
     }
     return { ...p, interestTabTotal };
@@ -109,19 +111,20 @@ async function getPerson(personId, userId) {
       owner: { select: { id: true, name: true, avatarColor: true } },
       transactions: {
         where: { deletedAt: null, status: 'interest' },
-        select: { amount: true, interestRate: true, interestFrequency: true, transactionDate: true },
+        select: { amount: true, type: true, interestRate: true, interestFrequency: true, transactionDate: true },
       },
     },
   });
 
   if (!person) throw new NotFoundError('Person');
 
-  // Compute interestTabTotal — sum of full live amounts of all interest transactions (Method B)
+  // Compute interestTabTotal — signed NET of all interest transactions (gave=positive, got=negative)
   const { computeLiveAmount } = require('./transactions.service');
   let interestTabTotal = 0;
   for (const t of person.transactions) {
     if (t.interestRate) {
-      interestTabTotal += computeLiveAmount(t.amount, t.interestRate, t.interestFrequency || 'annually', t.transactionDate);
+      const live = computeLiveAmount(t.amount, t.interestRate, t.interestFrequency || 'annually', t.transactionDate);
+      interestTabTotal += t.type === 'gave' ? live : -live;
     }
   }
 

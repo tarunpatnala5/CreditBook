@@ -642,7 +642,8 @@ export default function PersonDetailPage() {
 
   const transactions = txnData?.transactions || [];
   const balance = parseFloat(person.balance) || 0;
-  const interestTabTotal = parseFloat(person.interestTabTotal) || 0;
+  const interestTabTotal = parseFloat(person.interestTabTotal) || 0;  // signed: >0 = will get, <0 = will give
+  const interestAbs = Math.abs(interestTabTotal);
 
   const balanceLabel = balance > 0
     ? `You will get`
@@ -650,10 +651,11 @@ export default function PersonDetailPage() {
     ? `You will give`
     : 'All settled up';
 
-  // When balance=0 but interest exists, use 'negative' so the card is RED (matching
-  // the "You will give (Interest)" label) instead of gray.
+  // Effective class: when balance=0 but interest exists, use interest direction
   const balanceClass = balance > 0 ? 'positive' : balance < 0 ? 'negative'
-    : (interestTabTotal > 0.005 ? 'negative' : 'zero');
+    : interestTabTotal > 0.005 ? 'positive'
+    : interestTabTotal < -0.005 ? 'negative'
+    : 'zero';
 
   return (
     <div className="person-detail-page">
@@ -724,7 +726,7 @@ export default function PersonDetailPage() {
       {/* Balance Card */}
       <BalanceCard
         balance={balance}
-        totalInterestAccrued={interestTabTotal}
+        totalInterestAccrued={interestAbs}
         balanceLabel={balanceLabel}
         balanceClass={balanceClass}
       />
