@@ -45,12 +45,21 @@
   white-space: nowrap;
 }
 
+/* "(Current)" or "(Interest)" sublabel under the balance label in compact card */
+.balance-sublabel {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 400;
+  margin-top: 1px;
+}
+
 .balance-amount {
   font-family: var(--font-display);
   font-size: 20px;
   font-weight: 700;
   color: white;
   line-height: 1.1;
+  white-space: nowrap;
 }
 
 /* ─── Balance Card — 3-column interest mode ─────────────────────────────── */

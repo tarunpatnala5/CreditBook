@@ -550,7 +550,7 @@ function BalanceCard({ balance, totalInterestAccrued, balanceLabel, balanceClass
                 <span className="balance-row-label">{interestLabel}</span>
                 <span className="balance-row-sublabel">(Interest)</span>
               </div>
-              <span className="balance-row-value">{formatCurrency(interest)}</span>
+              <span className="balance-amount">{formatCurrency(interest)}</span>
             </div>
           </div>
         </div>
@@ -558,11 +558,14 @@ function BalanceCard({ balance, totalInterestAccrued, balanceLabel, balanceClass
     );
   }
 
-  // Compact single-row card (no interest, has balance)
+  // Compact single-row card (no interest, has balance or fully settled)
   return (
     <div className={`balance-card ${balanceClass}`}>
       <div className="balance-row">
-        <span className="balance-label">{balanceLabel}</span>
+        <div className="balance-row-label-stack">
+          <span className="balance-label">{balanceLabel}</span>
+          {hasBalance && <span className="balance-sublabel">(Current)</span>}
+        </div>
         <span className="balance-amount">{formatCurrency(principal)}</span>
       </div>
     </div>
@@ -647,7 +650,10 @@ export default function PersonDetailPage() {
     ? `You will give`
     : 'All settled up';
 
-  const balanceClass = balance > 0 ? 'positive' : balance < 0 ? 'negative' : 'zero';
+  // When balance=0 but interest exists, use 'negative' so the card is RED (matching
+  // the "You will give (Interest)" label) instead of gray.
+  const balanceClass = balance > 0 ? 'positive' : balance < 0 ? 'negative'
+    : (interestTabTotal > 0.005 ? 'negative' : 'zero');
 
   return (
     <div className="person-detail-page">

@@ -337,6 +337,7 @@ export function NavigationBar({ title, logo, onSearch, onAdd, onAction, actionLa
               autoCapitalize="off"
               spellCheck="false"
               inputMode="search"
+              data-form-type="other"
             />
             {searchValue && (
               <button onClick={() => onSearchChange('')} style={{ color: 'var(--label-tertiary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, lineHeight: 1 }}>

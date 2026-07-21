@@ -124,6 +124,7 @@ export function TextField({ label, value, onChange, placeholder, type = 'text', 
           autoCorrect="off"
           autoCapitalize={autoCapitalize ?? 'off'}
           spellCheck="false"
+          data-form-type="other"
           style={isPassword ? { paddingRight: 40 } : undefined}
         />
         {isPassword && (
