@@ -87,9 +87,11 @@ function AddPersonSheet({ isOpen, onClose }) {
 // ─── Person Row ───────────────────────────────────────────────────────
 function PersonRow({ person, index, onClick }) {
   const balance = parseFloat(person.balance) || 0;
-  const interestTabTotal = parseFloat(person.interestTabTotal) || 0;
-  // Display total = current balance + full live interest tab amount
-  const displayTotal = Math.abs(balance) + interestTabTotal;
+  const interestTabTotal = parseFloat(person.interestTabTotal) || 0; // signed: got=pos, gave=neg
+  // True net = signed balance + signed interest; drives both the displayed amount and color
+  const netBalance = balance + interestTabTotal;
+  const displayTotal = Math.abs(netBalance);
+  const balanceColorClass = netBalance >= 0 ? 'positive' : 'negative';
   const isScheduledDelete = !!person.deleteScheduledAt;
 
   return (
@@ -109,7 +111,7 @@ function PersonRow({ person, index, onClick }) {
           <span className="person-row-sub">{formatRelative(person.lastActivityAt)}</span>
         )}
       </div>
-      <div className={`person-row-balance ${balance >= 0 ? 'positive' : 'negative'}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+      <div className={`person-row-balance ${balanceColorClass}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
         <span>
           {formatCurrency(displayTotal)}
         </span>
