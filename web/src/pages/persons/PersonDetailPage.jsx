@@ -422,7 +422,6 @@ function TransactionCard({ txn, index, onClick }) {
               <div className="transaction-live-amount">
                 {formatCurrency(displayAmount)}
               </div>
-              <div className="transaction-live-label">Principal + Interest</div>
             </>
           ) : (
             <div className={`transaction-amount ${txn.type}`}>
@@ -510,30 +509,40 @@ function BalanceCard({ balance, totalInterestAccrued, balanceLabel, balanceClass
   const principal = Math.abs(balance);
   const interest  = totalInterestAccrued || 0;
   const total     = principal + interest;
+  const hasInterest = interest > 0.005;
 
-  return (
-    <div className={`balance-card ${balanceClass}`}>
-      <div className="balance-card-interest">
-        <div className="balance-card-top-label">{balanceLabel}</div>
-
-        <div className="balance-rows">
-          <div className="balance-row-item">
-            <span className="balance-row-label">Current</span>
-            <span className="balance-row-value">{formatCurrency(principal)}</span>
-          </div>
-
-          <div className="balance-row-item">
-            <span className="balance-row-label">Interest</span>
-            <span className="balance-row-value">{formatCurrency(interest)}</span>
-          </div>
-
-          <div className="balance-row-divider" />
-
-          <div className="balance-row-item total">
-            <span className="balance-row-label">Total</span>
-            <span className="balance-row-value">{formatCurrency(total)}</span>
+  // When interest exists: show Current + Interest + Total breakdown
+  if (hasInterest) {
+    return (
+      <div className={`balance-card ${balanceClass}`}>
+        <div className="balance-card-interest">
+          <div className="balance-card-top-label">{balanceLabel}</div>
+          <div className="balance-rows">
+            <div className="balance-row-item">
+              <span className="balance-row-label">Current</span>
+              <span className="balance-row-value">{formatCurrency(principal)}</span>
+            </div>
+            <div className="balance-row-item">
+              <span className="balance-row-label">Interest</span>
+              <span className="balance-row-value">{formatCurrency(interest)}</span>
+            </div>
+            <div className="balance-row-divider" />
+            <div className="balance-row-item total">
+              <span className="balance-row-label">Total</span>
+              <span className="balance-row-value">{formatCurrency(total)}</span>
+            </div>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  // Compact single-row card (no interest)
+  return (
+    <div className={`balance-card ${balanceClass}`}>
+      <div className="balance-row">
+        <span className="balance-label">{balanceLabel}</span>
+        <span className="balance-amount">{formatCurrency(principal)}</span>
       </div>
     </div>
   );
@@ -700,7 +709,7 @@ export default function PersonDetailPage() {
           onClick={() => setActiveTab('current')}
           id="tab-current"
         >
-          Current
+          📋 Current
         </button>
         <button
           className={`tab-pill ${activeTab === 'upcoming' ? 'active' : ''}`}
