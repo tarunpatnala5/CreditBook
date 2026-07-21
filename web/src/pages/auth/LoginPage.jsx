@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authApi } from '../../api';
 import useAuthStore from '../../store/authStore';
-import { Button, TextField } from '../../components/ui/Components';
+import { Button, TextField, BottomSheet } from '../../components/ui/Components';
 import './Auth.css';
 
 export default function LoginPage() {
@@ -11,9 +11,10 @@ export default function LoginPage() {
   const { login } = useAuthStore();
 
   const [identifier, setIdentifier] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [password, setPassword]     = useState('');
+  const [loading, setLoading]       = useState(false);
+  const [error, setError]           = useState('');
+  const [forgotOpen, setForgotOpen] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -42,7 +43,6 @@ export default function LoginPage() {
       <div className="auth-header">
         <img src="/logo.png" alt="Credit Book" className="auth-logo" />
         <h1 className="auth-title">Credit Book</h1>
-
       </div>
 
       <form className="auth-form" onSubmit={handleSubmit} autoComplete="off">
@@ -77,11 +77,46 @@ export default function LoginPage() {
           Sign In
         </Button>
 
+        <button
+          type="button"
+          id="login-forgot-pw-btn"
+          onClick={() => setForgotOpen(true)}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: 'var(--app-accent)', fontSize: 14,
+            fontFamily: 'var(--font-text)', textAlign: 'center',
+            width: '100%', padding: '4px 0', marginTop: 2,
+          }}
+        >
+          Forgot Password?
+        </button>
+
         <p className="auth-footer">
           Don't have an account?{' '}
           <Link to="/register">Register</Link>
         </p>
       </form>
+
+      {/* Forgot Password Sheet */}
+      <BottomSheet isOpen={forgotOpen} onClose={() => setForgotOpen(false)} title="Forgot Password?">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <p style={{ fontSize: 14, color: 'var(--label-secondary)', margin: 0, lineHeight: 1.6 }}>
+            Password reset via email is not yet available. Please contact our support team and we'll help you reset your password.
+          </p>
+          <p style={{ fontSize: 14, color: 'var(--label-secondary)', margin: 0, lineHeight: 1.6 }}>
+            After logging in, go to <strong>Settings → Support Chat</strong> to reach us.
+          </p>
+          <Button
+            id="forgot-pw-ok-btn"
+            variant="primary"
+            size="md"
+            fullWidth
+            onClick={() => setForgotOpen(false)}
+          >
+            Got It
+          </Button>
+        </div>
+      </BottomSheet>
     </div>
   );
 }

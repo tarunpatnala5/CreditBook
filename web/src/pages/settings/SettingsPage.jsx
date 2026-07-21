@@ -37,6 +37,103 @@ function EditFieldSheet({ isOpen, onClose, title, initialValue, onSave, loading,
   );
 }
 
+// ─── Change Password Sheet ─────────────────────────────────────────────────
+function ChangePasswordSheet({ isOpen, onClose }) {
+  const [currentPw, setCurrentPw]   = useState('');
+  const [newPw,     setNewPw]       = useState('');
+  const [confirmPw, setConfirmPw]   = useState('');
+  const [error,     setError]       = useState('');
+  const [forgotOpen, setForgotOpen] = useState(false);
+
+  React.useEffect(() => {
+    if (!isOpen) { setCurrentPw(''); setNewPw(''); setConfirmPw(''); setError(''); }
+  }, [isOpen]);
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data) => usersApi.changePassword(data),
+    onSuccess: () => {
+      toast.success('Password changed!');
+      onClose();
+    },
+    onError: (err) => setError(err.message || 'Failed to change password'),
+  });
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    setError('');
+    if (!currentPw) { setError('Enter your current password'); return; }
+    if (newPw.length < 6) { setError('New password must be at least 6 characters'); return; }
+    if (newPw !== confirmPw) { setError('Passwords do not match'); return; }
+    mutate({ currentPassword: currentPw, newPassword: newPw });
+  }
+
+  return (
+    <>
+      <BottomSheet isOpen={isOpen} onClose={onClose} title="Change Password">
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }} autoComplete="off">
+          <TextField
+            id="change-pw-current"
+            label="Current Password"
+            value={currentPw}
+            onChange={setCurrentPw}
+            placeholder="Enter current password"
+            type="password"
+            autoFocus
+          />
+          <TextField
+            id="change-pw-new"
+            label="New Password"
+            value={newPw}
+            onChange={setNewPw}
+            placeholder="At least 6 characters"
+            type="password"
+          />
+          <TextField
+            id="change-pw-confirm"
+            label="Confirm New Password"
+            value={confirmPw}
+            onChange={setConfirmPw}
+            placeholder="Re-enter new password"
+            type="password"
+          />
+
+          {error && (
+            <div style={{ color: 'var(--color-red)', fontSize: 13, marginTop: -4 }}>{error}</div>
+          )}
+
+          <Button id="change-pw-save" variant="primary" size="md" fullWidth loading={isPending}>
+            Update Password
+          </Button>
+
+          <button
+            type="button"
+            id="forgot-pw-btn"
+            onClick={() => setForgotOpen(true)}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: 'var(--app-accent)', fontSize: 14,
+              fontFamily: 'var(--font-text)', textAlign: 'center',
+              padding: '4px 0',
+            }}
+          >
+            Forgot Password?
+          </button>
+        </form>
+      </BottomSheet>
+
+      <Dialog
+        isOpen={forgotOpen}
+        title="Forgot Password?"
+        message="Password reset via email is not yet available. Please contact support via the Support Chat in Settings and we'll help you reset your password."
+        onClose={() => setForgotOpen(false)}
+        actions={[
+          { label: 'OK', onClick: () => setForgotOpen(false) },
+        ]}
+      />
+    </>
+  );
+}
+
 // ─── Devices Section ───────────────────────────────────────────────────────
 function DevicesSection() {
   const { data: sessionsData, isLoading } = useQuery({
@@ -153,12 +250,13 @@ export default function SettingsPage() {
   const { user, logout: storeLogout } = useAuthStore();
   const { darkMode, setDarkMode } = useSettingsStore();
 
-  const [editNameOpen, setEditNameOpen] = useState(false);
-  const [editPhoneOpen, setEditPhoneOpen] = useState(false);
-  const [editEmailOpen, setEditEmailOpen] = useState(false);
-  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [editNameOpen, setEditNameOpen]       = useState(false);
+  const [editPhoneOpen, setEditPhoneOpen]     = useState(false);
+  const [editEmailOpen, setEditEmailOpen]     = useState(false);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+  const [logoutDialogOpen, setLogoutDialogOpen]     = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen]     = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText]   = useState('');
 
   // Register synchronous modal closer — called BEFORE navigate() fires in tab nav
   useEffect(() => {
@@ -166,6 +264,7 @@ export default function SettingsPage() {
       setEditNameOpen(false);
       setEditPhoneOpen(false);
       setEditEmailOpen(false);
+      setChangePasswordOpen(false);
     });
   }, []);
 
@@ -247,9 +346,10 @@ export default function SettingsPage() {
 
         {/* ── Profile Section ── */}
         <Section title="PROFILE">
-          <Row id="edit-name-row" icon="👤" label="Name" value={user?.name} onClick={() => setEditNameOpen(true)} />
-          <Row id="edit-phone-row" icon="📱" label="Phone" value={formatPhone(user?.phone)} onClick={() => setEditPhoneOpen(true)} />
-          <Row id="edit-email-row" icon="✉️" label="Email" value={user?.email || '—'} onClick={() => setEditEmailOpen(true)} />
+          <Row id="edit-name-row"  icon="👤" label="Name"     value={user?.name}          onClick={() => setEditNameOpen(true)} />
+          <Row id="edit-phone-row" icon="📱" label="Phone"    value={formatPhone(user?.phone)} onClick={() => setEditPhoneOpen(true)} />
+          <Row id="edit-email-row" icon="✉️" label="Email"    value={user?.email || '—'}  onClick={() => setEditEmailOpen(true)} />
+          <Row id="edit-pw-row"    icon="🔑" label="Password" value="••••••"               onClick={() => setChangePasswordOpen(true)} />
         </Section>
 
         {/* ── Preferences ── */}
@@ -356,6 +456,12 @@ export default function SettingsPage() {
         inputMode="email"
         onSave={(val) => updateUser({ email: val })}
         loading={isUpdatingUser}
+      />
+
+      {/* Change Password Sheet */}
+      <ChangePasswordSheet
+        isOpen={changePasswordOpen}
+        onClose={() => setChangePasswordOpen(false)}
       />
 
       {/* Logout Dialog */}
