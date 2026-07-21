@@ -1,7 +1,7 @@
 // Credit Book — Login Page
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { authApi } from '../../api';
+import { authApi, usersApi } from '../../api';
 import useAuthStore from '../../store/authStore';
 import { Button, TextField, BottomSheet } from '../../components/ui/Components';
 import './Auth.css';
@@ -14,7 +14,13 @@ export default function LoginPage() {
   const [password, setPassword]     = useState('');
   const [loading, setLoading]       = useState(false);
   const [error, setError]           = useState('');
-  const [forgotOpen, setForgotOpen] = useState(false);
+
+  // Forgot password state
+  const [forgotOpen, setForgotOpen]       = useState(false);
+  const [forgotPhone, setForgotPhone]     = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotError, setForgotError]     = useState('');
+  const [forgotSent, setForgotSent]       = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -22,10 +28,8 @@ export default function LoginPage() {
       setError('Please enter your phone or email and password');
       return;
     }
-
     setLoading(true);
     setError('');
-
     try {
       const res = await authApi.login({ phone: identifier.trim(), password });
       const { user, accessToken, refreshToken } = res.data;
@@ -36,6 +40,28 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleForgotSubmit(e) {
+    e.preventDefault();
+    if (!forgotPhone.trim()) { setForgotError('Please enter your phone number'); return; }
+    setForgotLoading(true);
+    setForgotError('');
+    try {
+      await usersApi.forgotPassword(forgotPhone.trim());
+      setForgotSent(true);
+    } catch (err) {
+      setForgotError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setForgotLoading(false);
+    }
+  }
+
+  function closeForgot() {
+    setForgotOpen(false);
+    setForgotPhone('');
+    setForgotError('');
+    setForgotSent(false);
   }
 
   return (
@@ -98,24 +124,43 @@ export default function LoginPage() {
       </form>
 
       {/* Forgot Password Sheet */}
-      <BottomSheet isOpen={forgotOpen} onClose={() => setForgotOpen(false)} title="Forgot Password?">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <p style={{ fontSize: 14, color: 'var(--label-secondary)', margin: 0, lineHeight: 1.6 }}>
-            Password reset via email is not yet available. Please contact our support team and we'll help you reset your password.
-          </p>
-          <p style={{ fontSize: 14, color: 'var(--label-secondary)', margin: 0, lineHeight: 1.6 }}>
-            After logging in, go to <strong>Settings → Support Chat</strong> to reach us.
-          </p>
-          <Button
-            id="forgot-pw-ok-btn"
-            variant="primary"
-            size="md"
-            fullWidth
-            onClick={() => setForgotOpen(false)}
-          >
-            Got It
-          </Button>
-        </div>
+      <BottomSheet isOpen={forgotOpen} onClose={closeForgot} title="Forgot Password?">
+        {forgotSent ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center', textAlign: 'center' }}>
+            <div style={{ fontSize: 48 }}>✅</div>
+            <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--label-primary)', margin: 0 }}>
+              Request Submitted!
+            </p>
+            <p style={{ fontSize: 14, color: 'var(--label-secondary)', margin: 0, lineHeight: 1.7 }}>
+              Your password reset link will be sent to your WhatsApp number shortly. Please note that the link is valid for <strong>24 hours</strong> and can only be used <strong>once</strong>.
+            </p>
+            <Button id="forgot-pw-ok-btn" variant="primary" size="md" fullWidth onClick={closeForgot}>
+              Got It
+            </Button>
+          </div>
+        ) : (
+          <form onSubmit={handleForgotSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }} autoComplete="off">
+            <p style={{ fontSize: 14, color: 'var(--label-secondary)', margin: 0, lineHeight: 1.6 }}>
+              Enter the phone number linked to your account. We will send a password reset link to that number on WhatsApp.
+            </p>
+            <TextField
+              id="forgot-pw-phone"
+              label="Phone Number"
+              value={forgotPhone}
+              onChange={setForgotPhone}
+              placeholder="e.g. +91 98765 43210"
+              type="tel"
+              inputMode="tel"
+              autoFocus
+            />
+            {forgotError && (
+              <div style={{ color: 'var(--color-red)', fontSize: 13 }}>{forgotError}</div>
+            )}
+            <Button id="forgot-pw-submit-btn" variant="primary" size="md" fullWidth loading={forgotLoading}>
+              Send Reset Link
+            </Button>
+          </form>
+        )}
       </BottomSheet>
     </div>
   );

@@ -27,12 +27,18 @@ export const usersApi = {
   changePassword: (data) => api.post('/users/me/change-password', data),
   deleteMe: () => api.delete('/users/me'),
 
+  // Password reset (public — no auth needed, uses axios directly via the base URL)
+  forgotPassword: (phone) => api.post('/users/forgot-password', { phone }),
+  resetPassword: (token, newPassword) => api.post('/users/reset-password', { token, newPassword }),
+
   // Admin
   getAll: (params) => api.get('/users', { params }),
   getPending: () => api.get('/users/pending'),
   activate: (userId) => api.post(`/users/${userId}/activate`),
   reject: (userId, reason) => api.post(`/users/${userId}/reject`, { reason }),
   deleteUser: (userId) => api.delete(`/users/${userId}`),
+  getPasswordResetRequests: () => api.get('/users/password-reset-requests'),
+  markResetSent: (id) => api.patch(`/users/password-reset-requests/${id}/mark-sent`),
 };
 
 // ─── PERSONS ──────────────────────────────────────────────────────────────

@@ -9,6 +9,7 @@ import useSettingsStore from './store/settingsStore';
 // Pages
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
+import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import AppLayout from './components/layout/AppLayout';
 import HomePage from './pages/home/HomePage';
 import PersonDetailPage from './pages/persons/PersonDetailPage';
@@ -21,6 +22,7 @@ import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminPendingPage from './pages/admin/AdminPendingPage';
 import AdminSupportPage from './pages/admin/AdminSupportPage';
 import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
+import AdminPasswordResetPage from './pages/admin/AdminPasswordResetPage';
 import SharePage from './pages/share/SharePage';
 
 const queryClient = new QueryClient({
@@ -68,8 +70,9 @@ export default function App() {
           <Route path="/share/:token" element={<SharePage />} />
 
           {/* Public routes */}
-          <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-          <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+          <Route path="/login"          element={<PublicRoute><LoginPage /></PublicRoute>} />
+          <Route path="/register"       element={<PublicRoute><RegisterPage /></PublicRoute>} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
 
           {/* Protected app routes */}
           <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
@@ -84,10 +87,11 @@ export default function App() {
 
           {/* Admin routes */}
           <Route path="/admin" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-            <Route path="users" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
-            <Route path="pending" element={<AdminRoute><AdminPendingPage /></AdminRoute>} />
-            <Route path="support" element={<AdminRoute><AdminSupportPage /></AdminRoute>} />
-            <Route path="analytics" element={<AdminRoute><AdminAnalyticsPage /></AdminRoute>} />
+            <Route path="users"          element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
+            <Route path="pending"        element={<AdminRoute><AdminPendingPage /></AdminRoute>} />
+            <Route path="support"        element={<AdminRoute><AdminSupportPage /></AdminRoute>} />
+            <Route path="analytics"      element={<AdminRoute><AdminAnalyticsPage /></AdminRoute>} />
+            <Route path="password-reset" element={<AdminRoute><AdminPasswordResetPage /></AdminRoute>} />
           </Route>
 
           {/* Fallback */}

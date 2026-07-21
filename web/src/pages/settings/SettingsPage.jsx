@@ -52,8 +52,13 @@ function ChangePasswordSheet({ isOpen, onClose }) {
   const { mutate, isPending } = useMutation({
     mutationFn: (data) => usersApi.changePassword(data),
     onSuccess: () => {
-      toast.success('Password changed!');
+      toast.success('Password changed! Signing you out of all devices...');
       onClose();
+      // Sign out all devices (server already revoked all sessions)
+      setTimeout(() => {
+        useAuthStore.getState().logout();
+        window.location.href = '/login';
+      }, 1200);
     },
     onError: (err) => setError(err.message || 'Failed to change password'),
   });
@@ -363,26 +368,25 @@ export default function SettingsPage() {
           </Row>
         </Section>
 
-        {/* ── App ── */}
         <Section title="APP">
+          {!isAdmin && (
+            <Row id="support-row" icon="💬" label="Support Chat" onClick={() => navigate('/settings/support')}>
+              {supportCount > 0 && <Badge count={supportCount} />}
+            </Row>
+          )}
           <Row id="manual-row" icon="📖" label="User Manual" onClick={() => navigate('/settings/manual')} />
-          <Row id="support-row" icon="💬" label="Support Chat" onClick={() => navigate('/settings/support')}>
-            {supportCount > 0 && <Badge count={supportCount} />}
-          </Row>
-          <Row id="updates-row" icon="📦" label="Updates" onClick={() => toast('Updates coming soon!')}>
-            {updateCount > 0 && <Badge count={updateCount} />}
-          </Row>
         </Section>
 
         {/* ── Admin ── */}
         {isAdmin && (
           <Section title="ADMIN">
-            <Row id="admin-users-row" icon="👥" label="Users" onClick={() => navigate('/admin/users')} />
-            <Row id="admin-pending-row" icon="⏳" label="Pending Activations" onClick={() => navigate('/admin/pending')}>
+            <Row id="admin-users-row"   icon="👥" label="Users"                  onClick={() => navigate('/admin/users')} />
+            <Row id="admin-pending-row" icon="⏳" label="Pending Activations"  onClick={() => navigate('/admin/pending')}>
               {notifData?.byCategory?.activation > 0 && <Badge count={notifData.byCategory.activation} />}
             </Row>
-            <Row id="admin-support-row" icon="🎧" label="Support Requests" onClick={() => navigate('/admin/support')} />
-            <Row id="admin-analytics-row" icon="📊" label="Analytics Dashboard" onClick={() => navigate('/admin/analytics')} />
+            <Row id="admin-support-row"   icon="🎧" label="Support Requests"     onClick={() => navigate('/admin/support')} />
+            <Row id="admin-reset-pw-row"  icon="🔐" label="Password Reset Requests" onClick={() => navigate('/admin/password-reset')} />
+            <Row id="admin-analytics-row" icon="📊" label="Analytics Dashboard"  onClick={() => navigate('/admin/analytics')} />
           </Section>
         )}
 

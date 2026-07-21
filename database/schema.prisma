@@ -271,3 +271,19 @@ model FamilyGroupMember {
 
   @@id([groupId, userId])
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PASSWORD RESET REQUESTS (admin-mediated WhatsApp reset)
+// ─────────────────────────────────────────────────────────────────────────────
+model PasswordResetRequest {
+  id        String    @id @default(uuid())
+  phone     String                         // phone number the user entered
+  userId    String?                        // resolved user id (null if phone not found)
+  token     String    @unique              // one-time secure token
+  status    String    @default("pending")  // pending | sent | used | expired
+  createdAt DateTime  @default(now())
+  expiresAt DateTime                       // 24 hours after creation
+  usedAt    DateTime?
+  sentAt    DateTime?
+}
+

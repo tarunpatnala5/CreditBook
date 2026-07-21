@@ -22,7 +22,7 @@ router.patch('/me', authMiddleware, async (req, res, next) => {
 router.post('/me/change-password', authMiddleware, async (req, res, next) => {
   try {
     await usersService.changePassword(req.user.id, req.body);
-    res.json(successResponse(null, 'Password changed successfully'));
+    res.json(successResponse(null, 'Password changed successfully. You have been signed out of all devices.'));
   } catch (err) { next(err); }
 });
 
@@ -33,7 +33,23 @@ router.delete('/me', authMiddleware, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-// Admin routes
+// ─── Public: Forgot password (no auth needed) ─────────────────────────────
+router.post('/forgot-password', async (req, res, next) => {
+  try {
+    await usersService.requestPasswordReset(req.body.phone);
+    res.json(successResponse(null, 'Your request has been submitted'));
+  } catch (err) { next(err); }
+});
+
+// ─── Public: Reset password with one-time token ──────────────────────────
+router.post('/reset-password', async (req, res, next) => {
+  try {
+    await usersService.resetPassword(req.body.token, req.body.newPassword);
+    res.json(successResponse(null, 'Password reset successfully. You can now sign in.'));
+  } catch (err) { next(err); }
+});
+
+// ─── Admin routes ─────────────────────────────────────────────────────────
 router.get('/', authMiddleware, adminOnly, async (req, res, next) => {
   try {
     const result = await usersService.getAllUsers(req.query);
@@ -45,6 +61,20 @@ router.get('/pending', authMiddleware, adminOnly, async (req, res, next) => {
   try {
     const result = await usersService.getAllUsers({ status: 'pending' });
     res.json(successResponse(result));
+  } catch (err) { next(err); }
+});
+
+router.get('/password-reset-requests', authMiddleware, adminOnly, async (req, res, next) => {
+  try {
+    const result = await usersService.getPasswordResetRequests();
+    res.json(successResponse(result));
+  } catch (err) { next(err); }
+});
+
+router.patch('/password-reset-requests/:id/mark-sent', authMiddleware, adminOnly, async (req, res, next) => {
+  try {
+    await usersService.markResetSent(req.params.id);
+    res.json(successResponse(null, 'Marked as sent'));
   } catch (err) { next(err); }
 });
 

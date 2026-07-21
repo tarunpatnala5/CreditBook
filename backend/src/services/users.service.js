@@ -1,5 +1,6 @@
 // Credit Book — Users Service (admin + profile)
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const prisma = require('../config/database');
 const { NotFoundError, ForbiddenError, ValidationError } = require('../utils/errors');
 
@@ -56,6 +57,12 @@ async function changePassword(userId, { currentPassword, newPassword }) {
 
   const passwordHash = await bcrypt.hash(newPassword, 12);
   await prisma.user.update({ where: { id: userId }, data: { passwordHash } });
+
+  // Sign out all devices immediately after password change
+  await prisma.session.updateMany({
+    where: { userId },
+    data: { revokedAt: new Date() },
+  });
 }
 
 // ─── Delete own account ────────────────────────────────────────────────────
@@ -166,6 +173,100 @@ function formatUser(u) {
   };
 }
 
+// ─── Request password reset (creates one-time token) ────────────────────────────
+async function requestPasswordReset(phone) {
+  const normalizedPhone = phone?.replace(/\s/g, '');
+  if (!normalizedPhone) throw new ValidationError('Phone number is required');
+
+  // Find user by phone (active users only)
+  const user = await prisma.user.findFirst({
+    where: { phone: normalizedPhone, deletedAt: null },
+  });
+
+  // Always create a request record (whether user found or not) to prevent phone enumeration.
+  // If user not found, userId remains null — admin will see it but the link will be a no-op.
+  const token = crypto.randomBytes(32).toString('hex');
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+  // Expire any existing pending requests for this phone
+  await prisma.passwordResetRequest.updateMany({
+    where: { phone: normalizedPhone, status: 'pending' },
+    data: { status: 'expired' },
+  });
+
+  await prisma.passwordResetRequest.create({
+    data: {
+      phone: normalizedPhone,
+      userId: user?.id ?? null,
+      token,
+      expiresAt,
+    },
+  });
+
+  // Always return success — user is notified via WhatsApp by admin
+  return { success: true };
+}
+
+// ─── Reset password using one-time token ───────────────────────────────────────
+async function resetPassword(token, newPassword) {
+  if (!token) throw new ValidationError('Reset token is required');
+  if (!newPassword || newPassword.length < 6)
+    throw new ValidationError('New password must be at least 6 characters');
+
+  const request = await prisma.passwordResetRequest.findUnique({ where: { token } });
+  if (!request) throw new ValidationError('Invalid or expired reset link');
+  if (request.status === 'used') throw new ValidationError('This reset link has already been used');
+  if (request.status === 'expired' || new Date() > request.expiresAt)
+    throw new ValidationError('This reset link has expired. Please request a new one');
+  if (!request.userId) throw new ValidationError('No account found for this reset link');
+
+  const passwordHash = await bcrypt.hash(newPassword, 12);
+  await prisma.user.update({ where: { id: request.userId }, data: { passwordHash } });
+
+  // Mark token as used (one-time)
+  await prisma.passwordResetRequest.update({
+    where: { token },
+    data: { status: 'used', usedAt: new Date() },
+  });
+
+  // Revoke all sessions for security
+  await prisma.session.updateMany({
+    where: { userId: request.userId },
+    data: { revokedAt: new Date() },
+  });
+
+  return { success: true };
+}
+
+// ─── Admin: Get password reset requests ───────────────────────────────────────────
+async function getPasswordResetRequests() {
+  const requests = await prisma.passwordResetRequest.findMany({
+    where: { status: { in: ['pending', 'sent'] } },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  const baseUrl = process.env.APP_URL || 'https://creditbook5.vercel.app';
+  return requests.map((r) => ({
+    id: r.id,
+    phone: r.phone,
+    userId: r.userId,
+    status: r.status,
+    createdAt: r.createdAt,
+    expiresAt: r.expiresAt,
+    sentAt: r.sentAt,
+    resetLink: `${baseUrl}/reset-password?token=${r.token}`,
+    waLink: `https://wa.me/${r.phone.replace(/^\+?/, '')}?text=${encodeURIComponent(`Hi! Here is your Credit Book password reset link. It can only be used once: ${baseUrl}/reset-password?token=${r.token}`)}`,
+  }));
+}
+
+// ─── Admin: Mark reset request as sent ─────────────────────────────────────────
+async function markResetSent(requestId) {
+  await prisma.passwordResetRequest.update({
+    where: { id: requestId },
+    data: { status: 'sent', sentAt: new Date() },
+  });
+}
+
 module.exports = {
   getMe,
   updateMe,
@@ -175,4 +276,8 @@ module.exports = {
   activateUser,
   rejectUser,
   deleteUser,
+  requestPasswordReset,
+  resetPassword,
+  getPasswordResetRequests,
+  markResetSent,
 };
