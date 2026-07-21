@@ -42,7 +42,7 @@ function AddPersonSheet({ isOpen, onClose }) {
   function handleSubmit(e) {
     e.preventDefault();
     const errs = {};
-    if (!name.trim())  errs.name  = 'Name is required';
+    if (!name.trim()) errs.name = 'Name is required';
     if (!phone.trim()) errs.phone = 'Phone number is required';
     // Accept any number: optional + prefix, then 7-15 digits (spaces/dashes allowed)
     else if (!/^\+?[\d][\d\s\-()]{6,14}$/.test(phone.trim())) errs.phone = 'Enter a valid phone number';
@@ -225,3 +225,4 @@ export default function HomePage() {
     </div>
   );
 }
+{ }
