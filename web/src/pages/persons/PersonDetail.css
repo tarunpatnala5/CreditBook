@@ -554,3 +554,87 @@
 }
 
 .share-dialog-copy-btn:active { opacity: 0.75; }
+
+/* ─── Month Separator — divides transaction list by calendar month ─────── */
+.month-separator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 6px;
+  padding: 0 2px;
+}
+
+.month-separator:first-child {
+  margin-top: 4px;
+}
+
+.month-separator span {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--label-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  white-space: nowrap;
+}
+
+.month-separator::before,
+.month-separator::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--separator);
+  opacity: 0.6;
+}
+
+/* ─── Edit Type Toggle (gave / got pill selector) ────────────────────────── */
+.edit-type-toggle {
+  display: flex;
+  background: var(--fill-tertiary);
+  border-radius: var(--radius-pill);
+  padding: 3px;
+  gap: 3px;
+}
+
+.edit-type-btn {
+  flex: 1;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: none;
+  font-size: var(--text-footnote);
+  font-weight: 500;
+  color: var(--label-secondary);
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease;
+  font-family: var(--font-text);
+}
+
+.edit-type-btn.active.gave {
+  background: hsl(4, 65%, 50%);
+  color: white;
+  font-weight: 600;
+}
+
+.edit-type-btn.active.got {
+  background: hsl(152, 50%, 38%);
+  color: white;
+  font-weight: 600;
+}
+
+/* ─── Remove Interest button ─────────────────────────────────────────────── */
+.remove-interest-btn {
+  background: none;
+  border: none;
+  color: var(--color-red);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font-text);
+  cursor: pointer;
+  padding: 4px 2px;
+  text-align: left;
+  opacity: 0.85;
+  transition: opacity 120ms ease;
+}
+
+.remove-interest-btn:hover { opacity: 1; }
+.remove-interest-btn:active { opacity: 0.6; }

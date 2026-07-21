@@ -223,8 +223,10 @@ function AddTransactionSheet({ isOpen, onClose, personId, type }) {
 // ─── Edit Transaction Sheet ────────────────────────────────────────────────
 function EditTransactionSheet({ isOpen, onClose, transaction, personId }) {
   const queryClient = useQueryClient();
+  const [txnType, setTxnType] = useState(transaction?.type || 'got');
   const [amount, setAmount] = useState(transaction?.amount?.toString() || '');
   const [description, setDescription] = useState(transaction?.description || '');
+  const [date, setDate] = useState('');
   const [interestData, setInterestData] = useState(
     transaction?.interestRate
       ? { rate: transaction.interestRate, frequency: transaction.interestFrequency || 'annually' }
@@ -233,15 +235,28 @@ function EditTransactionSheet({ isOpen, onClose, transaction, personId }) {
   const [interestModalOpen, setInterestModalOpen] = useState(false);
   const [error, setError] = useState('');
 
+  // Helper: convert a Date/ISO string → datetime-local input value (local time)
+  function toLocalDatetimeInput(val) {
+    if (!val) return '';
+    const d = new Date(val);
+    if (isNaN(d)) return '';
+    // datetime-local needs 'YYYY-MM-DDTHH:mm'
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
   React.useEffect(() => {
     if (transaction) {
+      setTxnType(transaction.type || 'got');
       setAmount(transaction.amount?.toString() || '');
       setDescription(transaction.description || '');
+      setDate(toLocalDatetimeInput(transaction.transactionDate));
       setInterestData(
         transaction.interestRate
           ? { rate: transaction.interestRate, frequency: transaction.interestFrequency || 'annually' }
           : null
       );
+      setError('');
     }
   }, [transaction]);
 
@@ -273,10 +288,12 @@ function EditTransactionSheet({ isOpen, onClose, transaction, personId }) {
     e.preventDefault();
     if (!amount || parseFloat(amount) <= 0) { setError('Enter a valid amount'); return; }
     updateTxn({
+      type: txnType,
       amount: parseFloat(amount),
       description: description.trim() || undefined,
-      interestRate: interestData?.rate || null,
-      interestFrequency: interestData?.frequency || null,
+      transactionDate: date || undefined,
+      interestRate: interestData?.rate ?? null,
+      interestFrequency: interestData?.frequency ?? null,
     });
   }
 
@@ -286,33 +303,66 @@ function EditTransactionSheet({ isOpen, onClose, transaction, personId }) {
     <>
       <BottomSheet isOpen={isOpen} onClose={onClose} title="Edit Entry">
         <form className="add-txn-form" onSubmit={handleSave}>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center', background: 'var(--fill-tertiary)', borderRadius: 12, padding: '10px 16px', marginBottom: 4 }}>
-            <span style={{ fontSize: 13, color: 'var(--label-secondary)' }}>Type:</span>
-            <span style={{ fontWeight: 600, color: transaction.type === 'got' ? 'var(--app-positive)' : 'var(--app-negative)' }}>
-              {transaction.type === 'got' ? 'You Got' : 'You Gave'}
-            </span>
-            <span style={{ marginLeft: 'auto', fontSize: 13, color: 'var(--label-tertiary)' }}>{formatDate(transaction.transactionDate)}</span>
+
+          {/* Type toggle: gave / got */}
+          <div className="edit-type-toggle">
+            <button
+              type="button"
+              className={`edit-type-btn${txnType === 'gave' ? ' active gave' : ''}`}
+              onClick={() => setTxnType('gave')}
+              id="edit-type-gave"
+            >
+              You Gave
+            </button>
+            <button
+              type="button"
+              className={`edit-type-btn${txnType === 'got' ? ' active got' : ''}`}
+              onClick={() => setTxnType('got')}
+              id="edit-type-got"
+            >
+              You Got
+            </button>
           </div>
+
           <TextField id="edit-txn-amount" label="Amount" value={amount} onChange={setAmount} placeholder="0" type="number" inputMode="decimal" prefix="₹" error={error} />
           <TextField id="edit-txn-desc" label="Note (optional)" value={description} onChange={setDescription} placeholder="What's this for?" autoComplete="off" />
+          <TextField
+            id="edit-txn-date"
+            label="Date & Time"
+            value={date}
+            onChange={setDate}
+            type="datetime-local"
+          />
 
-          {/* Interest Button */}
-          <button
-            type="button"
-            className="interest-btn-card"
-            onClick={() => setInterestModalOpen(true)}
-            id="edit-interest-btn-card"
-          >
-            <div className="interest-btn-left">
-              <span className="interest-btn-title">Interest (optional)</span>
-              {interestData ? (
-                <span className="interest-btn-subtitle">
-                  {interestData.rate}% p.a. · {FREQ_LABELS[interestData.frequency]}
-                </span>
-              ) : null}
-            </div>
-            <span className="interest-btn-arrow">›</span>
-          </button>
+          {/* Interest Button + remove */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <button
+              type="button"
+              className="interest-btn-card"
+              onClick={() => setInterestModalOpen(true)}
+              id="edit-interest-btn-card"
+            >
+              <div className="interest-btn-left">
+                <span className="interest-btn-title">Interest (optional)</span>
+                {interestData ? (
+                  <span className="interest-btn-subtitle">
+                    {interestData.rate}% p.a. · {FREQ_LABELS[interestData.frequency]}
+                  </span>
+                ) : null}
+              </div>
+              <span className="interest-btn-arrow">›</span>
+            </button>
+            {interestData && (
+              <button
+                type="button"
+                className="remove-interest-btn"
+                onClick={() => setInterestData(null)}
+                id="edit-remove-interest-btn"
+              >
+                ✕ Remove Interest
+              </button>
+            )}
+          </div>
 
           <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
             <Button id="edit-txn-delete" variant="destructive" size="md" style={{ flex: 1 }} loading={isDeleting} onClick={(e) => { e.preventDefault(); deleteTxn(); }}>Delete</Button>
@@ -338,9 +388,11 @@ function TransactionCard({ txn, index, onClick }) {
   const isInterest = txn.status === 'interest';
   const hasInterest = !!txn.interestRate;
 
-  // For interest transactions — show live amount (Method B real-time)
-  // For regular — show currentAmount
-  const displayAmount = isInterest ? txn.liveAmount : txn.currentAmount;
+  // Interest tab: show currentAmount — the daily midnight snapshot.
+  // The actual compound formula still runs nightly; this just freezes the display
+  // so the number doesn't tick every second.
+  // Non-interest: show currentAmount as before.
+  const displayAmount = txn.currentAmount;
   const interestAccrued = txn.interestAccrued || 0;
 
   return (
@@ -370,7 +422,7 @@ function TransactionCard({ txn, index, onClick }) {
               <div className="transaction-live-amount">
                 {formatCurrency(displayAmount)}
               </div>
-              <div className="transaction-live-label">Principal + Interest (Live)</div>
+              <div className="transaction-live-label">Principal + Interest</div>
             </>
           ) : (
             <div className={`transaction-amount ${txn.type}`}>
@@ -513,8 +565,9 @@ export default function PersonDetailPage() {
     queryKey: ['transactions', personId, activeTab],
     queryFn: () => transactionsApi.getAll(personId, { status: activeTab }),
     select: (d) => d?.data,
-    // Refresh every 30s for live interest amounts + cross-user sync
-    refetchInterval: 30000,
+    // Interest amounts are daily snapshots now; no need to tick every 30s.
+    // Keep window-focus refresh for cross-user sync.
+    refetchInterval: false,
     refetchOnWindowFocus: true,
   });
 
@@ -686,14 +739,33 @@ export default function PersonDetailPage() {
             }
           />
         ) : (
-          transactions.map((txn, i) => (
-            <TransactionCard
-              key={txn.id}
-              txn={txn}
-              index={i}
-              onClick={isOwner ? () => setEditTxn(txn) : undefined}
-            />
-          ))
+          (() => {
+            const items = [];
+            let lastMonthKey = null;
+            transactions.forEach((txn, i) => {
+              // Month separator — insert when calendar month changes
+              const d = new Date(txn.transactionDate);
+              const monthKey = `${d.getFullYear()}-${String(d.getMonth()).padStart(2, '0')}`;
+              const monthLabel = d.toLocaleString('default', { month: 'long', year: 'numeric' });
+              if (monthKey !== lastMonthKey) {
+                items.push(
+                  <div key={`sep-${monthKey}`} className="month-separator">
+                    <span>{monthLabel}</span>
+                  </div>
+                );
+                lastMonthKey = monthKey;
+              }
+              items.push(
+                <TransactionCard
+                  key={txn.id}
+                  txn={txn}
+                  index={i}
+                  onClick={isOwner ? () => setEditTxn(txn) : undefined}
+                />
+              );
+            });
+            return items;
+          })()
         )}
       </div>
 

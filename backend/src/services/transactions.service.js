@@ -66,7 +66,8 @@ async function getTransactions(personId, userId, { status, type, page = 1, limit
   const [transactions, total] = await Promise.all([
     prisma.transaction.findMany({
       where,
-      orderBy: { transactionDate: 'desc' },
+      // Primary: newest date first; tiebreaker: newest creation first
+      orderBy: [{ transactionDate: 'desc' }, { createdAt: 'desc' }],
       skip: (page - 1) * limit,
       take: limit,
     }),
@@ -181,22 +182,48 @@ async function updateTransaction(personId, transactionId, userId, data) {
   if (!transaction) throw new NotFoundError('Transaction');
 
   const updates = {};
-  if (data.type) updates.type = data.type;
+
+  // ── Editable fields ────────────────────────────────────────────────────
+  // Allow type change (gave ↔ got)
+  if (data.type && ['gave', 'got'].includes(data.type)) updates.type = data.type;
+
   if (data.amount !== undefined) {
-    updates.amount = parseFloat(data.amount);
+    updates.amount    = parseFloat(data.amount);
     updates.currentAmount = parseFloat(data.amount);
   }
   if (data.description !== undefined) updates.description = data.description?.trim() || null;
+
   if (data.transactionDate) {
-    const txnDate = new Date(data.transactionDate);
-    updates.transactionDate = txnDate;
-    updates.status = txnDate > new Date() ? 'upcoming' : 'current';
+    updates.transactionDate = new Date(data.transactionDate);
   }
+
   if (data.interestRate !== undefined) {
-    updates.interestRate = data.interestRate ? parseFloat(data.interestRate) : null;
+    // null / 0 / '' means "remove interest"
+    updates.interestRate = (data.interestRate !== null && data.interestRate !== '' && parseFloat(data.interestRate) > 0)
+      ? parseFloat(data.interestRate)
+      : null;
   }
   if (data.interestFrequency && FREQUENCY_N[data.interestFrequency]) {
     updates.interestFrequency = data.interestFrequency;
+  }
+
+  // ── Recompute status from FINAL interestRate + FINAL transactionDate ──
+  // Use updated values when present, fall back to existing record values.
+  const finalRate = Object.prototype.hasOwnProperty.call(updates, 'interestRate')
+    ? updates.interestRate
+    : transaction.interestRate;
+
+  const finalDate = updates.transactionDate ?? transaction.transactionDate;
+  const now = new Date();
+
+  if (finalRate) {
+    // Has interest:
+    //   • If date is in the future → keep as 'upcoming' (moves to 'interest' at midnight by scheduler)
+    //   • Otherwise → 'interest'
+    updates.status = new Date(finalDate) > now ? 'upcoming' : 'interest';
+  } else {
+    // No interest: past date → current, future date → upcoming
+    updates.status = new Date(finalDate) > now ? 'upcoming' : 'current';
   }
 
   const updated = await prisma.transaction.update({
@@ -204,7 +231,7 @@ async function updateTransaction(personId, transactionId, userId, data) {
     data: updates,
   });
 
-  // Recalculate balance
+  // Recalculate person balance
   await personsService.recalculateBalance(personId);
 
   return formatTransaction(updated);
