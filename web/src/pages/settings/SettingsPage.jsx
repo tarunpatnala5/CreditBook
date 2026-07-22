@@ -38,7 +38,7 @@ function EditFieldSheet({ isOpen, onClose, title, initialValue, onSave, loading,
 }
 
 // ─── Change Password Sheet ─────────────────────────────────────────────────
-function ChangePasswordSheet({ isOpen, onClose }) {
+function ChangePasswordSheet({ isOpen, onClose, userPhone }) {
   const [currentPw, setCurrentPw]   = useState('');
   const [newPw,     setNewPw]       = useState('');
   const [confirmPw, setConfirmPw]   = useState('');
@@ -46,7 +46,6 @@ function ChangePasswordSheet({ isOpen, onClose }) {
   const [forgotOpen, setForgotOpen] = useState(false);
 
   // Forgot-password sub-state
-  const [forgotPhone,   setForgotPhone]   = useState('');
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotError,   setForgotError]   = useState('');
   const [forgotSent,    setForgotSent]    = useState(false);
@@ -57,7 +56,6 @@ function ChangePasswordSheet({ isOpen, onClose }) {
 
   function closeForgot() {
     setForgotOpen(false);
-    setForgotPhone('');
     setForgotError('');
     setForgotSent(false);
   }
@@ -85,13 +83,12 @@ function ChangePasswordSheet({ isOpen, onClose }) {
     mutate({ currentPassword: currentPw, newPassword: newPw });
   }
 
-  async function handleForgotSubmit(e) {
-    e.preventDefault();
-    if (!forgotPhone.trim()) { setForgotError('Please enter your phone number'); return; }
+  async function handleForgotSubmit() {
+    if (!userPhone) { setForgotError('Phone number not found on your account.'); return; }
     setForgotLoading(true);
     setForgotError('');
     try {
-      await usersApi.forgotPassword(forgotPhone.trim());
+      await usersApi.forgotPassword(userPhone);
       setForgotSent(true);
     } catch (err) {
       setForgotError(err.message || 'Something went wrong. Please try again.');
@@ -154,43 +151,60 @@ function ChangePasswordSheet({ isOpen, onClose }) {
         </form>
       </BottomSheet>
 
-      {/* Forgot Password Sheet — same flow as Login page */}
-      <BottomSheet isOpen={forgotOpen} onClose={closeForgot} title="Forgot Password?">
+      {/* Forgot Password Sheet — phone pre-filled since user is logged in */}
+      <BottomSheet isOpen={forgotOpen} onClose={closeForgot} title="Reset Password">
         {forgotSent ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center', textAlign: 'center' }}>
-            <div style={{ fontSize: 48 }}>✅</div>
-            <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--label-primary)', margin: 0 }}>
+            <div style={{ fontSize: 52 }}>✅</div>
+            <p style={{ fontSize: 17, fontWeight: 700, color: 'var(--label-primary)', margin: 0 }}>
               Request Submitted!
             </p>
             <p style={{ fontSize: 14, color: 'var(--label-secondary)', margin: 0, lineHeight: 1.7 }}>
-              Your password reset link will be sent to your WhatsApp number shortly. The link is valid for <strong>24 hours</strong> and can only be used <strong>once</strong>.
+              Your password reset link will be sent to your WhatsApp number shortly. The link is valid for <strong>48 hours</strong> and can only be used <strong>once</strong>.
             </p>
             <Button id="forgot-pw-ok-btn" variant="primary" size="md" fullWidth onClick={closeForgot}>
               Got It
             </Button>
           </div>
         ) : (
-          <form onSubmit={handleForgotSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }} autoComplete="off">
-            <p style={{ fontSize: 14, color: 'var(--label-secondary)', margin: 0, lineHeight: 1.6 }}>
-              Enter the phone number linked to your account. We will send a password reset link to that number on WhatsApp.
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {/* Phone display */}
+            <div style={{
+              background: 'var(--fill-secondary)',
+              borderRadius: 16,
+              padding: '20px 16px',
+              textAlign: 'center',
+            }}>
+              <div style={{ fontSize: 13, color: 'var(--label-tertiary)', marginBottom: 6, fontWeight: 500 }}>
+                Reset link will be sent to
+              </div>
+              <div style={{ fontSize: 26, fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--label-primary)', letterSpacing: '0.5px' }}>
+                {userPhone || '—'}
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--label-secondary)', marginTop: 4 }}>
+                via WhatsApp
+              </div>
+            </div>
+
+            <p style={{ fontSize: 14, color: 'var(--label-secondary)', margin: 0, lineHeight: 1.6, textAlign: 'center' }}>
+              We'll notify the admin to send you a one-time password reset link. It will be valid for <strong>48 hours</strong>.
             </p>
-            <TextField
-              id="forgot-pw-phone-settings"
-              label="Phone Number"
-              value={forgotPhone}
-              onChange={setForgotPhone}
-              placeholder="e.g. +91 98765 43210"
-              type="tel"
-              inputMode="tel"
-              autoFocus
-            />
+
             {forgotError && (
-              <div style={{ color: 'var(--color-red)', fontSize: 13 }}>{forgotError}</div>
+              <div style={{ color: 'var(--color-red)', fontSize: 13, textAlign: 'center' }}>{forgotError}</div>
             )}
-            <Button id="forgot-pw-submit-settings" variant="primary" size="md" fullWidth loading={forgotLoading}>
-              Send Reset Link
+
+            <Button
+              id="forgot-pw-submit-settings"
+              variant="primary"
+              size="md"
+              fullWidth
+              loading={forgotLoading}
+              onClick={handleForgotSubmit}
+            >
+              Send Reset Request
             </Button>
-          </form>
+          </div>
         )}
       </BottomSheet>
     </>
@@ -525,6 +539,7 @@ export default function SettingsPage() {
       <ChangePasswordSheet
         isOpen={changePasswordOpen}
         onClose={() => setChangePasswordOpen(false)}
+        userPhone={user?.phone}
       />
 
       {/* Logout Dialog */}

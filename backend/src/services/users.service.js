@@ -186,7 +186,7 @@ async function requestPasswordReset(phone) {
   // Always create a request record (whether user found or not) to prevent phone enumeration.
   // If user not found, userId remains null — admin will see it but the link will be a no-op.
   const token = crypto.randomBytes(32).toString('hex');
-  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+  const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48 hours
 
   // Expire any existing pending requests for this phone
   await prisma.passwordResetRequest.updateMany({
@@ -259,7 +259,7 @@ async function getPasswordResetRequests() {
     // If starts with 0 (Indian trunk prefix), replace with 91
     if (rawPhone.startsWith('0') && rawPhone.length === 11) rawPhone = '91' + rawPhone.slice(1);
 
-    const greeting = `Hi! Here is your Credit Book password reset link.\n\nClick the link below to reset your password. This link can only be used *once* and expires in 24 hours:\n\n${resetLink}\n\nIf you did not request this, please ignore this message.`;
+    const greeting = `Hi! Here is your Credit Book password reset link.\n\nClick the link below to reset your password. This link can only be used *once* and expires in 48 hours:\n\n${resetLink}\n\nIf you did not request this, please ignore this message.`;
     const waLink = `https://wa.me/${rawPhone}?text=${encodeURIComponent(greeting)}`;
 
     return {
