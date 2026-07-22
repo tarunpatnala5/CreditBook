@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { usersApi } from '../../api';
-import { NavigationBar } from '../../components/layout/AppLayout';
+import { PageNavigationBar } from '../../components/layout/AppLayout';
 import { Spinner } from '../../components/ui/Components';
 import { formatRelative } from '../../utils';
 import './AdminPasswordReset.css';
@@ -56,7 +56,7 @@ export default function AdminPasswordResetPage() {
 
   return (
     <div className="admin-pw-reset-page">
-      <NavigationBar title="Password Reset Requests" showBack onBack={() => navigate(-1)} />
+      <PageNavigationBar title="Password Reset Requests" onBack={() => navigate(-1)} />
 
       <div className="admin-pw-reset-content">
         {isLoading ? (

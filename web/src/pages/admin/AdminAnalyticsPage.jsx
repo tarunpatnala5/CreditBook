@@ -1,4 +1,4 @@
-// Credit Book — Admin: Analytics Dashboard
+// Credit Book — Admin: Analytics Dashboard (real-time live data)
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -26,13 +26,20 @@ function StatCard({ icon, label, value, color, sub }) {
 export default function AdminAnalyticsPage() {
   const navigate = useNavigate();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, dataUpdatedAt } = useQuery({
     queryKey: ['admin-analytics'],
     queryFn: () => analyticsApi.getDashboard(),
     select: (d) => d?.data,
+    // Real-time: no stale cache, refetch every 30 seconds automatically
+    staleTime: 0,
+    gcTime: 0,
+    refetchInterval: 30000,
+    refetchOnWindowFocus: true,
+    refetchOnMount: 'always',
   });
 
   const stats = data;
+  const updatedTime = dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString() : null;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%', background: 'var(--bg-primary)', paddingBottom: 32 }}>
@@ -40,12 +47,20 @@ export default function AdminAnalyticsPage() {
 
       {isLoading ? <LoadingScreen /> : !stats ? null : (
         <div style={{ padding: '12px 16px' }}>
+
+          {/* Last updated timestamp */}
+          {updatedTime && (
+            <div style={{ fontSize: 11, color: 'var(--label-tertiary)', textAlign: 'right', marginBottom: 8 }}>
+              Live · Updated {updatedTime}
+            </div>
+          )}
+
           {/* Key metrics grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
-            <StatCard icon="👥" label="Active Users" value={stats.totalUsers} />
-            <StatCard icon="⏳" label="Pending" value={stats.pendingUsers} color={stats.pendingUsers > 0 ? 'var(--color-orange)' : undefined} />
-            <StatCard icon="📱" label="Active (30d)" value={stats.activeUsers} />
-            <StatCard icon="💸" label="Transactions" value={stats.totalTransactions} sub={`${stats.txnThisMonth} this month`} />
+            <StatCard icon="👥" label="Active Users"  value={stats.totalUsers} />
+            <StatCard icon="⏳" label="Pending"       value={stats.pendingUsers} color={stats.pendingUsers > 0 ? 'var(--color-orange)' : undefined} />
+            <StatCard icon="📱" label="Active (30d)"  value={stats.activeUsers} />
+            <StatCard icon="💸" label="Transactions"  value={stats.totalTransactions} sub={`${stats.txnThisMonth} this month`} />
           </div>
 
           {/* Money flow */}
@@ -53,16 +68,19 @@ export default function AdminAnalyticsPage() {
             <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--label-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>
               MONEY FLOW
             </div>
+            <div style={{ fontSize: 11, color: 'var(--label-tertiary)', marginBottom: 10 }}>
+              Live outstanding balances across all users
+            </div>
             <div style={{ display: 'flex', gap: 16 }}>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 11, color: 'var(--label-secondary)' }}>Total Gave</div>
+                <div style={{ fontSize: 11, color: 'var(--label-secondary)', marginBottom: 2 }}>Total Outstanding Given</div>
                 <div style={{ fontSize: 22, fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--app-negative)' }}>
                   {formatCurrency(stats.totalGave)}
                 </div>
               </div>
               <div style={{ width: '0.5px', background: 'var(--separator)' }} />
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 11, color: 'var(--label-secondary)' }}>Total Got</div>
+                <div style={{ fontSize: 11, color: 'var(--label-secondary)', marginBottom: 2 }}>Total Outstanding Got</div>
                 <div style={{ fontSize: 22, fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--app-positive)' }}>
                   {formatCurrency(stats.totalGot)}
                 </div>
@@ -78,14 +96,15 @@ export default function AdminAnalyticsPage() {
               </div>
               {stats.topUsers.map((u, i) => (
                 <div key={u.id || i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', borderTop: i > 0 ? '0.5px solid var(--separator)' : 'none' }}>
-                  <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--label-tertiary)', width: 20 }}>#{i + 1}</span>
+                  {/* Rank number — no # prefix */}
+                  <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--label-tertiary)', width: 20, textAlign: 'center' }}>{i + 1}</span>
                   <Avatar name={u.name || '?'} color={u.avatarColor} size={36} />
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 15, fontWeight: 500 }}>{u.name}</div>
                     <div style={{ fontSize: 12, color: 'var(--label-secondary)' }}>{u.phone}</div>
                   </div>
                   <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--app-accent)' }}>
-                    {u.transactionCount} entries
+                    {u.transactionCount} {u.transactionCount === 1 ? 'entry' : 'entries'}
                   </div>
                 </div>
               ))}

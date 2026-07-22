@@ -359,11 +359,10 @@ export function PageNavigationBar({ title, onBack, action, actionLabel }) {
   const navigate = useNavigate();
   return (
     <div className="nav-bar-page">
-      <button className="nav-back-btn" onClick={onBack || (() => navigate(-1))} id="nav-back-btn">
+      <button className="nav-back-btn" onClick={onBack || (() => navigate(-1))} id="nav-back-btn" aria-label="Back">
         <svg width="9" height="15" viewBox="0 0 9 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M8 1L1 8l7 7" />
         </svg>
-        Back
       </button>
       <span className="nav-page-title">{title}</span>
       {action ? (

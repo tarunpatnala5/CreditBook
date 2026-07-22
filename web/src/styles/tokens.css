@@ -71,7 +71,7 @@
 /* ─── Light Mode Tokens ──────────────────────────────────────────────────── */
 :root {
   /* System Colors */
-  --color-blue:   hsl(220, 82%, 52%);
+  --color-blue:   #016FD0;               /* American Express Blue */
   --color-green:  hsl(141, 71%, 38%);
   --color-red:    hsl(0, 100%, 42%);
   --color-orange: hsl(28, 100%, 50%);
@@ -105,7 +105,7 @@
   /* App-Specific */
   --app-positive: hsl(141, 71%, 38%);   /* You will get (green) */
   --app-negative: hsl(0, 100%, 42%);    /* You will give (red) */
-  --app-accent:   hsl(220, 82%, 52%);   /* Premium Sapphire Blue */
+  --app-accent:   #016FD0;              /* American Express Blue */
 
   /* Navigation Bar */
   --nav-bg: hsla(0, 0%, 97%, 0.85);
@@ -217,14 +217,14 @@
   --separator:        hsla(0, 0%, 100%, 0.15);
   --separator-opaque: hsl(240, 3%, 25%);
 
-  --color-blue:   hsl(220, 88%, 63%);
+  --color-blue:   #2986E8;               /* Amex blue slightly lightened for dark mode */
   --color-green:  hsl(141, 66%, 51%);
   --color-red:    hsl(0, 100%, 57%);
   --color-orange: hsl(28, 100%, 58%);
 
   --app-positive: hsl(141, 66%, 51%);
   --app-negative: hsl(0, 100%, 57%);
-  --app-accent:   hsl(220, 88%, 63%);
+  --app-accent:   #2986E8;               /* Amex blue lightened for dark mode */
 
   --nav-bg:    hsla(0, 0%, 0%, 0.85);
   --nav-border: hsla(255, 0%, 100%, 0.08);
@@ -260,14 +260,14 @@
     --separator:        hsla(0, 0%, 100%, 0.15);
     --separator-opaque: hsl(240, 3%, 25%);
 
-    --color-blue:   hsl(220, 88%, 63%);
+    --color-blue:   #2986E8;
     --color-green:  hsl(141, 66%, 51%);
     --color-red:    hsl(0, 100%, 57%);
     --color-orange: hsl(28, 100%, 58%);
 
     --app-positive: hsl(141, 66%, 51%);
     --app-negative: hsl(0, 100%, 57%);
-    --app-accent:   hsl(220, 88%, 63%);
+    --app-accent:   #2986E8;
 
     --nav-bg:    hsla(0, 0%, 0%, 0.85);
     --nav-border: hsla(255, 0%, 100%, 0.08);

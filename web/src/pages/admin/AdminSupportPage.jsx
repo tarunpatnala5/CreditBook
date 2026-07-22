@@ -270,11 +270,10 @@ export default function AdminSupportPage() {
       <div className={`admin-sidebar ${mobileView === 'chat' ? 'mobile-hidden' : ''}`}>
         {/* Sidebar Header */}
         <div className="sidebar-header">
-          <button className="nav-back-btn" onClick={() => navigate(-1)} id="admin-support-back">
+          <button className="nav-back-btn" onClick={() => navigate(-1)} id="admin-support-back" aria-label="Back">
             <svg width="9" height="15" viewBox="0 0 9 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <path d="M8 1L1 8l7 7" />
             </svg>
-            Back
           </button>
           <div className="sidebar-title-wrap">
             <span className="sidebar-title">Support</span>

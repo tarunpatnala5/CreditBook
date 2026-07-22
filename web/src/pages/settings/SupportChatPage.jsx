@@ -77,11 +77,10 @@ export default function SupportChatPage() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg-primary)', overflow: 'hidden' }}>
       {/* Nav Bar */}
       <div className="nav-bar-page">
-        <button className="nav-back-btn" onClick={() => navigate(-1)} id="support-back-btn">
+        <button className="nav-back-btn" onClick={() => navigate(-1)} id="support-back-btn" aria-label="Back">
           <svg width="10" height="16" viewBox="0 0 10 18" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 1L1 9l8 8" />
           </svg>
-          Back
         </button>
         <div style={{ flex: 1, textAlign: 'center' }}>
           <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--label-primary)' }}>Support</div>
