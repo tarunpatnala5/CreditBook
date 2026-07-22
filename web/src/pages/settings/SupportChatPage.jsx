@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { supportApi } from '../../api';
+import { supportApi, notificationsApi } from '../../api';
 import useAuthStore from '../../store/authStore';
 import { formatTime, formatDateShort } from '../../utils';
 import { PageNavigationBar } from '../../components/layout/AppLayout';
@@ -34,6 +34,15 @@ export default function SupportChatPage() {
   });
 
   const messages = data?.messages || [];
+
+  // Mark all support notifications as read when user opens this page
+  useEffect(() => {
+    notificationsApi.markAllSupportRead()
+      .catch(() => {})
+      .finally(() => {
+        queryClient.invalidateQueries({ queryKey: ['notification-count'] });
+      });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto scroll to bottom
   useEffect(() => {

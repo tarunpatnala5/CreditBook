@@ -71,6 +71,7 @@ export const notificationsApi = {
   getUnreadCount: () => api.get('/notifications/unread-count'),
   markRead: (id) => api.patch(`/notifications/${id}/read`),
   markAllRead: () => api.patch('/notifications/read-all'),
+  markAllSupportRead: () => api.patch('/notifications/read-all?category=support'),
   delete: (id) => api.delete(`/notifications/${id}`),
 };
 

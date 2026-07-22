@@ -20,7 +20,8 @@ router.get('/unread-count', authMiddleware, async (req, res, next) => {
 
 router.patch('/read-all', authMiddleware, async (req, res, next) => {
   try {
-    await notifService.markAllRead(req.user.id);
+    const { category } = req.query; // optional: ?category=support
+    await notifService.markAllRead(req.user.id, category || null);
     res.json(successResponse(null, 'All marked as read'));
   } catch (err) { next(err); }
 });

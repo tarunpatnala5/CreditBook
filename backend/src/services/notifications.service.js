@@ -48,9 +48,10 @@ async function markRead(notificationId, userId) {
   });
 }
 
-async function markAllRead(userId) {
+async function markAllRead(userId, category = null) {
+  const where = { userId, isRead: false, ...(category ? { category } : {}) };
   await prisma.notification.updateMany({
-    where: { userId, isRead: false },
+    where,
     data: { isRead: true, readAt: new Date() },
   });
 }
