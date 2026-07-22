@@ -70,11 +70,18 @@ router.get('/admin-counts', authMiddleware, adminOnly, async (req, res, next) =>
     const prisma = require('../config/database');
     const [pendingUsers, pendingReset, totalUsers] = await Promise.all([
       prisma.user.count({ where: { status: 'pending', deletedAt: null } }),
-      prisma.passwordResetRequest.count({ where: { status: 'pending' } })
-        .catch(() => 0),
+      prisma.passwordResetRequest.count({ where: { status: 'pending' } }).catch(() => 0),
       prisma.user.count({ where: { status: 'active', deletedAt: null } }),
     ]);
-    res.json(successResponse({ pendingUsers, pendingReset, totalUsers }));
+
+    // Count unread support messages sent BY users (senderId = userId means user sent it)
+    const supportRows = await prisma.$queryRaw`
+      SELECT COUNT(*) AS cnt FROM "SupportMessage"
+      WHERE "isRead" = false AND "deletedAt" IS NULL AND "senderId" = "userId"
+    `.catch(() => [{ cnt: 0 }]);
+    const supportUnread = Number(supportRows[0]?.cnt || 0);
+
+    res.json(successResponse({ pendingUsers, pendingReset, totalUsers, supportUnread }));
   } catch (err) { next(err); }
 });
 

@@ -481,7 +481,9 @@ export default function SettingsPage() {
             <Row id="admin-pending-row" icon="⏳" label="Pending Activations" onClick={() => navigate('/admin/pending')}>
               {(adminCounts?.pendingUsers || 0) > 0 && <Badge count={adminCounts.pendingUsers} />}
             </Row>
-            <Row id="admin-support-row" icon="🎧" label="Support Requests" onClick={() => navigate('/admin/support')} />
+            <Row id="admin-support-row" icon="🎧" label="Support Requests" onClick={() => navigate('/admin/support')}>
+              {(adminCounts?.supportUnread || 0) > 0 && <Badge count={adminCounts.supportUnread} />}
+            </Row>
             <Row id="admin-reset-pw-row" icon="🔐" label="Password Reset Requests" onClick={() => navigate('/admin/password-reset')}>
               {(adminCounts?.pendingReset || 0) > 0 && <Badge count={adminCounts.pendingReset} />}
             </Row>

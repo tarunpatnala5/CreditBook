@@ -70,7 +70,7 @@ function useTabs() {
   const supportUnread  = notifData?.byCategory?.support || 0;
   const alertsBadge    = unreadTotal - supportUnread;   // alerts tab: exclude support notifications
   const settingsBadge  = isAdmin
-    ? (adminCounts?.pendingUsers || 0) + (adminCounts?.pendingReset || 0)
+    ? (adminCounts?.pendingUsers || 0) + (adminCounts?.pendingReset || 0) + (adminCounts?.supportUnread || 0)
     : supportUnread;                                    // regular users: support chat unread on Settings
 
   return [

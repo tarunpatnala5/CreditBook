@@ -256,9 +256,10 @@ export default function AdminSupportPage() {
   function openConvo(convo) {
     setSelectedConvo(convo);
     setMobileView('chat');
-    // Invalidate immediately so unread badge clears after getConversation marks read
+    // After getConversation marks messages as read, refresh both counts
     setTimeout(() => {
       queryClient.invalidateQueries({ queryKey: ['admin-support-conversations'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-counts'] });
     }, 800);
   }
 
