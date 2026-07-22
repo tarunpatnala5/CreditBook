@@ -23,6 +23,7 @@ import AdminPendingPage from './pages/admin/AdminPendingPage';
 import AdminSupportPage from './pages/admin/AdminSupportPage';
 import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
 import AdminPasswordResetPage from './pages/admin/AdminPasswordResetPage';
+import AdminPasswordResetHistoryPage from './pages/admin/AdminPasswordResetHistoryPage';
 import SharePage from './pages/share/SharePage';
 
 const queryClient = new QueryClient({
@@ -92,7 +93,8 @@ export default function App() {
             <Route path="pending"        element={<AdminRoute><AdminPendingPage /></AdminRoute>} />
             <Route path="support"        element={<AdminRoute><AdminSupportPage /></AdminRoute>} />
             <Route path="analytics"      element={<AdminRoute><AdminAnalyticsPage /></AdminRoute>} />
-            <Route path="password-reset" element={<AdminRoute><AdminPasswordResetPage /></AdminRoute>} />
+            <Route path="password-reset"         element={<AdminRoute><AdminPasswordResetPage /></AdminRoute>} />
+            <Route path="password-reset/history" element={<AdminRoute><AdminPasswordResetHistoryPage /></AdminRoute>} />
           </Route>
 
           {/* Fallback */}

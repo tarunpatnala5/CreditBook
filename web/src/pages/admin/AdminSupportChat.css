@@ -5,8 +5,10 @@
 /* ─── Page Layout ────────────────────────────────────────────────────────── */
 .admin-support-page {
   display: flex;
-  height: 100dvh;
-  height: 100vh;
+  /* Fill the AppLayout page-content area without overflowing it */
+  flex: 1;
+  height: 0;          /* allows flex children to control height */
+  min-height: 100%;   /* fallback: at least full viewport height */
   background: var(--bg-primary);
   overflow: hidden;
 }
