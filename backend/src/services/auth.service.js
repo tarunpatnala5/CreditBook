@@ -57,8 +57,11 @@ async function register({ name, phone, password, confirmPassword }) {
     throw new ValidationError('Password must be at least 6 characters');
   }
 
-  // Normalize
-  const normalizedPhone = phone.replace(/\s/g, '');
+  // Normalize: strip spaces and non-digits
+  const normalizedPhone = phone.replace(/\D/g, '');
+  if (normalizedPhone.length !== 10) {
+    throw new ValidationError('Phone number must be exactly 10 digits');
+  }
 
   // Check duplicates (exclude soft-deleted users)
   const existingPhone = await prisma.user.findFirst({ where: { phone: normalizedPhone, deletedAt: null } });
@@ -77,7 +80,7 @@ async function register({ name, phone, password, confirmPassword }) {
   const user = await prisma.user.create({
     data: {
       name: name.trim(),
-      phone: normalizedPhone,
+      phone: normalizedPhone,  // stored as plain 10 digits
       passwordHash,
       role: 'user',
       status: 'pending',

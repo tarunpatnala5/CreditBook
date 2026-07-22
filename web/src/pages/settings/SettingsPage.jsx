@@ -16,7 +16,7 @@ import {
 import './Settings.css';
 
 // ─── Edit Field Sheet ──────────────────────────────────────────────────────
-function EditFieldSheet({ isOpen, onClose, title, initialValue, onSave, loading, label, placeholder, type = 'text', inputMode }) {
+function EditFieldSheet({ isOpen, onClose, title, initialValue, onSave, loading, label, placeholder, type = 'text', inputMode, maxLength }) {
   const [value, setValue] = useState(initialValue || '');
   React.useEffect(() => { setValue(initialValue || ''); }, [initialValue]);
 
@@ -28,7 +28,7 @@ function EditFieldSheet({ isOpen, onClose, title, initialValue, onSave, loading,
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} title={title}>
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }} autoComplete="off">
-        <TextField id="edit-field-input" label={label} value={value} onChange={setValue} placeholder={placeholder} type={type} inputMode={inputMode} autoFocus />
+        <TextField id="edit-field-input" label={label} value={value} onChange={setValue} placeholder={placeholder} type={type} inputMode={inputMode} maxLength={maxLength} autoFocus />
         <Button id="edit-field-save" variant="primary" size="md" fullWidth loading={loading}>
           Save
         </Button>
@@ -510,7 +510,6 @@ export default function SettingsPage() {
         loading={isUpdatingUser}
       />
 
-      {/* Edit Phone Sheet */}
       <EditFieldSheet
         isOpen={editPhoneOpen}
         onClose={() => setEditPhoneOpen(false)}
@@ -520,6 +519,7 @@ export default function SettingsPage() {
         placeholder="98765 43210"
         type="tel"
         inputMode="tel"
+        maxLength={10}
         onSave={(val) => updateUser({ phone: val })}
         loading={isUpdatingUser}
       />

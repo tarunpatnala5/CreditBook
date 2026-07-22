@@ -18,7 +18,8 @@ async function updateMe(userId, { name, phone, email }) {
   const updates = {};
   if (name?.trim()) updates.name = name.trim();
   if (phone) {
-    const normalizedPhone = phone.replace(/\s/g, '');
+    const normalizedPhone = phone.replace(/\D/g, '');
+    if (normalizedPhone.length !== 10) throw new ValidationError('Phone number must be exactly 10 digits');
     const existing = await prisma.user.findFirst({
       where: { phone: normalizedPhone, id: { not: userId }, deletedAt: null },
     });
