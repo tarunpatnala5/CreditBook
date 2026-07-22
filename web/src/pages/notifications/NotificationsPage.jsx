@@ -10,7 +10,6 @@ import { NavigationBar } from '../../components/layout/AppLayout';
 const CATEGORIES = [
   { id: 'all', label: 'All' },
   { id: 'transaction', label: '💸 Transactions' },
-  { id: 'support', label: '💬 Support' },
   { id: 'update', label: '📦 Updates' },
   { id: 'activation', label: '✅ Activation' },
   { id: 'announcement', label: '📢 News' },
@@ -47,13 +46,20 @@ export default function NotificationsPage() {
     },
   });
 
-  // Auto-clear badge when user opens Alerts — fires after 1.5s so list renders first
+  // Auto-clear non-support badges when user opens Alerts
   useEffect(() => {
-    const timer = setTimeout(() => markAllRead(), 1500);
+    const timer = setTimeout(() => {
+      // Mark all non-support notifications as read
+      notificationsApi.markAllRead();
+      queryClient.invalidateQueries({ queryKey: ['notification-count'] });
+    }, 1500);
     return () => clearTimeout(timer);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const notifications = data?.notifications || [];
+  // Filter out support notifications — they belong in Settings/Support Chat
+  const notifications = (data?.notifications || []).filter(
+    (n) => activeCategory !== 'all' || n.category !== 'support'
+  );
   const unreadCount = data?.unreadCount || 0;
 
   return (
