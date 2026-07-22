@@ -34,25 +34,32 @@ async function getAllConversations() {
         orderBy: { createdAt: 'desc' },
         take: 1,
       },
-      _count: {
-        select: {
-          supportMessages: {
-            where: { deletedAt: null, isRead: false, senderId: { not: process.env.ADMIN_USER_ID } },
-          },
-        },
-      },
     },
     orderBy: { updatedAt: 'desc' },
   });
 
-  return users.map((u) => ({
+  // Count unread messages per user: only messages WHERE the user sent them (senderId = userId) AND not yet read
+  const unreadCounts = await Promise.all(
+    users.map((u) =>
+      prisma.supportMessage.count({
+        where: {
+          userId: u.id,
+          senderId: u.id,   // only messages FROM the user (not admin replies)
+          isRead: false,
+          deletedAt: null,
+        },
+      })
+    )
+  );
+
+  return users.map((u, i) => ({
     userId: u.id,
     userName: u.name,
     userPhone: u.phone,
     avatarColor: u.avatarColor,
     lastMessage: u.supportMessages[0]?.message || '',
     lastMessageAt: u.supportMessages[0]?.createdAt || null,
-    unreadCount: u._count.supportMessages,
+    unreadCount: unreadCounts[i],
   }));
 }
 
