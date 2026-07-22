@@ -213,7 +213,7 @@ function ChangePasswordSheet({ isOpen, onClose, userPhone }) {
 
 
 // ─── Devices Section ───────────────────────────────────────────────────────
-function DevicesSection({ onDeleteAccount }) {
+function DevicesSection({ onDeleteAccount, onSignOut }) {
   const { data: sessionsData, isLoading } = useQuery({
     queryKey: ['sessions'],
     queryFn: () => authApi.getSessions(),
@@ -260,7 +260,14 @@ function DevicesSection({ onDeleteAccount }) {
           value={isLoading ? '' : String(sessions.length)}
           onClick={() => setSheetOpen(true)}
         />
-        {/* Delete Account moved here into Security */}
+        {/* Sign Out — between Devices and Delete Account */}
+        <Row
+          id="logout-row"
+          label="Sign Out"
+          onClick={onSignOut}
+          chevron={false}
+        />
+        {/* Delete Account */}
         <Row
           id="delete-account-row"
           label="Delete Account"
@@ -341,7 +348,6 @@ export default function SettingsPage() {
 
   const [editNameOpen, setEditNameOpen]       = useState(false);
   const [editPhoneOpen, setEditPhoneOpen]     = useState(false);
-  const [editEmailOpen, setEditEmailOpen]     = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen]     = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen]     = useState(false);
@@ -352,7 +358,6 @@ export default function SettingsPage() {
     return registerModalCloser(() => {
       setEditNameOpen(false);
       setEditPhoneOpen(false);
-      setEditEmailOpen(false);
       setChangePasswordOpen(false);
     });
   }, []);
@@ -387,7 +392,6 @@ export default function SettingsPage() {
       toast.success('Profile updated');
       setEditNameOpen(false);
       setEditPhoneOpen(false);
-      setEditEmailOpen(false);
     },
     onError: (err) => toast.error(err.message),
   });
@@ -445,9 +449,8 @@ export default function SettingsPage() {
 
         {/* ── Profile Section ── */}
         <Section title="PROFILE">
-          <Row id="edit-name-row"  icon="👤" label="Name"     value={user?.name}          onClick={() => setEditNameOpen(true)} />
+          <Row id="edit-name-row"  icon="👤" label="Name"     value={user?.name}              onClick={() => setEditNameOpen(true)} />
           <Row id="edit-phone-row" icon="📱" label="Phone"    value={formatPhone(user?.phone)} onClick={() => setEditPhoneOpen(true)} />
-          <Row id="edit-email-row" icon="✉️" label="Email"    value={user?.email || '—'}  onClick={() => setEditEmailOpen(true)} />
           <Row id="edit-pw-row"    icon="🔑" label="Password" value="••••••"               onClick={() => setChangePasswordOpen(true)} />
         </Section>
 
@@ -487,19 +490,10 @@ export default function SettingsPage() {
         )}
 
         {/* ── Devices + Security ── */}
-        <DevicesSection onDeleteAccount={() => setDeleteDialogOpen(true)} />
-
-        {/* ── Sign Out ── */}
-        <div style={{ marginTop: 8 }}>
-          <Section title="">
-            <Row
-              id="logout-row"
-              label="Sign Out"
-              onClick={() => setLogoutDialogOpen(true)}
-              chevron={false}
-            />
-          </Section>
-        </div>
+        <DevicesSection
+          onDeleteAccount={() => setDeleteDialogOpen(true)}
+          onSignOut={() => setLogoutDialogOpen(true)}
+        />
       </div>
 
       {/* Edit Name Sheet */}
@@ -525,20 +519,6 @@ export default function SettingsPage() {
         type="tel"
         inputMode="tel"
         onSave={(val) => updateUser({ phone: val })}
-        loading={isUpdatingUser}
-      />
-
-      {/* Edit Email Sheet */}
-      <EditFieldSheet
-        isOpen={editEmailOpen}
-        onClose={() => setEditEmailOpen(false)}
-        title="Edit Email"
-        label="Email Address"
-        initialValue={user?.email}
-        placeholder="you@example.com"
-        type="email"
-        inputMode="email"
-        onSave={(val) => updateUser({ email: val })}
         loading={isUpdatingUser}
       />
 

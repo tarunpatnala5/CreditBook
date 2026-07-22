@@ -44,14 +44,9 @@ function parseDeviceInfo(userAgent = '', ip = '') {
 }
 
 // ─── Register ─────────────────────────────────────────────────────────
-async function register({ name, phone, email, password, confirmPassword }) {
-  if (!name || !phone || !email || !password) {
-    throw new ValidationError('Name, phone, email, and password are required');
-  }
-
-  // Validate email format
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    throw new ValidationError('Invalid email address');
+async function register({ name, phone, password, confirmPassword }) {
+  if (!name || !phone || !password) {
+    throw new ValidationError('Name, phone, and password are required');
   }
 
   if (password !== confirmPassword) {
@@ -64,15 +59,10 @@ async function register({ name, phone, email, password, confirmPassword }) {
 
   // Normalize
   const normalizedPhone = phone.replace(/\s/g, '');
-  const normalizedEmail = email.trim().toLowerCase();
 
   // Check duplicates (exclude soft-deleted users)
   const existingPhone = await prisma.user.findFirst({ where: { phone: normalizedPhone, deletedAt: null } });
   if (existingPhone) throw new ConflictError('Phone number already registered');
-
-  const existingEmail = await prisma.user.findFirst({ where: { email: normalizedEmail, deletedAt: null } });
-  if (existingEmail) throw new ConflictError('Email address already registered');
-
 
   const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
@@ -88,7 +78,6 @@ async function register({ name, phone, email, password, confirmPassword }) {
     data: {
       name: name.trim(),
       phone: normalizedPhone,
-      email: normalizedEmail,
       passwordHash,
       role: 'user',
       status: 'pending',
@@ -100,30 +89,17 @@ async function register({ name, phone, email, password, confirmPassword }) {
     id: user.id,
     name: user.name,
     phone: user.phone,
-    email: user.email,
     status: user.status,
     createdAt: user.createdAt,
   };
 }
 
-// ─── Login ───────────────────────────────────────────────────────────
+// ─── Login ─────────────────────────────────────────────────────────
 async function login({ phone, password, userAgent, ipAddress }) {
-  // Detect if identifier is email or phone
-  const identifier = phone?.trim() || '';
-  const isEmail = identifier.includes('@');
-
-  let user;
-  if (isEmail) {
-    const normalizedEmail = identifier.toLowerCase();
-    user = await prisma.user.findFirst({
-      where: { email: normalizedEmail, deletedAt: null },
-    });
-  } else {
-    const normalizedPhone = identifier.replace(/\s/g, '');
-    user = await prisma.user.findFirst({
-      where: { phone: normalizedPhone, deletedAt: null },
-    });
-  }
+  const normalizedPhone = (phone?.trim() || '').replace(/\s/g, '');
+  const user = await prisma.user.findFirst({
+    where: { phone: normalizedPhone, deletedAt: null },
+  });
 
   if (!user) {
     throw new UnauthorizedError('Invalid credentials');

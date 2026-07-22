@@ -25,7 +25,7 @@ export default function LoginPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     if (!identifier || !password) {
-      setError('Please enter your phone or email and password');
+      setError('Please enter your phone number and password');
       return;
     }
     setLoading(true);
@@ -75,11 +75,12 @@ export default function LoginPage() {
         <div className="auth-card">
           <TextField
             id="login-phone"
-            label="Phone or Email"
+            label="Phone Number"
             value={identifier}
             onChange={setIdentifier}
-            placeholder="Phone number or you@example.com"
-            type="text"
+            placeholder="Enter your phone number"
+            type="tel"
+            inputMode="tel"
           />
           <TextField
             id="login-password"

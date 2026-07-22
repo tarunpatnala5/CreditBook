@@ -8,7 +8,7 @@ import './Auth.css';
 export default function RegisterPage() {
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({ name: '', phone: '', email: '', password: '', confirmPassword: '' });
+  const [form, setForm] = useState({ name: '', phone: '', password: '', confirmPassword: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [registered, setRegistered] = useState(false);
@@ -19,12 +19,8 @@ export default function RegisterPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!form.name || !form.phone || !form.email || !form.password || !form.confirmPassword) {
+    if (!form.name || !form.phone || !form.password || !form.confirmPassword) {
       setError('All fields are required');
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      setError('Please enter a valid email address');
       return;
     }
     if (form.password !== form.confirmPassword) {
@@ -43,7 +39,6 @@ export default function RegisterPage() {
       await authApi.register({
         name: form.name.trim(),
         phone: form.phone.trim(),
-        email: form.email.trim(),
         password: form.password,
         confirmPassword: form.confirmPassword,
       });
@@ -90,7 +85,6 @@ export default function RegisterPage() {
         <div className="auth-card">
           <TextField id="reg-name" label="Full Name" value={form.name} onChange={setField('name')} placeholder="Your full name" autoFocus />
           <TextField id="reg-phone" label="Phone Number" value={form.phone} onChange={setField('phone')} placeholder="Enter phone number" type="tel" inputMode="tel" />
-          <TextField id="reg-email" label="Email Address" value={form.email} onChange={setField('email')} placeholder="you@example.com" type="email" inputMode="email" />
           <TextField id="reg-password" label="Password" value={form.password} onChange={setField('password')} placeholder="Min. 6 characters" type="password" />
           <TextField id="reg-confirm" label="Confirm Password" value={form.confirmPassword} onChange={setField('confirmPassword')} placeholder="Repeat your password" type="password" />
         </div>
