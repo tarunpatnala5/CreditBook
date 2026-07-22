@@ -83,13 +83,14 @@ function ChatPanel({ convo, onClose }) {
   const queryClient = useQueryClient();
   const { user: adminUser } = useAuthStore();
   const [message, setMessage] = useState('');
-  const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
   const inputRef = useRef(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-convo', convo.userId],
     queryFn: () => supportApi.getConversation(convo.userId),
     select: (d) => d?.data,
+    staleTime: 0,
     refetchInterval: 4000,
   });
 
@@ -107,7 +108,9 @@ function ChatPanel({ convo, onClose }) {
   const messages = data?.messages || [];
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+    // Scroll the messages container div directly — avoids page-level scroll jump
+    const el = messagesContainerRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [messages.length]);
 
   // Group messages by date
@@ -158,7 +161,7 @@ function ChatPanel({ convo, onClose }) {
       </div>
 
       {/* Messages */}
-      <div className="chat-messages" id="chat-messages-scroll">
+      <div className="chat-messages" id="chat-messages-scroll" ref={messagesContainerRef}>
         {isLoading ? (
           <LoadingScreen />
         ) : grouped.length === 0 ? (
@@ -179,7 +182,6 @@ function ChatPanel({ convo, onClose }) {
             )
           )
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Input Bar */}
@@ -242,7 +244,8 @@ export default function AdminSupportPage() {
     queryKey: ['admin-support-conversations'],
     queryFn: () => supportApi.getConversations(),
     select: (d) => d?.data,
-    refetchInterval: 12000,
+    refetchInterval: 5000,
+    staleTime: 0,
   });
 
   const conversations = Array.isArray(data) ? data : [];
@@ -281,17 +284,7 @@ export default function AdminSupportPage() {
               <span className="sidebar-unread-total">{totalUnread}</span>
             )}
           </div>
-          <button
-            className="sidebar-refresh-btn"
-            onClick={() => refetch()}
-            aria-label="Refresh"
-            id="support-refresh-btn"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-              <path d="M23 4v6h-6M1 20v-6h6" />
-              <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
-            </svg>
-          </button>
+          {/* Refresh button removed — page auto-refreshes every 5s */}
         </div>
 
         {/* Divider */}

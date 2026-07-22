@@ -256,46 +256,50 @@ async function resetPassword(token, newPassword) {
 
 // ─── Admin: Get password reset requests ───────────────────────────────────────────
 async function getPasswordResetRequests() {
-  const requests = await prisma.passwordResetRequest.findMany({
-    where: { status: { in: ['pending', 'sent'] } },
-    orderBy: { createdAt: 'desc' },
-  });
+  try {
+    const requests = await prisma.passwordResetRequest.findMany({
+      where: { status: { in: ['pending', 'sent'] } },
+      orderBy: { createdAt: 'desc' },
+    });
 
-  // Batch-fetch user names for all requests that have a userId
-  const userIds = [...new Set(requests.map(r => r.userId).filter(Boolean))];
-  const users = userIds.length
-    ? await prisma.user.findMany({ where: { id: { in: userIds } }, select: { id: true, name: true, phone: true } })
-    : [];
-  const userMap = Object.fromEntries(users.map(u => [u.id, u]));
+    // Batch-fetch user names for all requests that have a userId
+    const userIds = [...new Set(requests.map(r => r.userId).filter(Boolean))];
+    const users = userIds.length
+      ? await prisma.user.findMany({ where: { id: { in: userIds } }, select: { id: true, name: true, phone: true } })
+      : [];
+    const userMap = Object.fromEntries(users.map(u => [u.id, u]));
 
-  const baseUrl = process.env.APP_URL || 'https://creditbook5.vercel.app';
+    const baseUrl = process.env.APP_URL || 'https://creditbook5.vercel.app';
 
-  return requests.map((r) => {
-    const resetLink = `${baseUrl}/reset-password?token=${r.token}`;
-    const linkedUser = r.userId ? userMap[r.userId] : null;
+    return requests.map((r) => {
+      const resetLink = `${baseUrl}/reset-password?token=${r.token}`;
+      const linkedUser = r.userId ? userMap[r.userId] : null;
 
-    // Normalize phone to WhatsApp international format (no + or spaces)
-    let rawPhone = (r.phone || '').replace(/[\s\-()]/g, '');
-    if (rawPhone.startsWith('+')) rawPhone = rawPhone.slice(1);
-    if (/^\d{10}$/.test(rawPhone)) rawPhone = '91' + rawPhone;
-    if (rawPhone.startsWith('0') && rawPhone.length === 11) rawPhone = '91' + rawPhone.slice(1);
+      let rawPhone = (r.phone || '').replace(/[\s\-()]/g, '');
+      if (rawPhone.startsWith('+')) rawPhone = rawPhone.slice(1);
+      if (/^\d{10}$/.test(rawPhone)) rawPhone = '91' + rawPhone;
+      if (rawPhone.startsWith('0') && rawPhone.length === 11) rawPhone = '91' + rawPhone.slice(1);
 
-    const greeting = `Hi! Here is your Credit Book password reset link.\n\nClick the link below to reset your password. This link can only be used *once* and expires in 48 hours:\n\n${resetLink}\n\nIf you did not request this, please ignore this message.`;
-    const waLink = `https://wa.me/${rawPhone}?text=${encodeURIComponent(greeting)}`;
+      const greeting = `Hi! Here is your Credit Book password reset link.\n\nClick the link below to reset your password. This link can only be used *once* and expires in 48 hours:\n\n${resetLink}\n\nIf you did not request this, please ignore this message.`;
+      const waLink = `https://wa.me/${rawPhone}?text=${encodeURIComponent(greeting)}`;
 
-    return {
-      id: r.id,
-      phone: r.phone,
-      userName: linkedUser?.name || null,
-      userId: r.userId,
-      status: r.status,
-      createdAt: r.createdAt,
-      expiresAt: r.expiresAt,
-      sentAt: r.sentAt,
-      resetLink,
-      waLink,
-    };
-  });
+      return {
+        id: r.id,
+        phone: r.phone,
+        userName: linkedUser?.name || null,
+        userId: r.userId,
+        status: r.status,
+        createdAt: r.createdAt,
+        expiresAt: r.expiresAt,
+        sentAt: r.sentAt,
+        resetLink,
+        waLink,
+      };
+    });
+  } catch (err) {
+    console.error('[getPasswordResetRequests] DB error (table may not exist yet):', err?.message);
+    return [];
+  }
 }
 
 // ─── Admin: Mark reset request as sent ─────────────────────────────────────────

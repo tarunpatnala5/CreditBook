@@ -213,11 +213,13 @@ function ChangePasswordSheet({ isOpen, onClose, userPhone }) {
 
 
 // ─── Devices Section ───────────────────────────────────────────────────────
-function DevicesSection() {
+function DevicesSection({ onDeleteAccount }) {
   const { data: sessionsData, isLoading } = useQuery({
     queryKey: ['sessions'],
     queryFn: () => authApi.getSessions(),
     select: (d) => d?.data,
+    staleTime: 0,
+    refetchInterval: 30000,
   });
   const queryClient = useQueryClient();
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -257,6 +259,14 @@ function DevicesSection() {
           label="Devices"
           value={isLoading ? '' : String(sessions.length)}
           onClick={() => setSheetOpen(true)}
+        />
+        {/* Delete Account moved here into Security */}
+        <Row
+          id="delete-account-row"
+          label="Delete Account"
+          onClick={onDeleteAccount}
+          chevron={false}
+          destructive
         />
       </Section>
 
@@ -351,11 +361,21 @@ export default function SettingsPage() {
     queryKey: ['notification-count'],
     queryFn: () => notificationsApi.getUnreadCount(),
     select: (d) => d?.data,
-    refetchInterval: 30000,
+    refetchInterval: 15000,
+    staleTime: 0,
+  });
+
+  // Fetch admin counts (pending users, pending pw-reset, total users)
+  const { data: adminCounts } = useQuery({
+    queryKey: ['admin-counts'],
+    queryFn: () => usersApi.getAdminCounts(),
+    select: (d) => d?.data,
+    refetchInterval: 15000,
+    staleTime: 0,
+    enabled: isAdmin,
   });
 
   const unreadTotal = notifData?.total || 0;
-  const updateCount = notifData?.byCategory?.update || 0;
   const supportCount = notifData?.byCategory?.support || 0;
 
   const { mutate: updateUser, isPending: isUpdatingUser } = useMutation({
@@ -453,18 +473,20 @@ export default function SettingsPage() {
         {/* ── Admin ── */}
         {isAdmin && (
           <Section title="ADMIN">
-            <Row id="admin-users-row"   icon="👥" label="Users"                  onClick={() => navigate('/admin/users')} />
-            <Row id="admin-pending-row" icon="⏳" label="Pending Activations"  onClick={() => navigate('/admin/pending')}>
-              {notifData?.byCategory?.activation > 0 && <Badge count={notifData.byCategory.activation} />}
+            <Row id="admin-users-row" icon="👥" label="Users" value={adminCounts?.totalUsers != null ? String(adminCounts.totalUsers) : ''} onClick={() => navigate('/admin/users')} />
+            <Row id="admin-pending-row" icon="⏳" label="Pending Activations" onClick={() => navigate('/admin/pending')}>
+              {(adminCounts?.pendingUsers || 0) > 0 && <Badge count={adminCounts.pendingUsers} />}
             </Row>
-            <Row id="admin-support-row"   icon="🎧" label="Support Requests"     onClick={() => navigate('/admin/support')} />
-            <Row id="admin-reset-pw-row"  icon="🔐" label="Password Reset Requests" onClick={() => navigate('/admin/password-reset')} />
-            <Row id="admin-analytics-row" icon="📊" label="Analytics Dashboard"  onClick={() => navigate('/admin/analytics')} />
+            <Row id="admin-support-row" icon="🎧" label="Support Requests" onClick={() => navigate('/admin/support')} />
+            <Row id="admin-reset-pw-row" icon="🔐" label="Password Reset Requests" onClick={() => navigate('/admin/password-reset')}>
+              {(adminCounts?.pendingReset || 0) > 0 && <Badge count={adminCounts.pendingReset} />}
+            </Row>
+            <Row id="admin-analytics-row" icon="📊" label="Analytics Dashboard" onClick={() => navigate('/admin/analytics')} />
           </Section>
         )}
 
-        {/* ── Devices ── */}
-        <DevicesSection />
+        {/* ── Devices + Security ── */}
+        <DevicesSection onDeleteAccount={() => setDeleteDialogOpen(true)} />
 
         {/* ── Sign Out ── */}
         <div style={{ marginTop: 8 }}>
@@ -476,22 +498,6 @@ export default function SettingsPage() {
               chevron={false}
             />
           </Section>
-        </div>
-
-        {/* ── Danger Zone ── */}
-        <Section title="DANGER ZONE">
-          <Row
-            id="delete-account-row"
-            label="Delete Account"
-            onClick={() => setDeleteDialogOpen(true)}
-            chevron={false}
-            destructive
-          />
-        </Section>
-
-        {/* Version */}
-        <div style={{ textAlign: 'center', padding: '16px', color: 'var(--label-tertiary)', fontSize: 12 }}>
-          Credit Book v1.0.0
         </div>
       </div>
 

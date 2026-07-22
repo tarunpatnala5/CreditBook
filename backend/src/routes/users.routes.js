@@ -64,6 +64,20 @@ router.get('/pending', authMiddleware, adminOnly, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ─── Admin: Live badge counts ──────────────────────────────────────────────
+router.get('/admin-counts', authMiddleware, adminOnly, async (req, res, next) => {
+  try {
+    const prisma = require('../config/database');
+    const [pendingUsers, pendingReset, totalUsers] = await Promise.all([
+      prisma.user.count({ where: { status: 'pending', deletedAt: null } }),
+      prisma.passwordResetRequest.findMany({ where: { status: { in: ['pending', 'sent'] } } })
+        .then(r => r.length).catch(() => 0),
+      prisma.user.count({ where: { status: 'active', deletedAt: null } }),
+    ]);
+    res.json(successResponse({ pendingUsers, pendingReset, totalUsers }));
+  } catch (err) { next(err); }
+});
+
 router.get('/password-reset-requests', authMiddleware, adminOnly, async (req, res, next) => {
   try {
     const result = await usersService.getPasswordResetRequests();

@@ -2,7 +2,8 @@
 import React, { useRef, useState, useLayoutEffect, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { notificationsApi } from '../../api';
+import { notificationsApi, usersApi } from '../../api';
+import useAuthStore from '../../store/authStore';
 import { _forceCloseAllSheets } from '../ui/Components';
 import './Layout.css';
 
@@ -45,19 +46,36 @@ const TabIcons = {
 
 // ─── Tab Config ────────────────────────────────────────────────────────────
 function useTabs() {
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === 'admin';
+
   const { data: notifData } = useQuery({
     queryKey: ['notification-count'],
     queryFn: () => notificationsApi.getUnreadCount(),
-    refetchInterval: 30000,
+    refetchInterval: 15000,
+    staleTime: 0,
     select: (d) => d?.data,
   });
+
+  const { data: adminCounts } = useQuery({
+    queryKey: ['admin-counts'],
+    queryFn: () => usersApi.getAdminCounts(),
+    select: (d) => d?.data,
+    refetchInterval: 15000,
+    staleTime: 0,
+    enabled: isAdmin,
+  });
+
   const unreadCount = notifData?.total || 0;
+  const settingsBadge = isAdmin
+    ? (adminCounts?.pendingUsers || 0) + (adminCounts?.pendingReset || 0)
+    : 0;
 
   return [
     { path: '/',             id: 'home',          label: 'My Book' },
     { path: '/shared',       id: 'shared',        label: 'Shared' },
     { path: '/notifications',id: 'notifications', label: 'Alerts', badge: unreadCount },
-    { path: '/settings',     id: 'settings',      label: 'Settings' },
+    { path: '/settings',     id: 'settings',      label: 'Settings', badge: settingsBadge },
   ];
 }
 

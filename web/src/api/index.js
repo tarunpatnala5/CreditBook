@@ -34,6 +34,7 @@ export const usersApi = {
   // Admin
   getAll: (params) => api.get('/users', { params }),
   getPending: () => api.get('/users/pending'),
+  getAdminCounts: () => api.get('/users/admin-counts'),
   activate: (userId) => api.post(`/users/${userId}/activate`),
   reject: (userId, reason) => api.post(`/users/${userId}/reject`, { reason }),
   deleteUser: (userId) => api.delete(`/users/${userId}`),
