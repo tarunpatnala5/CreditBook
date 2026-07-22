@@ -237,6 +237,7 @@ function NoChatSelected() {
 // ─── Main Admin Support Page ───────────────────────────────────────────────
 export default function AdminSupportPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [selectedConvo, setSelectedConvo] = useState(null);
   const [mobileView, setMobileView] = useState('list'); // 'list' | 'chat'
 
@@ -255,6 +256,10 @@ export default function AdminSupportPage() {
   function openConvo(convo) {
     setSelectedConvo(convo);
     setMobileView('chat');
+    // Invalidate immediately so unread badge clears after getConversation marks read
+    setTimeout(() => {
+      queryClient.invalidateQueries({ queryKey: ['admin-support-conversations'] });
+    }, 800);
   }
 
   function closeConvo() {

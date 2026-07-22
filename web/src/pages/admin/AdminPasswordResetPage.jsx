@@ -44,22 +44,21 @@ export default function AdminPasswordResetPage() {
     .filter((r) => r.status === 'pending' && new Date() <= new Date(r.expiresAt))
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
+  const historyIcon = (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--app-accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </svg>
+  );
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%', background: 'var(--bg-primary)' }}>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <PageNavigationBar title="Password Reset Requests" onBack={() => navigate(-1)} />
-        <button
-          onClick={() => navigate('/admin/password-reset/history')}
-          title="Sent History"
-          style={{ position: 'absolute', right: 16, top: 14, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--label-secondary)', padding: 6, borderRadius: 8 }}
-        >
-          {/* Clock / history icon */}
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <polyline points="12 6 12 12 16 14" />
-          </svg>
-        </button>
-      </div>
+      <PageNavigationBar
+        title="Password Reset Requests"
+        onBack={() => navigate(-1)}
+        action={() => navigate('/admin/password-reset/history')}
+        actionLabel={historyIcon}
+      />
       <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
         {isLoading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: 48 }}>

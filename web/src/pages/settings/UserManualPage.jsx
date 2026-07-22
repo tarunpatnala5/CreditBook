@@ -7,7 +7,7 @@ const SECTIONS = [
   {
     title: '1. Getting Started',
     icon: '🚀',
-    content: `Credit Book is your private app to track money you've given or received from friends and family.\n\nAfter registration, an admin must activate your account before you can sign in.`,
+    content: `Credit Book is your private app to track money you've given or received from friends and family.\n\nAfter registration, an admin must activate your account before you can sign in.\n\nLogin uses your phone number and password — no email required.`,
   },
   {
     title: '2. Home Screen',
@@ -92,12 +92,12 @@ const SECTIONS = [
   {
     title: '18. Privacy & Security',
     icon: '🔒',
-    content: `Your data is completely private:\n\n• All connections are encrypted (HTTPS)\n• Passwords are never stored in plain text\n• Only your family members can access the app\n• You can delete your account any time from Settings`,
+    content: `Your data is completely private:\n\n• All connections are encrypted (HTTPS)\n• Passwords are never stored in plain text\n• Only your family members can access the app\n• You can delete your account any time from Settings → Security\n\nSettings → Security:\n• Sign Out — logs you out of this device\n• Active Devices — manage all signed-in devices\n• Delete Account — permanently remove your account`,
   },
   {
     title: '19. Active Devices',
     icon: '📱',
-    content: `Settings → Active Devices\n\nSee all devices where your account is signed in. You can remove any device at any time — this signs it out immediately.\n\nYou stay signed in until you manually sign out or remove the device. There is no automatic timeout.`,
+    content: `Settings → Security → Active Devices\n\nSee all devices where your account is signed in. You can remove any device at any time — this signs it out immediately.\n\nTo sign out of this device: Settings → Security → Sign Out.\n\nYou stay signed in until you manually sign out or remove the device. There is no automatic timeout.\n\nForgot your password? Tap "Forgot Password" on the login screen to request a reset link from the admin.`,
   },
 ];
 
@@ -106,10 +106,10 @@ export default function UserManualPage() {
   const [expanded, setExpanded] = useState(null);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%', background: 'var(--bg-primary)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg-primary)', overflow: 'hidden' }}>
       <PageNavigationBar title="User Manual" onBack={() => navigate(-1)} />
 
-      <div style={{ padding: '16px', flex: 1 }}>
+      <div style={{ padding: '16px', flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
         {/* Header */}
         <div style={{ textAlign: 'center', padding: '16px 0 24px' }}>
           <img
@@ -120,9 +120,6 @@ export default function UserManualPage() {
           <h1 style={{ fontSize: 24, fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--label-primary)' }}>
             Credit Book
           </h1>
-          <p style={{ fontSize: 14, color: 'var(--label-secondary)', marginTop: 4 }}>
-            User Manual · v2.0.0
-          </p>
         </div>
 
         {/* Interest Formula Highlight Card */}

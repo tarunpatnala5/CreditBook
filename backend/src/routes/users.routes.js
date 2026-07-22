@@ -70,8 +70,8 @@ router.get('/admin-counts', authMiddleware, adminOnly, async (req, res, next) =>
     const prisma = require('../config/database');
     const [pendingUsers, pendingReset, totalUsers] = await Promise.all([
       prisma.user.count({ where: { status: 'pending', deletedAt: null } }),
-      prisma.passwordResetRequest.findMany({ where: { status: { in: ['pending', 'sent'] } } })
-        .then(r => r.length).catch(() => 0),
+      prisma.passwordResetRequest.count({ where: { status: 'pending' } })
+        .catch(() => 0),
       prisma.user.count({ where: { status: 'active', deletedAt: null } }),
     ]);
     res.json(successResponse({ pendingUsers, pendingReset, totalUsers }));
