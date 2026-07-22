@@ -84,7 +84,7 @@ export default function RegisterPage() {
       <form className="auth-form" onSubmit={handleSubmit} autoComplete="off">
         <div className="auth-card">
           <TextField id="reg-name" label="Full Name" value={form.name} onChange={setField('name')} placeholder="Your full name" autoFocus />
-          <TextField id="reg-phone" label="Phone Number" value={form.phone} onChange={setField('phone')} placeholder="Enter phone number" type="tel" inputMode="tel" />
+          <TextField id="reg-phone" label="Phone Number" value={form.phone} onChange={setField('phone')} placeholder="Enter phone number" type="tel" inputMode="tel" maxLength={10} />
           <TextField id="reg-password" label="Password" value={form.password} onChange={setField('password')} placeholder="Min. 6 characters" type="password" />
           <TextField id="reg-confirm" label="Confirm Password" value={form.confirmPassword} onChange={setField('confirmPassword')} placeholder="Repeat your password" type="password" />
         </div>

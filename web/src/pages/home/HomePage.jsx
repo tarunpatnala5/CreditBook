@@ -72,6 +72,7 @@ function AddPersonSheet({ isOpen, onClose }) {
           type="tel"
           inputMode="tel"
           error={errors.phone}
+          maxLength={10}
         />
         {errors.api && (
           <div style={{ color: 'var(--color-red)', fontSize: 13 }}>{errors.api}</div>

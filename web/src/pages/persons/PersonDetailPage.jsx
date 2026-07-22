@@ -499,7 +499,7 @@ function EditPersonSheet({ isOpen, onClose, person, personId }) {
     <BottomSheet isOpen={isOpen} onClose={onClose} title="Edit Person">
       <form className="add-txn-form" onSubmit={(e) => { e.preventDefault(); mutate({ name, phone }); }} autoComplete="off">
         <TextField id="edit-person-name" label="Name" value={name} onChange={setName} placeholder="Full name" />
-        <TextField id="edit-person-phone" label="Phone Number" value={phone} onChange={setPhone} placeholder="98765 43210" type="tel" />
+        <TextField id="edit-person-phone" label="Phone Number" value={phone} onChange={setPhone} placeholder="98765 43210" type="tel" maxLength={10} />
         <Button id="edit-person-save" variant="primary" size="md" fullWidth loading={isPending}>
           Save Changes
         </Button>

@@ -79,12 +79,13 @@ export function getDeviceIcon(deviceType) {
 // ─── Phone number formatting ───────────────────────────────────────────────
 export function formatPhone(phone = '') {
   if (!phone) return '';
-  // Strip +91 prefix if stored that way
-  const digits = phone.startsWith('+91') ? phone.slice(3) : phone;
-  const clean = digits.replace(/\D/g, '');
+  // Strip any country code prefix (+91 or 91) in case old data has it
+  let clean = phone.replace(/\D/g, '');
+  if (clean.length === 12 && clean.startsWith('91')) clean = clean.slice(2);
+  if (clean.length === 11 && clean.startsWith('0')) clean = clean.slice(1);
   // Format as "XXXXX XXXXX" for 10-digit numbers
   if (clean.length === 10) return `${clean.slice(0, 5)} ${clean.slice(5)}`;
-  return phone;
+  return clean || phone;
 }
 
 // ─── Class names helper ────────────────────────────────────────────────────

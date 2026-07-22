@@ -79,6 +79,7 @@ export default function LoginPage() {
             value={identifier}
             onChange={setIdentifier}
             placeholder="Enter your phone number"
+            maxLength={10}
             type="tel"
             inputMode="tel"
           />
@@ -149,7 +150,8 @@ export default function LoginPage() {
               label="Phone Number"
               value={forgotPhone}
               onChange={setForgotPhone}
-              placeholder="e.g. +91 98765 43210"
+              placeholder="e.g. 98765 43210"
+              maxLength={10}
               type="tel"
               inputMode="tel"
               autoFocus
