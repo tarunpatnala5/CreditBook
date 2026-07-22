@@ -261,18 +261,23 @@ async function getPasswordResetRequests() {
     orderBy: { createdAt: 'desc' },
   });
 
+  // Batch-fetch user names for all requests that have a userId
+  const userIds = [...new Set(requests.map(r => r.userId).filter(Boolean))];
+  const users = userIds.length
+    ? await prisma.user.findMany({ where: { id: { in: userIds } }, select: { id: true, name: true, phone: true } })
+    : [];
+  const userMap = Object.fromEntries(users.map(u => [u.id, u]));
+
   const baseUrl = process.env.APP_URL || 'https://creditbook5.vercel.app';
 
   return requests.map((r) => {
     const resetLink = `${baseUrl}/reset-password?token=${r.token}`;
+    const linkedUser = r.userId ? userMap[r.userId] : null;
 
     // Normalize phone to WhatsApp international format (no + or spaces)
-    // Handles: +91XXXXXXXXXX → 91XXXXXXXXXX, 0XXXXXXXXXX → 91XXXXXXXXXX, XXXXXXXXXX → 91XXXXXXXXXX
     let rawPhone = (r.phone || '').replace(/[\s\-()]/g, '');
     if (rawPhone.startsWith('+')) rawPhone = rawPhone.slice(1);
-    // If 10-digit number (no country code), prepend 91
     if (/^\d{10}$/.test(rawPhone)) rawPhone = '91' + rawPhone;
-    // If starts with 0 (Indian trunk prefix), replace with 91
     if (rawPhone.startsWith('0') && rawPhone.length === 11) rawPhone = '91' + rawPhone.slice(1);
 
     const greeting = `Hi! Here is your Credit Book password reset link.\n\nClick the link below to reset your password. This link can only be used *once* and expires in 48 hours:\n\n${resetLink}\n\nIf you did not request this, please ignore this message.`;
@@ -281,6 +286,7 @@ async function getPasswordResetRequests() {
     return {
       id: r.id,
       phone: r.phone,
+      userName: linkedUser?.name || null,
       userId: r.userId,
       status: r.status,
       createdAt: r.createdAt,
