@@ -191,20 +191,13 @@
   max-height: 90dvh;
 }
 
-.sheet-handle {
-  width: 36px;
-  height: 5px;
-  background: var(--fill-primary);
-  border-radius: var(--radius-pill);
-  margin: 10px auto 0;
-  flex-shrink: 0;
-}
+
 
 .sheet-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px 0;
+  padding: 20px 20px 0;
 }
 
 .sheet-title {
@@ -261,10 +254,7 @@
     justify-content: center;
   }
 
-  .sheet-handle {
-    /* No drag handle on desktop */
-    display: none;
-  }
+
 
   .sheet-header {
     padding: 20px 24px 0;

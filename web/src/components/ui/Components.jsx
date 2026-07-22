@@ -221,7 +221,7 @@ export function BottomSheet({ isOpen, onClose, title, children, height }) {
         style={{ maxHeight: height || '90dvh', zIndex: 201 }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sheet-handle" />
+
         {title && (
           <div className="sheet-header">
             <span className="sheet-title">{title}</span>
