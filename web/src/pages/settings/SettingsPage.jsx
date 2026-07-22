@@ -45,9 +45,22 @@ function ChangePasswordSheet({ isOpen, onClose }) {
   const [error,     setError]       = useState('');
   const [forgotOpen, setForgotOpen] = useState(false);
 
+  // Forgot-password sub-state
+  const [forgotPhone,   setForgotPhone]   = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotError,   setForgotError]   = useState('');
+  const [forgotSent,    setForgotSent]    = useState(false);
+
   React.useEffect(() => {
     if (!isOpen) { setCurrentPw(''); setNewPw(''); setConfirmPw(''); setError(''); }
   }, [isOpen]);
+
+  function closeForgot() {
+    setForgotOpen(false);
+    setForgotPhone('');
+    setForgotError('');
+    setForgotSent(false);
+  }
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data) => usersApi.changePassword(data),
@@ -70,6 +83,21 @@ function ChangePasswordSheet({ isOpen, onClose }) {
     if (newPw.length < 6) { setError('New password must be at least 6 characters'); return; }
     if (newPw !== confirmPw) { setError('Passwords do not match'); return; }
     mutate({ currentPassword: currentPw, newPassword: newPw });
+  }
+
+  async function handleForgotSubmit(e) {
+    e.preventDefault();
+    if (!forgotPhone.trim()) { setForgotError('Please enter your phone number'); return; }
+    setForgotLoading(true);
+    setForgotError('');
+    try {
+      await usersApi.forgotPassword(forgotPhone.trim());
+      setForgotSent(true);
+    } catch (err) {
+      setForgotError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setForgotLoading(false);
+    }
   }
 
   return (
@@ -126,18 +154,49 @@ function ChangePasswordSheet({ isOpen, onClose }) {
         </form>
       </BottomSheet>
 
-      <Dialog
-        isOpen={forgotOpen}
-        title="Forgot Password?"
-        message="Password reset via email is not yet available. Please contact support via the Support Chat in Settings and we'll help you reset your password."
-        onClose={() => setForgotOpen(false)}
-        actions={[
-          { label: 'OK', onClick: () => setForgotOpen(false) },
-        ]}
-      />
+      {/* Forgot Password Sheet — same flow as Login page */}
+      <BottomSheet isOpen={forgotOpen} onClose={closeForgot} title="Forgot Password?">
+        {forgotSent ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center', textAlign: 'center' }}>
+            <div style={{ fontSize: 48 }}>✅</div>
+            <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--label-primary)', margin: 0 }}>
+              Request Submitted!
+            </p>
+            <p style={{ fontSize: 14, color: 'var(--label-secondary)', margin: 0, lineHeight: 1.7 }}>
+              Your password reset link will be sent to your WhatsApp number shortly. The link is valid for <strong>24 hours</strong> and can only be used <strong>once</strong>.
+            </p>
+            <Button id="forgot-pw-ok-btn" variant="primary" size="md" fullWidth onClick={closeForgot}>
+              Got It
+            </Button>
+          </div>
+        ) : (
+          <form onSubmit={handleForgotSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }} autoComplete="off">
+            <p style={{ fontSize: 14, color: 'var(--label-secondary)', margin: 0, lineHeight: 1.6 }}>
+              Enter the phone number linked to your account. We will send a password reset link to that number on WhatsApp.
+            </p>
+            <TextField
+              id="forgot-pw-phone-settings"
+              label="Phone Number"
+              value={forgotPhone}
+              onChange={setForgotPhone}
+              placeholder="e.g. +91 98765 43210"
+              type="tel"
+              inputMode="tel"
+              autoFocus
+            />
+            {forgotError && (
+              <div style={{ color: 'var(--color-red)', fontSize: 13 }}>{forgotError}</div>
+            )}
+            <Button id="forgot-pw-submit-settings" variant="primary" size="md" fullWidth loading={forgotLoading}>
+              Send Reset Link
+            </Button>
+          </form>
+        )}
+      </BottomSheet>
     </>
   );
 }
+
 
 // ─── Devices Section ───────────────────────────────────────────────────────
 function DevicesSection() {

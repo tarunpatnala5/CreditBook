@@ -246,17 +246,34 @@ async function getPasswordResetRequests() {
   });
 
   const baseUrl = process.env.APP_URL || 'https://creditbook5.vercel.app';
-  return requests.map((r) => ({
-    id: r.id,
-    phone: r.phone,
-    userId: r.userId,
-    status: r.status,
-    createdAt: r.createdAt,
-    expiresAt: r.expiresAt,
-    sentAt: r.sentAt,
-    resetLink: `${baseUrl}/reset-password?token=${r.token}`,
-    waLink: `https://wa.me/${r.phone.replace(/^\+?/, '')}?text=${encodeURIComponent(`Hi! Here is your Credit Book password reset link. It can only be used once: ${baseUrl}/reset-password?token=${r.token}`)}`,
-  }));
+
+  return requests.map((r) => {
+    const resetLink = `${baseUrl}/reset-password?token=${r.token}`;
+
+    // Normalize phone to WhatsApp international format (no + or spaces)
+    // Handles: +91XXXXXXXXXX → 91XXXXXXXXXX, 0XXXXXXXXXX → 91XXXXXXXXXX, XXXXXXXXXX → 91XXXXXXXXXX
+    let rawPhone = (r.phone || '').replace(/[\s\-()]/g, '');
+    if (rawPhone.startsWith('+')) rawPhone = rawPhone.slice(1);
+    // If 10-digit number (no country code), prepend 91
+    if (/^\d{10}$/.test(rawPhone)) rawPhone = '91' + rawPhone;
+    // If starts with 0 (Indian trunk prefix), replace with 91
+    if (rawPhone.startsWith('0') && rawPhone.length === 11) rawPhone = '91' + rawPhone.slice(1);
+
+    const greeting = `Hi! Here is your Credit Book password reset link.\n\nClick the link below to reset your password. This link can only be used *once* and expires in 24 hours:\n\n${resetLink}\n\nIf you did not request this, please ignore this message.`;
+    const waLink = `https://wa.me/${rawPhone}?text=${encodeURIComponent(greeting)}`;
+
+    return {
+      id: r.id,
+      phone: r.phone,
+      userId: r.userId,
+      status: r.status,
+      createdAt: r.createdAt,
+      expiresAt: r.expiresAt,
+      sentAt: r.sentAt,
+      resetLink,
+      waLink,
+    };
+  });
 }
 
 // ─── Admin: Mark reset request as sent ─────────────────────────────────────────

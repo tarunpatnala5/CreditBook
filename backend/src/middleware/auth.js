@@ -30,6 +30,28 @@ async function authMiddleware(req, res, next) {
       throw new UnauthorizedError('Account suspended');
     }
 
+    // ─── Session revocation check ──────────────────────────────────────────
+    // If the token carries a sessionId, verify the session is still active.
+    // This enforces password-change forced logout and manual device removal.
+    if (payload.sessionId) {
+      const session = await prisma.session.findUnique({
+        where: { id: payload.sessionId },
+        select: { revokedAt: true, expiresAt: true },
+      });
+
+      if (!session) {
+        throw new UnauthorizedError('Session not found. Please sign in again.');
+      }
+
+      if (session.revokedAt) {
+        throw new UnauthorizedError('Session has been revoked. Please sign in again.');
+      }
+
+      if (new Date() > session.expiresAt) {
+        throw new UnauthorizedError('Session expired. Please sign in again.');
+      }
+    }
+
     // Attach user and sessionId to request
     req.user = user;
     req.sessionId = payload.sessionId || null;
@@ -57,3 +79,4 @@ function adminOnly(req, res, next) {
 }
 
 module.exports = { authMiddleware, adminOnly };
+
