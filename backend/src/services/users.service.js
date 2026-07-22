@@ -175,33 +175,49 @@ function formatUser(u) {
 
 // ─── Request password reset (creates one-time token) ────────────────────────────
 async function requestPasswordReset(phone) {
-  const normalizedPhone = phone?.replace(/\s/g, '');
+  const normalizedPhone = (phone || '').replace(/[\s\-()]/g, '').trim();
   if (!normalizedPhone) throw new ValidationError('Phone number is required');
 
-  // Find user by phone (active users only)
-  const user = await prisma.user.findFirst({
-    where: { phone: normalizedPhone, deletedAt: null },
-  });
+  // Find user by phone — try multiple formats
+  // stored as: 9876543210, +919876543210, 919876543210
+  let user = await prisma.user.findFirst({ where: { phone: normalizedPhone, deletedAt: null } });
+  if (!user) {
+    // Try with +91 prefix
+    const withPlus = normalizedPhone.startsWith('+') ? normalizedPhone : `+${normalizedPhone}`;
+    user = await prisma.user.findFirst({ where: { phone: withPlus, deletedAt: null } });
+  }
+  if (!user && normalizedPhone.startsWith('91') && normalizedPhone.length === 12) {
+    // Try stripping 91 prefix
+    user = await prisma.user.findFirst({ where: { phone: normalizedPhone.slice(2), deletedAt: null } });
+  }
+  if (!user && normalizedPhone.length === 10) {
+    // Try with 91 prefix
+    user = await prisma.user.findFirst({ where: { phone: `91${normalizedPhone}`, deletedAt: null } });
+  }
 
-  // Always create a request record (whether user found or not) to prevent phone enumeration.
-  // If user not found, userId remains null — admin will see it but the link will be a no-op.
   const token = crypto.randomBytes(32).toString('hex');
   const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48 hours
 
-  // Expire any existing pending requests for this phone
-  await prisma.passwordResetRequest.updateMany({
-    where: { phone: normalizedPhone, status: 'pending' },
-    data: { status: 'expired' },
-  });
+  try {
+    // Expire any existing pending requests for this phone
+    await prisma.passwordResetRequest.updateMany({
+      where: { phone: normalizedPhone, status: 'pending' },
+      data: { status: 'expired' },
+    });
 
-  await prisma.passwordResetRequest.create({
-    data: {
-      phone: normalizedPhone,
-      userId: user?.id ?? null,
-      token,
-      expiresAt,
-    },
-  });
+    await prisma.passwordResetRequest.create({
+      data: {
+        phone: normalizedPhone,
+        userId: user?.id ?? null,
+        token,
+        expiresAt,
+      },
+    });
+  } catch (dbErr) {
+    // Log for server-side visibility but don't crash the endpoint
+    console.error('[requestPasswordReset] DB error:', dbErr?.message || dbErr);
+    // Still return success — user doesn't need to know about internal errors
+  }
 
   // Always return success — user is notified via WhatsApp by admin
   return { success: true };
