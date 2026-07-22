@@ -422,7 +422,7 @@
   right: -5px;
   min-width: 17px;
   height: 17px;
-  background: hsl(197, 100%, 47%);  /* sky blue */
+  background: var(--app-accent);   /* Amex UI blue */
   color: white;
   font-size: 10px;
   font-weight: 700;
@@ -504,7 +504,7 @@
 .desktop-tab-badge {
   min-width: 16px;
   height: 16px;
-  background: hsl(197, 100%, 47%);  /* sky blue */
+  background: var(--app-accent);   /* Amex UI blue */
   color: white;
   font-size: 9px;
   font-weight: 700;
