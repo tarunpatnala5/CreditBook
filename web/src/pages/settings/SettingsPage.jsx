@@ -39,16 +39,16 @@ function EditFieldSheet({ isOpen, onClose, title, initialValue, onSave, loading,
 
 // ─── Change Password Sheet ─────────────────────────────────────────────────
 function ChangePasswordSheet({ isOpen, onClose, userPhone }) {
-  const [currentPw, setCurrentPw]   = useState('');
-  const [newPw,     setNewPw]       = useState('');
-  const [confirmPw, setConfirmPw]   = useState('');
-  const [error,     setError]       = useState('');
+  const [currentPw, setCurrentPw] = useState('');
+  const [newPw, setNewPw] = useState('');
+  const [confirmPw, setConfirmPw] = useState('');
+  const [error, setError] = useState('');
   const [forgotOpen, setForgotOpen] = useState(false);
 
   // Forgot-password sub-state
   const [forgotLoading, setForgotLoading] = useState(false);
-  const [forgotError,   setForgotError]   = useState('');
-  const [forgotSent,    setForgotSent]    = useState(false);
+  const [forgotError, setForgotError] = useState('');
+  const [forgotSent, setForgotSent] = useState(false);
 
   React.useEffect(() => {
     if (!isOpen) { setCurrentPw(''); setNewPw(''); setConfirmPw(''); setError(''); }
@@ -346,12 +346,12 @@ export default function SettingsPage() {
   const { darkMode, setDarkMode } = useSettingsStore();
   const isAdmin = user?.role === 'admin';
 
-  const [editNameOpen, setEditNameOpen]       = useState(false);
-  const [editPhoneOpen, setEditPhoneOpen]     = useState(false);
+  const [editNameOpen, setEditNameOpen] = useState(false);
+  const [editPhoneOpen, setEditPhoneOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
-  const [logoutDialogOpen, setLogoutDialogOpen]     = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen]     = useState(false);
-  const [deleteConfirmText, setDeleteConfirmText]   = useState('');
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
   // Register synchronous modal closer — called BEFORE navigate() fires in tab nav
   useEffect(() => {
@@ -449,9 +449,9 @@ export default function SettingsPage() {
 
         {/* ── Profile Section ── */}
         <Section title="PROFILE">
-          <Row id="edit-name-row"  icon="👤" label="Name"     value={user?.name}              onClick={() => setEditNameOpen(true)} />
-          <Row id="edit-phone-row" icon="📱" label="Phone"    value={formatPhone(user?.phone)} onClick={() => setEditPhoneOpen(true)} />
-          <Row id="edit-pw-row"    icon="🔑" label="Password" value="••••••"               onClick={() => setChangePasswordOpen(true)} />
+          <Row id="edit-name-row" icon="👤" label="Name" value={user?.name} onClick={() => setEditNameOpen(true)} />
+          <Row id="edit-phone-row" icon="📱" label="Phone" value={formatPhone(user?.phone)} onClick={() => setEditPhoneOpen(true)} />
+          <Row id="edit-pw-row" icon="🔑" label="Password" value="••••••" onClick={() => setChangePasswordOpen(true)} />
         </Section>
 
         {/* ── Preferences ── */}
@@ -555,3 +555,4 @@ export default function SettingsPage() {
     </div>
   );
 }
+{ }
