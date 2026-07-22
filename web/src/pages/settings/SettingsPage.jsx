@@ -337,6 +337,7 @@ export default function SettingsPage() {
   const queryClient = useQueryClient();
   const { user, logout: storeLogout } = useAuthStore();
   const { darkMode, setDarkMode } = useSettingsStore();
+  const isAdmin = user?.role === 'admin';
 
   const [editNameOpen, setEditNameOpen]       = useState(false);
   const [editPhoneOpen, setEditPhoneOpen]     = useState(false);
@@ -415,7 +416,7 @@ export default function SettingsPage() {
     onError: (err) => toast.error(err.message),
   });
 
-  const isAdmin = user?.role === 'admin';
+
 
   // Determine current dark mode state
   const isDark = darkMode === true ? true : darkMode === false ? false : window.matchMedia('(prefers-color-scheme: dark)').matches;
