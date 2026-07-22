@@ -1,5 +1,5 @@
-// Credit Book — Admin Password Reset Requests Page
-import React from 'react';
+// Credit Book � Admin Password Reset Requests Page
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -13,11 +13,18 @@ export default function AdminPasswordResetPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  // When admin opens this page, clear the badge count immediately
+  useEffect(() => {
+    queryClient.setQueryData(['admin-counts'], (old) =>
+      old ? { ...old, pendingReset: 0 } : old
+    );
+  }, [queryClient]);
+
   const { data, isLoading } = useQuery({
     queryKey: ['admin-pw-reset-requests'],
     queryFn: () => usersApi.getPasswordResetRequests(),
     select: (r) => r.data,
-    refetchInterval: 30000,
+    refetchInterval: 20000,
     staleTime: 0,
   });
 
@@ -28,12 +35,15 @@ export default function AdminPasswordResetPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-pw-reset-requests'] });
-      toast.success('Marked as sent');
+      toast.success('Sent via WhatsApp');
     },
     onError: (err) => toast.error(err.message),
   });
 
-  const requests = data || [];
+  // Filter out expired entries and sort ascending (oldest first)
+  const sorted = (data || [])
+    .filter((r) => new Date() <= new Date(r.expiresAt))
+    .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%', background: 'var(--bg-primary)' }}>
@@ -44,19 +54,19 @@ export default function AdminPasswordResetPage() {
           <div style={{ display: 'flex', justifyContent: 'center', padding: 48 }}>
             <Spinner size={28} />
           </div>
-        ) : requests.length === 0 ? (
+        ) : sorted.length === 0 ? (
           <div style={{
             display: 'flex', flexDirection: 'column', alignItems: 'center',
             justifyContent: 'center', padding: 48, gap: 12,
           }}>
-            <div style={{ fontSize: 48 }}>🔐</div>
+            <div style={{ fontSize: 48 }}>??</div>
             <p style={{ fontSize: 15, color: 'var(--label-secondary)', margin: 0, textAlign: 'center' }}>
               No pending password reset requests
             </p>
           </div>
         ) : (
-          requests.map((req) => {
-            const isExpired = new Date() > new Date(req.expiresAt);
+          sorted.map((req) => {
+            const isSent = req.status === 'sent';
             const displayName = req.userName || 'Unknown User';
 
             return (
@@ -68,12 +78,9 @@ export default function AdminPasswordResetPage() {
                 alignItems: 'center',
                 gap: 12,
                 boxShadow: 'var(--shadow-xs)',
-                opacity: isExpired ? 0.55 : 1,
               }}>
-                {/* Avatar */}
                 <Avatar name={displayName} size={44} />
 
-                {/* Info */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{
                     fontSize: 15, fontWeight: 600,
@@ -89,41 +96,42 @@ export default function AdminPasswordResetPage() {
                     <span style={{ fontSize: 11, color: 'var(--label-tertiary)' }}>
                       {formatRelative(req.createdAt)}
                     </span>
-                    {/* Status pill */}
                     <span style={{
                       fontSize: 10, fontWeight: 700, letterSpacing: 0.4,
                       padding: '1px 7px', borderRadius: 6,
-                      color: isExpired ? 'var(--label-tertiary)'
-                           : req.status === 'sent' ? 'hsl(152,50%,38%)'
-                           : 'var(--color-orange)',
-                      background: isExpired ? 'var(--fill-secondary)'
-                                : req.status === 'sent' ? 'hsl(152,50%,38%, 0.12)'
-                                : 'hsl(38,95%,50%,0.12)',
+                      color: isSent ? 'hsl(152,50%,38%)' : 'var(--color-orange)',
+                      background: isSent ? 'hsl(152,50%,38%,0.12)' : 'hsl(38,95%,50%,0.12)',
                     }}>
-                      {isExpired ? 'EXPIRED' : req.status.toUpperCase()}
+                      {isSent ? 'SENT' : 'PENDING'}
                     </span>
                   </div>
                 </div>
 
-                {/* Send button */}
-                {!isExpired && (
+                {/* Right side: wa.me link top, Send/Resend button bottom */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
+                  <a
+                    href={req.waLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ fontSize: 11, color: 'var(--label-tertiary)', textDecoration: 'none', letterSpacing: 0.2 }}
+                  >
+                    wa.me ?
+                  </a>
                   <button
                     id={`send-reset-${req.id}`}
                     disabled={isMarking}
                     onClick={() => markSent({ id: req.id, waLink: req.waLink })}
                     style={{
-                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
-                      background: 'hsl(142,50%,40%)', color: '#fff',
-                      border: 'none', borderRadius: 12, cursor: 'pointer',
-                      padding: '10px 14px', flexShrink: 0,
-                      fontSize: 11, fontWeight: 700, fontFamily: 'var(--font-text)',
-                      letterSpacing: 0.3, lineHeight: 1,
+                      fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-text)',
+                      color: 'var(--app-accent)',
+                      background: 'hsla(211,100%,50%,0.10)',
+                      border: 'none', borderRadius: 10, cursor: 'pointer',
+                      padding: '7px 14px', letterSpacing: 0.1, lineHeight: 1,
                     }}
                   >
-                    <span style={{ fontSize: 20 }}>📲</span>
-                    Send
+                    {isSent ? 'Resend' : 'Send'}
                   </button>
-                )}
+                </div>
               </div>
             );
           })

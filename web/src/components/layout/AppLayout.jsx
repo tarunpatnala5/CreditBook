@@ -174,13 +174,13 @@ function PillTabBar() {
             >
               <span className="pill-tab-icon">
                 <Icon active={active} />
+                {tab.badge > 0 && (
+                  <span className="pill-tab-badge">
+                    {tab.badge > 99 ? '99+' : tab.badge}
+                  </span>
+                )}
               </span>
               <span className="pill-tab-label">{tab.label}</span>
-              {tab.badge > 0 && (
-                <span className="pill-tab-badge">
-                  {tab.badge > 99 ? '99+' : tab.badge}
-                </span>
-              )}
             </button>
           );
         })}

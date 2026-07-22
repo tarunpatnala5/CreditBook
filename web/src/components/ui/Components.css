@@ -356,7 +356,7 @@
   justify-content: center;
   min-width: 20px;
   height: 20px;
-  background: var(--color-red);
+  background: var(--app-accent);   /* same blue as the UI accent */
   color: white;
   font-size: 12px;
   font-weight: 700;

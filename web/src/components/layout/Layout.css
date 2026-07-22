@@ -414,22 +414,23 @@
   color: currentColor;
 }
 
-/* Badge */
+/* Badge — sky-blue corner dot on the icon */
 .pill-tab-badge {
   position: absolute;
-  top: 3px;
-  right: 6px;
-  min-width: 15px;
-  height: 15px;
-  background: var(--color-red);
+  /* Positioned relative to pill-tab-icon (which is 26x26px) */
+  top: -5px;
+  right: -5px;
+  min-width: 17px;
+  height: 17px;
+  background: hsl(197, 100%, 47%);  /* sky blue */
   color: white;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   border-radius: 999px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 3px;
+  padding: 0 4px;
   border: 1.5px solid var(--pill-bg);
   animation: badgeAppear 250ms var(--ease-spring) both;
   pointer-events: none;
@@ -503,7 +504,7 @@
 .desktop-tab-badge {
   min-width: 16px;
   height: 16px;
-  background: var(--color-red);
+  background: hsl(197, 100%, 47%);  /* sky blue */
   color: white;
   font-size: 9px;
   font-weight: 700;
