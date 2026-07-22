@@ -516,7 +516,7 @@ export default function SettingsPage() {
         title="Edit Phone Number"
         label="Phone Number"
         initialValue={user?.phone}
-        placeholder="98765 43210"
+        placeholder="Phone number"
         type="tel"
         inputMode="tel"
         maxLength={10}

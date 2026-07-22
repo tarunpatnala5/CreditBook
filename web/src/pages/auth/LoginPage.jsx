@@ -150,7 +150,7 @@ export default function LoginPage() {
               label="Phone Number"
               value={forgotPhone}
               onChange={setForgotPhone}
-              placeholder="e.g. 98765 43210"
+              placeholder="Enter phone number"
               maxLength={10}
               type="tel"
               inputMode="tel"
