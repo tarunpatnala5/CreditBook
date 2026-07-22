@@ -198,28 +198,24 @@ async function requestPasswordReset(phone) {
   const token = crypto.randomBytes(32).toString('hex');
   const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48 hours
 
+  // Expire any existing pending requests for this phone
   try {
-    // Expire any existing pending requests for this phone
     await prisma.passwordResetRequest.updateMany({
       where: { phone: normalizedPhone, status: 'pending' },
       data: { status: 'expired' },
     });
+  } catch (_) { /* table may have no existing rows — ok */ }
 
-    await prisma.passwordResetRequest.create({
-      data: {
-        phone: normalizedPhone,
-        userId: user?.id ?? null,
-        token,
-        expiresAt,
-      },
-    });
-  } catch (dbErr) {
-    // Log for server-side visibility but don't crash the endpoint
-    console.error('[requestPasswordReset] DB error:', dbErr?.message || dbErr);
-    // Still return success — user doesn't need to know about internal errors
-  }
+  // Create the new request (table is guaranteed to exist by ensureTablesExist())
+  await prisma.passwordResetRequest.create({
+    data: {
+      phone: normalizedPhone,
+      userId: user?.id ?? null,
+      token,
+      expiresAt,
+    },
+  });
 
-  // Always return success — user is notified via WhatsApp by admin
   return { success: true };
 }
 

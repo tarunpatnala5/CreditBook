@@ -36,6 +36,28 @@ async function ensureAdminExists() {
   }
 }
 
+// ─── Ensure required tables exist (raw SQL — survives missing Prisma migrations) ──
+async function ensureTablesExist() {
+  try {
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "PasswordResetRequest" (
+        "id"        TEXT        NOT NULL PRIMARY KEY DEFAULT gen_random_uuid()::text,
+        "phone"     TEXT        NOT NULL,
+        "userId"    TEXT,
+        "token"     TEXT        NOT NULL UNIQUE,
+        "status"    TEXT        NOT NULL DEFAULT 'pending',
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "expiresAt" TIMESTAMP(3) NOT NULL,
+        "usedAt"    TIMESTAMP(3),
+        "sentAt"    TIMESTAMP(3)
+      )
+    `);
+    console.log('✅ PasswordResetRequest table verified/created');
+  } catch (err) {
+    console.error('⚠️  ensureTablesExist failed:', err.message);
+  }
+}
+
 const server = app.listen(PORT, () => {
   console.log(`\n🚀 Credit Book API running at http://localhost:${PORT}`);
   console.log(`📦 Environment: ${process.env.NODE_ENV || 'development'}`);
@@ -47,6 +69,9 @@ const server = app.listen(PORT, () => {
 
   // Start background jobs
   startJobs();
+
+  // Ensure required DB tables exist (idempotent raw SQL)
+  ensureTablesExist();
 
   // Ensure admin user exists (auto-seed on fresh DB)
   ensureAdminExists();
