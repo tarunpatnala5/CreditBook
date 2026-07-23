@@ -17,13 +17,16 @@
   }
 }
 
-/* ─── Desktop Main Column (fills right of sidebar) ────────────────────── */
+/* ─── Desktop Main Column (fills right of sidebar) ────────────────── */
 .app-main-column {
   flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   min-width: 0; /* prevent flex overflow */
+  /* On desktop (row flex), the column must declare its own height so that
+     the child page-content can use overflow-y: auto against a real container */
+  height: 100dvh;
 }
 
 /* ─── Desktop Sidebar (macOS System Preferences style) ────────────────── */
@@ -42,9 +45,6 @@
     border-right: 0.5px solid var(--separator);
     overflow-y: auto;
     overflow-x: hidden;
-    position: sticky;
-    top: 0;
-    left: 0;
     backdrop-filter: var(--blur-nav);
     -webkit-backdrop-filter: var(--blur-nav);
   }
