@@ -11,27 +11,24 @@
   /* clip instead of hidden — doesn't create stacking context, preserves backdrop-filter on fixed children */
 }
 
-/* Desktop: switch to 2-column grid (sidebar | content) */
+/* Desktop: side-by-side layout — sidebar on left, content on right */
 @media (min-width: 768px) {
   .app-layout {
-    display: grid;
-    grid-template-columns: 240px 1fr;
-    grid-template-rows: 100dvh;
-    /* Removing flex-direction — grid handles layout */
-    flex-direction: unset;
+    flex-direction: row;
   }
 }
 
-/* ─── Desktop Main Column (fills right of sidebar) ────────────────── */
+/* ─── Desktop Main Column (right of sidebar, fills remaining width) ──── */
 .app-main-column {
+  flex: 1 1 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  min-width: 0;
-  /* Height is auto on mobile (column flex child); on desktop grid fills row */
+  min-width: 0;     /* stop flex from overflowing */
+  min-height: 0;    /* critical: lets children scroll correctly in flex column */
 }
 
-/* ─── Desktop Sidebar (macOS System Preferences style) ────────────────── */
+/* ─── Desktop Sidebar (macOS System Preferences style) ──────────────── */
 .desktop-sidebar {
   display: none; /* hidden on mobile */
 }
@@ -40,8 +37,9 @@
   .desktop-sidebar {
     display: flex;
     flex-direction: column;
-    /* Width is set by the grid column (240px); height fills grid row */
-    height: 100%;
+    width: 240px;
+    flex-shrink: 0;
+    /* In flex-row, align-items:stretch gives us the full height automatically */
     background: var(--bg-tertiary);
     border-right: 0.5px solid var(--separator);
     overflow-y: auto;
@@ -406,9 +404,10 @@
   white-space: nowrap;
 }
 
-/* ─── Page Content Area ──────────────────────────────────────────────────── */
+/* ─── Page Content Area ──────────────────────────────────────────────── */
 .page-content {
-  flex: 1;
+  flex: 1 1 0;     /* flex-basis 0 ensures it doesn't start at content size */
+  min-height: 0;   /* CRITICAL: without this, overflow-y:auto never activates in a flex column */
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
