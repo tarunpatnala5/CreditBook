@@ -4,18 +4,10 @@
 .app-layout {
   height: 100dvh;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;  /* Always row — sidebar is display:none on mobile, so it works on all sizes */
   background: var(--bg-primary);
   position: relative;
   overflow: clip;
-  /* clip instead of hidden — doesn't create stacking context, preserves backdrop-filter on fixed children */
-}
-
-/* Desktop: side-by-side layout — sidebar on left, content on right */
-@media (min-width: 768px) {
-  .app-layout {
-    flex-direction: row;
-  }
 }
 
 /* ─── Desktop Main Column (right of sidebar, fills remaining width) ──── */
