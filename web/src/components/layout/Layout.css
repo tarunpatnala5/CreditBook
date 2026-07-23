@@ -20,6 +20,7 @@
   .app-main-column {
     margin-left: 240px;
   }
+
   /* When sidebar is hidden (sub-pages), main column takes full width */
   .app-main-column.app-main-column-full {
     margin-left: 0;
@@ -41,7 +42,8 @@
     left: 0;
     width: 240px;
     height: 100dvh;
-    background: var(--bg-primary); /* same as main nav bg — seamless look */
+    background: var(--bg-primary);
+    /* same as main nav bg — seamless look */
     /* Separator between sidebar and content area */
     box-shadow: 1px 0 0 var(--separator);
     overflow-y: auto;
@@ -49,6 +51,8 @@
     z-index: 100;
   }
 }
+
+
 
 /* Sidebar header — logo + app name */
 .desktop-sidebar-header {
@@ -408,7 +412,8 @@
 /* ─── Page Content Area ──────────────────────────────────────────────── */
 .page-content {
   flex: 1;
-  height: 100dvh;     /* explicit height so overflow-y:auto has a bound to scroll within */
+  height: 100dvh;
+  /* explicit height so overflow-y:auto has a bound to scroll within */
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
@@ -595,7 +600,8 @@
   right: -5px;
   min-width: 17px;
   height: 17px;
-  background: var(--app-accent);   /* Amex UI blue */
+  background: var(--app-accent);
+  /* Amex UI blue */
   color: white;
   font-size: 10px;
   font-weight: 700;
