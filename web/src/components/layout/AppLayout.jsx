@@ -66,18 +66,18 @@ function useTabs() {
     enabled: isAdmin,
   });
 
-  const unreadTotal    = notifData?.total || 0;
-  const supportUnread  = notifData?.byCategory?.support || 0;
-  const alertsBadge    = unreadTotal - supportUnread;   // alerts tab: exclude support notifications
-  const settingsBadge  = isAdmin
+  const unreadTotal = notifData?.total || 0;
+  const supportUnread = notifData?.byCategory?.support || 0;
+  const alertsBadge = unreadTotal - supportUnread;   // alerts tab: exclude support notifications
+  const settingsBadge = isAdmin
     ? (adminCounts?.pendingUsers || 0) + (adminCounts?.pendingReset || 0) + (adminCounts?.supportUnread || 0)
     : supportUnread;                                    // regular users: support chat unread on Settings
 
   return [
-    { path: '/',             id: 'home',          label: 'My Book' },
-    { path: '/shared',       id: 'shared',        label: 'Shared' },
-    { path: '/notifications',id: 'notifications', label: 'Alerts', badge: alertsBadge },
-    { path: '/settings',     id: 'settings',      label: 'Settings', badge: settingsBadge },
+    { path: '/', id: 'home', label: 'My Book' },
+    { path: '/shared', id: 'shared', label: 'Shared' },
+    { path: '/notifications', id: 'notifications', label: 'Alerts', badge: alertsBadge },
+    { path: '/settings', id: 'settings', label: 'Settings', badge: settingsBadge },
   ];
 }
 
