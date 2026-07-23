@@ -7,6 +7,7 @@ import { personsApi } from '../../api';
 import { formatCurrency, getInitials, formatRelative } from '../../utils';
 import { registerModalCloser } from '../../utils/navigationCallbacks';
 import { NavigationBar } from '../../components/layout/AppLayout';
+import useAuthStore from '../../store/authStore';
 import {
   Button, Avatar, BottomSheet, TextField, EmptyState,
   SkeletonRow, LoadingScreen, Dialog,
@@ -155,12 +156,15 @@ export default function HomePage() {
   const totalGive = data?.totalGive || 0;
   const totalGet = data?.totalGet || 0;
 
+  const { user } = useAuthStore();
+  // Show just the first name for a clean, personal greeting
+  const firstName = (user?.name || 'My Book').split(' ')[0];
+
   return (
     <div className="home-page">
-      {/* Navigation Bar */}
+      {/* Navigation Bar — show user's name instead of app logo */}
       <NavigationBar
-        title="Credit Book"
-        logo
+        title={firstName}
         onSearch={() => setSearchActive(true)}
         onAdd={() => setAddPersonOpen(true)}
         searchActive={searchActive}
