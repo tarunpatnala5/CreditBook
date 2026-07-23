@@ -98,9 +98,9 @@
   --fill-tertiary:  hsla(0, 0%, 47%, 0.12);
   --fill-quaternary:hsla(0, 0%, 47%, 0.08);
 
-  /* Separators */
-  --separator:         hsla(0, 0%, 24%, 0.29);
-  --separator-opaque:  hsl(0, 0%, 87%);
+  /* Separators — ChatGPT-style: ultra-subtle translucent hairlines, not solid grey */
+  --separator:         rgba(0, 0, 0, 0.07);   /* barely visible, like ChatGPT/Notion */
+  --separator-opaque:  hsl(0, 0%, 91%);        /* for contexts that need a solid color */
 
   /* App-Specific */
   --app-positive: hsl(141, 71%, 38%);   /* You will get (green) */
@@ -214,8 +214,8 @@
   --fill-tertiary:   hsla(0, 0%, 47%, 0.24);
   --fill-quaternary: hsla(0, 0%, 47%, 0.18);
 
-  --separator:        hsla(0, 0%, 100%, 0.15);
-  --separator-opaque: hsl(240, 3%, 25%);
+  --separator:        rgba(255, 255, 255, 0.08);  /* dark mode: same subtle feel */
+  --separator-opaque: hsl(240, 3%, 22%);
 
   --color-blue:   #2986E8;               /* Amex blue slightly lightened for dark mode */
   --color-green:  hsl(141, 66%, 51%);
@@ -257,8 +257,8 @@
     --fill-tertiary:   hsla(0, 0%, 47%, 0.24);
     --fill-quaternary: hsla(0, 0%, 47%, 0.18);
 
-    --separator:        hsla(0, 0%, 100%, 0.15);
-    --separator-opaque: hsl(240, 3%, 25%);
+    --separator:        rgba(255, 255, 255, 0.08);  /* dark mode: subtle hairline */
+    --separator-opaque: hsl(240, 3%, 22%);
 
     --color-blue:   #2986E8;
     --color-green:  hsl(141, 66%, 51%);
