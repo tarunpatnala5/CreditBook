@@ -243,9 +243,13 @@ function DesktopSidebar() {
 export default function AppLayout() {
   const location = useLocation();
 
-  // Sub-pages that have their own back button and don't need the bottom pill:
-  const NO_PILL_PATHS = ['/settings/support', '/settings/manual'];
-  const isSubPage = NO_PILL_PATHS.some((p) => location.pathname.startsWith(p));
+  // Sub-pages that have their own back-button nav — hide pill bar AND sidebar
+  const NO_SIDEBAR_PATHS = [
+    '/settings/support',
+    '/settings/manual',
+    '/admin/support',
+  ];
+  const isSubPage = NO_SIDEBAR_PATHS.some((p) => location.pathname.startsWith(p));
 
   const showNav = !isSubPage && ['/', '/shared', '/notifications', '/settings'].some(
     (p) => p === location.pathname || (p !== '/' && location.pathname.startsWith(p))
@@ -253,11 +257,11 @@ export default function AppLayout() {
 
   return (
     <div className="app-layout">
-      {/* Desktop sidebar — hidden on mobile */}
-      <DesktopSidebar />
+      {/* Desktop sidebar — hidden on mobile and on full-screen sub-pages */}
+      {!isSubPage && <DesktopSidebar />}
 
-      {/* Main content column */}
-      <div className="app-main-column">
+      {/* Main content column — no left margin when sidebar is hidden */}
+      <div className={`app-main-column${isSubPage ? ' app-main-column-full' : ''}`}>
         {/* Sub-pages manage their own full-screen layout; don't add pill padding */}
         <div className={`page-content${isSubPage ? ' page-content-subpage' : ' page-content-padded'}`}>
           <Outlet />

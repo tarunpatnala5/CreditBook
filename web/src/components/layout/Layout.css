@@ -20,6 +20,10 @@
   .app-main-column {
     margin-left: 240px;
   }
+  /* When sidebar is hidden (sub-pages), main column takes full width */
+  .app-main-column.app-main-column-full {
+    margin-left: 0;
+  }
 }
 
 /* ─── Desktop Sidebar (macOS System Preferences style) ──────────────── */
@@ -38,10 +42,11 @@
     width: 240px;
     height: 100dvh;
     background: var(--bg-tertiary);
-    border-right: 0.5px solid var(--separator);
+    /* Apple-style: no harsh border, just a 1px hairline shadow for separation */
+    box-shadow: 1px 0 0 var(--separator);
     overflow-y: auto;
     overflow-x: hidden;
-    z-index: 100;       /* above page content */
+    z-index: 100;
     backdrop-filter: var(--blur-nav);
     -webkit-backdrop-filter: var(--blur-nav);
   }
