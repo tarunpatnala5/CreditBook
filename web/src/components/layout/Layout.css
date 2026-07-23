@@ -36,19 +36,16 @@
   .desktop-sidebar {
     display: flex;
     flex-direction: column;
-    position: fixed;    /* Fixed to the viewport — always on the left */
+    position: fixed;
     top: 0;
     left: 0;
     width: 240px;
     height: 100dvh;
-    background: var(--bg-tertiary);
-    /* Apple-style: no harsh border, just a 1px hairline shadow for separation */
-    box-shadow: 1px 0 0 var(--separator);
+    background: var(--bg-primary); /* same as main nav bg — seamless look */
+    /* No separator line — background color provides the visual boundary */
     overflow-y: auto;
     overflow-x: hidden;
     z-index: 100;
-    backdrop-filter: var(--blur-nav);
-    -webkit-backdrop-filter: var(--blur-nav);
   }
 }
 

@@ -98,9 +98,9 @@
   --fill-tertiary:  hsla(0, 0%, 47%, 0.12);
   --fill-quaternary:hsla(0, 0%, 47%, 0.08);
 
-  /* Separators — ChatGPT-style: ultra-subtle translucent hairlines, not solid grey */
-  --separator:         rgba(0, 0, 0, 0.07);   /* barely visible, like ChatGPT/Notion */
-  --separator-opaque:  hsl(0, 0%, 91%);        /* for contexts that need a solid color */
+  /* Separators — Vercel-style: clean 1px light grey, like #eaeaea */
+  --separator:         hsl(0, 0%, 92%);         /* ~#eaeaea, same as Vercel's border color */
+  --separator-opaque:  hsl(0, 0%, 91%);
 
   /* App-Specific */
   --app-positive: hsl(141, 71%, 38%);   /* You will get (green) */
