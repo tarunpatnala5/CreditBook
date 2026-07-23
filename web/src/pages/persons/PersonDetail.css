@@ -322,6 +322,13 @@
   z-index: 10;
 }
 
+/* On desktop: offset left by the sidebar width so buttons sit in the content area */
+@media (min-width: 768px) {
+  .action-buttons {
+    left: calc(240px + var(--space-4));
+  }
+}
+
 .action-btn {
   flex: 1;
   height: 46px;
