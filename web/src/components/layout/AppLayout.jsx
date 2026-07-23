@@ -192,39 +192,50 @@ function PillTabBar() {
 }
 
 
-// ─── Desktop Tab Nav (inside top bar, center) ──────────────────────────────
-function DesktopTabNav() {
+// ─── Desktop Sidebar Nav (macOS System Preferences style) ─────────────────
+function DesktopSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const tabs = useTabs();
 
   function handleNavigate(path) {
-    _forceCloseAllSheets(); // directly force-close any open sheet before route change
+    _forceCloseAllSheets();
     navigate(path);
   }
 
   return (
-    <nav className="desktop-tab-nav" role="navigation" aria-label="Main navigation">
-      {tabs.map((tab) => {
-        const active = isActive(tab.path, location.pathname);
-        const Icon = TabIcons[tab.id];
-        return (
-          <button
-            key={tab.id}
-            id={`desktop-tab-${tab.id}`}
-            className={`desktop-tab-btn${active ? ' active' : ''}`}
-            onClick={() => handleNavigate(tab.path)}
-            aria-current={active ? 'page' : undefined}
-          >
-            <Icon active={active} />
-            {tab.label}
-            {tab.badge > 0 && (
-              <span className="desktop-tab-badge">{tab.badge > 99 ? '99+' : tab.badge}</span>
-            )}
-          </button>
-        );
-      })}
-    </nav>
+    <aside className="desktop-sidebar" role="navigation" aria-label="Main navigation">
+      {/* Sidebar header — logo + app name */}
+      <div className="desktop-sidebar-header">
+        <img src="/logo.png" alt="Credit Book" className="sidebar-logo-img" aria-hidden="true" />
+        <span className="sidebar-app-name">Credit Book</span>
+      </div>
+
+      {/* Nav items */}
+      <nav className="sidebar-nav">
+        {tabs.map((tab) => {
+          const active = isActive(tab.path, location.pathname);
+          const Icon = TabIcons[tab.id];
+          return (
+            <button
+              key={tab.id}
+              id={`sidebar-tab-${tab.id}`}
+              className={`sidebar-nav-item${active ? ' active' : ''}`}
+              onClick={() => handleNavigate(tab.path)}
+              aria-current={active ? 'page' : undefined}
+            >
+              <span className="sidebar-item-icon">
+                <Icon active={active} />
+                {tab.badge > 0 && (
+                  <span className="sidebar-item-badge">{tab.badge > 99 ? '99+' : tab.badge}</span>
+                )}
+              </span>
+              <span className="sidebar-item-label">{tab.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+    </aside>
   );
 }
 
@@ -242,24 +253,23 @@ export default function AppLayout() {
 
   return (
     <div className="app-layout">
-      {/* Sub-pages manage their own full-screen layout; don't add pill padding */}
-      <div className={`page-content${isSubPage ? ' page-content-subpage' : ' page-content-padded'}`}>
-        <Outlet />
+      {/* Desktop sidebar — hidden on mobile */}
+      <DesktopSidebar />
+
+      {/* Main content column */}
+      <div className="app-main-column">
+        {/* Sub-pages manage their own full-screen layout; don't add pill padding */}
+        <div className={`page-content${isSubPage ? ' page-content-subpage' : ' page-content-padded'}`}>
+          <Outlet />
+        </div>
+        {showNav && <PillTabBar />}
       </div>
-      {showNav && <PillTabBar />}
     </div>
   );
 }
 
-// ─── NavigationBar (Home page — with Desktop Tab Nav embedded) ─────────────
+// ─── NavigationBar (Home page — no desktop tab nav, sidebar handles it) ─────
 export function NavigationBar({ title, logo, onSearch, onAdd, onAction, actionLabel, searchActive, onSearchChange, searchValue, onSearchClose, titleBadge }) {
-  const location = useLocation();
-
-  // Only show desktop tabs on main app pages
-  const showDesktopTabs = ['/', '/shared', '/notifications', '/settings'].some(
-    (p) => p === location.pathname || (p !== '/' && location.pathname.startsWith(p))
-  );
-
   return (
     <div className="nav-bar">
       {!searchActive ? (
@@ -295,19 +305,6 @@ export function NavigationBar({ title, logo, onSearch, onAdd, onAction, actionLa
               </span>
             )}
           </div>
-
-          {/* Center: desktop tab nav — absolutely centered, hidden on mobile */}
-          {showDesktopTabs && (
-            <div style={{
-              position: 'absolute',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              display: 'flex',
-              alignItems: 'center',
-            }}>
-              <DesktopTabNav />
-            </div>
-          )}
 
           {/* Right: action buttons */}
           <div className="nav-right">

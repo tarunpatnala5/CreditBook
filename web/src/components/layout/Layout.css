@@ -11,6 +11,179 @@
   /* clip instead of hidden — doesn't create stacking context, preserves backdrop-filter on fixed children */
 }
 
+@media (min-width: 768px) {
+  .app-layout {
+    flex-direction: row;
+  }
+}
+
+/* ─── Desktop Main Column (fills right of sidebar) ────────────────────── */
+.app-main-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0; /* prevent flex overflow */
+}
+
+/* ─── Desktop Sidebar (macOS System Preferences style) ────────────────── */
+.desktop-sidebar {
+  display: none; /* hidden on mobile */
+}
+
+@media (min-width: 768px) {
+  .desktop-sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 240px;
+    flex-shrink: 0;
+    height: 100dvh;
+    background: var(--bg-tertiary);
+    border-right: 0.5px solid var(--separator);
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: sticky;
+    top: 0;
+    left: 0;
+    backdrop-filter: var(--blur-nav);
+    -webkit-backdrop-filter: var(--blur-nav);
+  }
+}
+
+/* Sidebar header — logo + app name */
+.desktop-sidebar-header {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .desktop-sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    height: var(--nav-height);
+    padding: 0 var(--space-4);
+    border-bottom: 0.5px solid var(--separator);
+    flex-shrink: 0;
+  }
+}
+
+.sidebar-logo-img {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  object-fit: contain;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.sidebar-app-name {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--label-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Sidebar nav list */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3) var(--space-2);
+}
+
+/* Individual sidebar nav item */
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  height: 40px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  border: none;
+  background: none;
+  color: var(--label-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-text);
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--duration-fast) ease, color var(--duration-fast) ease;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+
+.sidebar-nav-item:hover {
+  background: var(--fill-secondary);
+  color: var(--label-primary);
+}
+
+.sidebar-nav-item.active {
+  background: var(--app-accent);
+  color: white;
+}
+
+.sidebar-nav-item.active:hover {
+  background: var(--app-accent);
+  opacity: 0.92;
+}
+
+/* Icon wrapper inside sidebar item */
+.sidebar-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.sidebar-item-icon .tab-icon-svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Label text */
+.sidebar-item-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-text);
+}
+
+/* Badge on sidebar item */
+.sidebar-item-badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  min-width: 16px;
+  height: 16px;
+  background: var(--color-red);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  animation: badgeAppear 250ms var(--ease-spring) both;
+  pointer-events: none;
+}
+
+/* When sidebar item is active, badge inverts */
+.sidebar-nav-item.active .sidebar-item-badge {
+  background: white;
+  color: var(--app-accent);
+}
+
 /* ─── Navigation Bar ─────────────────────────────────────────────────────── */
 .nav-bar {
   position: sticky;
@@ -19,7 +192,7 @@
   height: var(--nav-height);
   display: flex;
   align-items: center;
-  /* relative so absolutely-centered DesktopTabNav works */
+  /* relative so any absolutely-positioned children work */
   position: relative;
   padding: 0 var(--space-4);
   background: var(--nav-bg);
@@ -34,17 +207,16 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  /* Fixed min-width so DesktopTabNav stays centered */
   min-width: 0;
   flex: 1;
   overflow: hidden;
 }
 
-/* On desktop, left and right must be equal width for true centering */
+/* On desktop, left side is just the title — no tab nav */
 @media (min-width: 768px) {
   .nav-left {
-    flex: 0 0 auto;
-    max-width: 200px;
+    flex: 1;
+    max-width: none;
   }
 }
 
@@ -252,7 +424,7 @@
   overflow: hidden;
 }
 
-/* Desktop — no extra bottom padding, pill is in top bar */
+/* Desktop — sidebar handles nav, no bottom pill padding */
 @media (min-width: 768px) {
   .page-content-padded {
     padding-bottom: var(--space-4);
@@ -439,78 +611,4 @@
 
 .pill-tab.active .pill-tab-badge {
   border-color: white;
-}
-
-
-
-/* ─── Desktop Inline Tab Nav (inside top nav bar center) ──────────────── */
-.desktop-tab-nav {
-  display: none;
-  /* hidden on mobile */
-}
-
-@media (min-width: 768px) {
-  .desktop-tab-nav {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    background: var(--fill-tertiary);
-    border-radius: 999px;
-    padding: 4px;
-  }
-}
-
-.desktop-tab-btn {
-  height: 36px;
-  padding: 0 16px;
-  border-radius: 999px;
-  border: none;
-  background: none;
-  color: var(--label-secondary);
-  font-size: 13px;
-  font-weight: 500;
-  font-family: var(--font-text);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-  transition: background var(--duration-fast) ease, color var(--duration-fast) ease;
-  position: relative;
-}
-
-.desktop-tab-btn:hover {
-  background: var(--fill-secondary);
-  color: var(--label-primary);
-}
-
-.desktop-tab-btn.active {
-  background: var(--bg-secondary);
-  color: var(--app-accent);
-  box-shadow: 0 1px 5px hsla(0, 0%, 0%, 0.14);
-}
-
-.desktop-tab-btn svg {
-  width: 14px;
-  height: 14px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  flex-shrink: 0;
-}
-
-.desktop-tab-badge {
-  min-width: 16px;
-  height: 16px;
-  background: var(--app-accent);   /* Amex UI blue */
-  color: white;
-  font-size: 9px;
-  font-weight: 700;
-  border-radius: 999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 4px;
 }
