@@ -42,7 +42,8 @@
     width: 240px;
     height: 100dvh;
     background: var(--bg-primary); /* same as main nav bg — seamless look */
-    /* No separator line — background color provides the visual boundary */
+    /* Separator between sidebar and content area */
+    box-shadow: 1px 0 0 var(--separator);
     overflow-y: auto;
     overflow-x: hidden;
     z-index: 100;
@@ -61,7 +62,7 @@
     gap: var(--space-3);
     height: var(--nav-height);
     padding: 0 var(--space-4);
-    border-bottom: 0.5px solid var(--separator);
+    /* No border-bottom — no line between Credit Book header and nav items */
     flex-shrink: 0;
   }
 }
