@@ -241,29 +241,35 @@ function DesktopSidebar() {
 
 // ─── App Layout ────────────────────────────────────────────────────────────
 export default function AppLayout() {
-  const location = useLocation();
-
-  // Sub-pages that have their own back-button nav — hide pill bar AND sidebar
+  // Pages that hide the LEFT SIDEBAR (full-screen layouts with their own nav)
   const NO_SIDEBAR_PATHS = [
-    '/settings/support',
     '/settings/manual',
+    '/admin/support', // admin support has its own conversation-list layout
+  ];
+
+  // Pages that also hide the BOTTOM PILL NAV (any full-screen sub-page)
+  const NO_PILL_PATHS = [
+    '/settings/manual',
+    '/settings/support', // user support chat: keep sidebar, hide pill
     '/admin/support',
   ];
-  const isSubPage = NO_SIDEBAR_PATHS.some((p) => location.pathname.startsWith(p));
 
-  const showNav = !isSubPage && ['/', '/shared', '/notifications', '/settings'].some(
+  const isSubPage    = NO_SIDEBAR_PATHS.some((p) => location.pathname.startsWith(p));
+  const isFullScreen = NO_PILL_PATHS.some((p) => location.pathname.startsWith(p));
+
+  const showNav = !isFullScreen && ['/', '/shared', '/notifications', '/settings'].some(
     (p) => p === location.pathname || (p !== '/' && location.pathname.startsWith(p))
   );
 
   return (
     <div className="app-layout">
-      {/* Desktop sidebar — hidden on mobile and on full-screen sub-pages */}
+      {/* Desktop sidebar — hidden only on full-screen admin/manual pages */}
       {!isSubPage && <DesktopSidebar />}
 
       {/* Main content column — no left margin when sidebar is hidden */}
       <div className={`app-main-column${isSubPage ? ' app-main-column-full' : ''}`}>
-        {/* Sub-pages manage their own full-screen layout; don't add pill padding */}
-        <div className={`page-content${isSubPage ? ' page-content-subpage' : ' page-content-padded'}`}>
+        {/* Full-screen sub-pages manage their own scroll/padding */}
+        <div className={`page-content${isFullScreen ? ' page-content-subpage' : ' page-content-padded'}`}>
           <Outlet />
         </div>
         {showNav && <PillTabBar />}
