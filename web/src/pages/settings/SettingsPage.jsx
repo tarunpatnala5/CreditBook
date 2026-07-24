@@ -440,16 +440,13 @@ export default function SettingsPage() {
       <div className="settings-sections">
         {/* ── Profile Card (Apple Settings style) ── */}
         <div style={{ padding: '16px 0 4px' }}>
-          <div className="settings-profile-row" onClick={() => setEditNameOpen(true)}>
+          <div className="settings-profile-row">
             <Avatar name={user?.name || ''} color={user?.avatarColor} size={62} />
             <div className="settings-profile-info">
               <div className="settings-profile-name">{user?.name}</div>
               <div className="settings-profile-phone">{formatPhone(user?.phone)}</div>
               {isAdmin && <span className="settings-profile-role">ADMIN</span>}
             </div>
-            <svg className="settings-profile-chevron" width="7" height="12" viewBox="0 0 7 13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M1 1l5 5.5L1 12" />
-            </svg>
           </div>
         </div>
 

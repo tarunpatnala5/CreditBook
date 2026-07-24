@@ -430,24 +430,19 @@
   overflow: hidden;
 }
 
-/* ─── User Support Chat — keyboard fix ──────────────────────────────────────
-   The viewport uses interactive-widget=resizes-visual, so the layout viewport
-   height never changes when the keyboard opens. Fixed elements (like the admin
-   chat panel) already reflow correctly because they respond to the visual
-   viewport. The user chat must do the same on mobile.
+/* ─── User Support Chat — full-screen on mobile ─────────────────────────────
+   `index.html`'s viewport meta uses `interactive-widget=resizes-content`, so
+   the layout viewport itself shrinks when the on-screen keyboard opens — this
+   fixed, full-screen element (and its `height: 100%` child) tracks that
+   automatically, same as the admin chat panel.
    On desktop this rule is inactive because .desktop-sidebar is visible and
    the pill-nav-wrapper is already hidden.
 */
 @media (max-width: 767px) {
   .support-chat-root {
     position: fixed !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    /* top/height are set inline via JS from window.visualViewport so the
-       input bar tracks the keyboard; `top: 0` here is only a fallback for
-       browsers without the VisualViewport API. */
-    top: 0;
+    inset: 0 !important;
+    height: auto !important; /* height is determined by inset, not parent */
     z-index: 10;
   }
 }
