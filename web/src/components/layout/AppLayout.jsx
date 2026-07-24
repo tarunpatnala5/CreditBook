@@ -241,6 +241,8 @@ function DesktopSidebar() {
 
 // ─── App Layout ────────────────────────────────────────────────────────────
 export default function AppLayout() {
+  const location = useLocation();
+
   // Pages that hide the LEFT SIDEBAR (full-screen layouts with their own nav)
   const NO_SIDEBAR_PATHS = [
     '/settings/manual',
