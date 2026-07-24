@@ -66,8 +66,46 @@ async function changePassword(userId, { currentPassword, newPassword }) {
   });
 }
 
+// ─── Cascade: wipe out every Person entry tied to a deleted account ────────
+// Runs whenever a user's account is deleted (by themselves or by an admin).
+// Removes:
+//   1) Every person this user owns (their own book) — as if they'd deleted
+//      each entry themselves.
+//   2) Every person entry OTHER users created that links to this account
+//      (i.e. what would show up under this user's own "Shared With Me") —
+//      so this user's identity/entries disappear from other people's books
+//      too, exactly as if that owner had deleted the entry.
+// Both the Person rows and their Transaction rows are soft-deleted so the
+// data disappears everywhere (home, shared, admin analytics) consistently.
+async function cascadeDeleteUserPersons(userId) {
+  const now = new Date();
+
+  const affected = await prisma.person.findMany({
+    where: {
+      deletedAt: null,
+      OR: [{ ownerId: userId }, { linkedUserId: userId }],
+    },
+    select: { id: true },
+  });
+
+  const personIds = affected.map((p) => p.id);
+  if (personIds.length === 0) return;
+
+  await prisma.transaction.updateMany({
+    where: { personId: { in: personIds }, deletedAt: null },
+    data: { deletedAt: now },
+  });
+
+  await prisma.person.updateMany({
+    where: { id: { in: personIds } },
+    data: { deletedAt: now },
+  });
+}
+
 // ─── Delete own account ────────────────────────────────────────────────────
 async function deleteMe(userId) {
+  await cascadeDeleteUserPersons(userId);
+
   await prisma.user.update({
     where: { id: userId },
     data: { deletedAt: new Date(), status: 'suspended' },
@@ -145,6 +183,8 @@ async function deleteUser(userId, adminId) {
     where: { id: userId, deletedAt: null },
   });
   if (!user) throw new NotFoundError('User');
+
+  await cascadeDeleteUserPersons(userId);
 
   await prisma.user.update({
     where: { id: userId },

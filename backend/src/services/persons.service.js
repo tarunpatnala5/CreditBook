@@ -84,6 +84,7 @@ async function getSharedPersons(userId) {
       linkedUserId: userId,
       deletedAt: null,
       ownerId: { not: userId }, // exclude own entries
+      owner: { deletedAt: null }, // exclude entries whose owner account was deleted
     },
     include: {
       owner: { select: { id: true, name: true, avatarColor: true } },
@@ -107,6 +108,7 @@ async function getPerson(personId, userId) {
       id: personId,
       deletedAt: null,
       OR: [{ ownerId: userId }, { linkedUserId: userId }],
+      owner: { deletedAt: null }, // exclude entries whose owner account was deleted
     },
     include: {
       linkedUser: { select: { id: true, name: true } },
