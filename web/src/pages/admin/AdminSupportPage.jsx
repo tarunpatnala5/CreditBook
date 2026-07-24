@@ -276,6 +276,14 @@ export default function AdminSupportPage() {
   function openConvo(convo) {
     setSelectedConvo(convo);
     setMobileView('chat');
+    // Push a virtual history entry (mobile only) so the system/hardware
+    // back button returns to this conversation list instead of leaving
+    // the Support page entirely — otherwise it just pops the browser's
+    // real previous entry (e.g. Settings), since switching to the chat
+    // view is normally just local state with no URL change.
+    if (window.innerWidth < 768) {
+      window.history.pushState({ supportChatOpen: true }, '');
+    }
     // After getConversation marks messages as read, refresh both counts
     setTimeout(() => {
       queryClient.invalidateQueries({ queryKey: ['admin-support-conversations'] });
@@ -288,10 +296,28 @@ export default function AdminSupportPage() {
     // Keep selectedConvo for desktop (don't deselect)
   }
 
-  // Mobile-only back = go to list
+  // Mobile-only back = go to list. If we pushed a virtual history entry
+  // when opening the chat, pop it via history.back() so the browser's
+  // back-stack stays in sync — the popstate listener below then flips
+  // mobileView back to 'list'. Otherwise (e.g. no entry was pushed) just
+  // switch views directly.
   function handleMobileBack() {
-    setMobileView('list');
+    if (window.history.state?.supportChatOpen) {
+      window.history.back();
+    } else {
+      setMobileView('list');
+    }
   }
+
+  // System/hardware back button while a conversation is open — return to
+  // the conversation list instead of navigating away from the page.
+  useEffect(() => {
+    function handlePopState() {
+      setMobileView('list');
+    }
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   return (
     <div className="admin-support-page">
