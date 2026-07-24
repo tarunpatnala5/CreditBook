@@ -83,7 +83,7 @@ export default function SupportChatPage() {
   const isUserMessage = (msg) => msg.senderId === user?.id;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg-primary)', overflow: 'hidden' }}>
+    <div className="support-chat-root" style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg-primary)', overflow: 'hidden' }}>
       {/* Nav Bar */}
       <div className="nav-bar-page">
         <button className="nav-back-btn" onClick={() => navigate(-1)} id="support-back-btn" aria-label="Back">

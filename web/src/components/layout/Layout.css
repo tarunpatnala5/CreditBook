@@ -430,6 +430,23 @@
   overflow: hidden;
 }
 
+/* ─── User Support Chat — keyboard fix ──────────────────────────────────────
+   The viewport uses interactive-widget=resizes-visual, so the layout viewport
+   height never changes when the keyboard opens. Fixed elements (like the admin
+   chat panel) already reflow correctly because they respond to the visual
+   viewport. The user chat must do the same on mobile.
+   On desktop this rule is inactive because .desktop-sidebar is visible and
+   the pill-nav-wrapper is already hidden.
+*/
+@media (max-width: 767px) {
+  .support-chat-root {
+    position: fixed !important;
+    inset: 0 !important;
+    height: auto !important; /* height is determined by inset, not parent */
+    z-index: 10;
+  }
+}
+
 /* Desktop — sidebar handles nav, no bottom pill padding */
 @media (min-width: 768px) {
   .page-content-padded {
