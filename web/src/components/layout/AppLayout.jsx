@@ -281,22 +281,41 @@ export default function AppLayout() {
 }
 
 // ─── NavigationBar (Home page — no desktop tab nav, sidebar handles it) ─────
-export function NavigationBar({ title, logo, onSearch, onAdd, onAction, actionLabel, searchActive, onSearchChange, searchValue, onSearchClose, titleBadge }) {
+export function NavigationBar({ title, logo, showBrandOnMobile, onSearch, onAdd, onAction, actionLabel, searchActive, onSearchChange, searchValue, onSearchClose, titleBadge }) {
   return (
     <div className="nav-bar">
       {!searchActive ? (
         <>
           {/* Left: logo + title */}
           <div className="nav-left">
-            {logo && (
-              <img
-                src="/logo.png"
-                alt="Credit Book"
-                className="nav-logo-img"
-                aria-hidden="true"
-              />
+            {showBrandOnMobile ? (
+              <>
+                {/* Mobile only — Credit Book logo + name (matches desktop sidebar branding) */}
+                <div className="nav-left-mobile-brand">
+                  <img
+                    src="/logo.png"
+                    alt="Credit Book"
+                    className="nav-logo-img"
+                    aria-hidden="true"
+                  />
+                  <span className="nav-title">Credit Book</span>
+                </div>
+                {/* Desktop only — full name */}
+                <span className="nav-title nav-left-desktop-title">{title}</span>
+              </>
+            ) : (
+              <>
+                {logo && (
+                  <img
+                    src="/logo.png"
+                    alt="Credit Book"
+                    className="nav-logo-img"
+                    aria-hidden="true"
+                  />
+                )}
+                <span className="nav-title">{title}</span>
+              </>
             )}
-            <span className="nav-title">{title}</span>
             {titleBadge && (
               <span style={{
                 display: 'inline-flex',

@@ -157,14 +157,15 @@ export default function HomePage() {
   const totalGet = data?.totalGet || 0;
 
   const { user } = useAuthStore();
-  // Show just the first name for a clean, personal greeting
-  const firstName = (user?.name || 'My Book').split(' ')[0];
+  // Desktop: show the user's full name. Mobile: shows the Credit Book brand instead (see showBrandOnMobile below).
+  const fullName = user?.name || 'My Book';
 
   return (
     <div className="home-page">
-      {/* Navigation Bar — show user's name instead of app logo */}
+      {/* Navigation Bar — desktop shows full name, mobile shows Credit Book brand */}
       <NavigationBar
-        title={firstName}
+        title={fullName}
+        showBrandOnMobile
         onSearch={() => setSearchActive(true)}
         onAdd={() => setAddPersonOpen(true)}
         searchActive={searchActive}

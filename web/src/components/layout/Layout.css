@@ -261,6 +261,30 @@
   text-overflow: ellipsis;
 }
 
+/* ─── Home page nav bar: mobile brand vs desktop full name ─────────────────
+   On mobile (<768px) show the Credit Book logo + name (like the desktop
+   sidebar header). On desktop (>=768px) show the user's full name instead. */
+.nav-left-mobile-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.nav-left-desktop-title {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .nav-left-mobile-brand {
+    display: none;
+  }
+
+  .nav-left-desktop-title {
+    display: block;
+  }
+}
+
 .nav-right {
   display: flex;
   align-items: center;
