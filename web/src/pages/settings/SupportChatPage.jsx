@@ -26,21 +26,48 @@ export default function SupportChatPage() {
   // Fix: track `window.visualViewport` directly and size/position this page
   // to match it, so the input bar always stays above the keyboard.
   const [viewportBox, setViewportBox] = useState(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     const vv = window.visualViewport;
-    if (!vv) return; // unsupported browser — CSS fallback (100dvh) still applies
 
     function updateViewport() {
-      setViewportBox({ height: vv.height, top: vv.offsetTop });
+      if (vv) {
+        setViewportBox({ height: vv.height, top: vv.offsetTop });
+      } else {
+        // No VisualViewport support — fall back to window inner height,
+        // which at least reflects the keyboard on some older Android WebViews.
+        setViewportBox({ height: window.innerHeight, top: 0 });
+      }
     }
 
     updateViewport();
-    vv.addEventListener('resize', updateViewport);
-    vv.addEventListener('scroll', updateViewport);
+
+    if (vv) {
+      vv.addEventListener('resize', updateViewport);
+      vv.addEventListener('scroll', updateViewport);
+    }
+    // Fallback: some Android/Chrome + keyboard combinations don't fire
+    // visualViewport events reliably (or fire them before the keyboard
+    // animation has actually settled). Window resize + a couple of delayed
+    // re-checks after the textarea gains focus catch those cases too.
+    window.addEventListener('resize', updateViewport);
+
+    const input = inputRef.current;
+    function handleFocus() {
+      updateViewport();
+      setTimeout(updateViewport, 150);
+      setTimeout(updateViewport, 400);
+    }
+    input?.addEventListener('focus', handleFocus);
+
     return () => {
-      vv.removeEventListener('resize', updateViewport);
-      vv.removeEventListener('scroll', updateViewport);
+      if (vv) {
+        vv.removeEventListener('resize', updateViewport);
+        vv.removeEventListener('scroll', updateViewport);
+      }
+      window.removeEventListener('resize', updateViewport);
+      input?.removeEventListener('focus', handleFocus);
     };
   }, []);
 
@@ -199,7 +226,7 @@ export default function SupportChatPage() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Bar — sits at the very bottom; dvh shrinks when keyboard opens so this stays visible */}
+      {/* Input Bar — height/position of the whole page is driven by visualViewport tracking above, so this stays above the keyboard */}
       <div style={{
         padding: `8px 16px calc(8px + env(safe-area-inset-bottom, 0px))`,
         background: 'var(--nav-bg)',
@@ -222,6 +249,7 @@ export default function SupportChatPage() {
         }}>
           <textarea
             id="support-message-input"
+            ref={inputRef}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
