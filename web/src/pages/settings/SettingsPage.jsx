@@ -263,6 +263,7 @@ function DevicesSection({ onDeleteAccount, onSignOut }) {
         {/* Sign Out */}
         <Row
           id="logout-row"
+          icon="🚪"
           label="Sign Out"
           onClick={onSignOut}
           chevron={false}
@@ -274,6 +275,7 @@ function DevicesSection({ onDeleteAccount, onSignOut }) {
         <Section>
           <Row
             id="delete-account-row"
+            icon="🗑️"
             label="Delete Account"
             onClick={onDeleteAccount}
             chevron={false}
