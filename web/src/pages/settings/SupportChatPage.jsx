@@ -16,6 +16,34 @@ export default function SupportChatPage() {
   const [message, setMessage] = useState('');
   const messagesEndRef = useRef(null);
 
+  // ── Keyboard-aware viewport height (mobile) ──────────────────────────────
+  // The app's viewport meta uses `interactive-widget=resizes-visual`, which
+  // means the LAYOUT viewport (and therefore `100dvh` / `height: 100%`) does
+  // NOT shrink when the on-screen keyboard opens — only the VISUAL viewport
+  // does. Since this page is `position: fixed` on mobile, it stays pinned to
+  // the full (unshrunk) layout viewport and the keyboard simply covers its
+  // bottom portion, hiding part of the message input bar.
+  // Fix: track `window.visualViewport` directly and size/position this page
+  // to match it, so the input bar always stays above the keyboard.
+  const [viewportBox, setViewportBox] = useState(null);
+
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return; // unsupported browser — CSS fallback (100dvh) still applies
+
+    function updateViewport() {
+      setViewportBox({ height: vv.height, top: vv.offsetTop });
+    }
+
+    updateViewport();
+    vv.addEventListener('resize', updateViewport);
+    vv.addEventListener('scroll', updateViewport);
+    return () => {
+      vv.removeEventListener('resize', updateViewport);
+      vv.removeEventListener('scroll', updateViewport);
+    };
+  }, []);
+
   const { data, isLoading } = useQuery({
     queryKey: ['support-messages'],
     queryFn: () => supportApi.getMessages(),
@@ -83,7 +111,17 @@ export default function SupportChatPage() {
   const isUserMessage = (msg) => msg.senderId === user?.id;
 
   return (
-    <div className="support-chat-root" style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg-primary)', overflow: 'hidden' }}>
+    <div
+      className="support-chat-root"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: viewportBox ? `${viewportBox.height}px` : '100%',
+        top: viewportBox ? `${viewportBox.top}px` : undefined,
+        background: 'var(--bg-primary)',
+        overflow: 'hidden',
+      }}
+    >
       {/* Nav Bar */}
       <div className="nav-bar-page">
         <button className="nav-back-btn" onClick={() => navigate(-1)} id="support-back-btn" aria-label="Back">

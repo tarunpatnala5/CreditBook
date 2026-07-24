@@ -374,7 +374,7 @@ export function Section({ title, footer, children }) {
 export function Row({ icon, label, value, onClick, chevron = true, destructive, id, children }) {
   return (
     <div className={cn('list-row', destructive && 'list-row-destructive')} onClick={onClick} id={id}>
-      {icon && <span style={{ fontSize: 20 }}>{icon}</span>}
+      <span className="list-row-icon">{icon}</span>
       <span className="list-row-label" style={destructive ? { color: 'var(--color-red)' } : {}}>{label}</span>
       {children}
       {value !== undefined && <span className="list-row-value">{value}</span>}

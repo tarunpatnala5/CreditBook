@@ -441,8 +441,13 @@
 @media (max-width: 767px) {
   .support-chat-root {
     position: fixed !important;
-    inset: 0 !important;
-    height: auto !important; /* height is determined by inset, not parent */
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    /* top/height are set inline via JS from window.visualViewport so the
+       input bar tracks the keyboard; `top: 0` here is only a fallback for
+       browsers without the VisualViewport API. */
+    top: 0;
     z-index: 10;
   }
 }

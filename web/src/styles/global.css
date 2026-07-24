@@ -158,10 +158,17 @@ img, svg {
   content: '';
   position: absolute;
   top: 0;
-  left: var(--space-4);
+  left: 52px; /* padding (16) + icon column (24) + gap (12) — aligns with label text, like .person-row */
   right: 0;
   height: 0.5px;
   background: var(--separator);
+}
+
+.list-row-icon {
+  width: 24px;
+  flex-shrink: 0;
+  font-size: 20px;
+  text-align: center;
 }
 
 .list-row-label {

@@ -260,22 +260,27 @@ function DevicesSection({ onDeleteAccount, onSignOut }) {
           value={isLoading ? '' : String(sessions.length)}
           onClick={() => setSheetOpen(true)}
         />
-        {/* Sign Out — between Devices and Delete Account */}
+        {/* Sign Out */}
         <Row
           id="logout-row"
           label="Sign Out"
           onClick={onSignOut}
           chevron={false}
         />
-        {/* Delete Account */}
-        <Row
-          id="delete-account-row"
-          label="Delete Account"
-          onClick={onDeleteAccount}
-          chevron={false}
-          destructive
-        />
       </Section>
+
+      {/* Delete Account — its own card, separate from Security */}
+      <div style={{ marginTop: 20 }}>
+        <Section>
+          <Row
+            id="delete-account-row"
+            label="Delete Account"
+            onClick={onDeleteAccount}
+            chevron={false}
+            destructive
+          />
+        </Section>
+      </div>
 
       {/* Devices popup sheet */}
       <BottomSheet isOpen={sheetOpen} onClose={() => setSheetOpen(false)} title="Devices">
