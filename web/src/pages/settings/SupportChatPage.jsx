@@ -35,6 +35,33 @@ export default function SupportChatPage() {
 
   const messages = data?.messages || [];
 
+  // Keep the latest message pinned just above the input bar whenever the
+  // keyboard opens/closes. The viewport shrinks from the bottom (see
+  // index.html's `resizes-content` setting), but scroll position is measured
+  // from the top, so without this the last messages can end up hidden below
+  // the now-shorter visible area until the user manually scrolls.
+  function scrollToBottom(behavior = 'smooth') {
+    messagesEndRef.current?.scrollIntoView({ behavior, block: 'end' });
+  }
+
+  useEffect(() => {
+    function handleResize() {
+      // Keyboard open/close animates the viewport over ~150-300ms; scroll
+      // once immediately and once after it settles.
+      scrollToBottom('auto');
+      setTimeout(() => scrollToBottom('auto'), 250);
+    }
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  function handleInputFocus() {
+    // Re-scroll right as the keyboard starts opening, and again once it's
+    // fully open, so the jump to bottom feels immediate rather than delayed.
+    scrollToBottom('auto');
+    setTimeout(() => scrollToBottom('auto'), 300);
+  }
+
   // Mark all support notifications as read when user opens this page
   useEffect(() => {
     notificationsApi.markAllSupportRead()
@@ -44,10 +71,10 @@ export default function SupportChatPage() {
       });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Auto scroll to bottom
+  // Auto scroll to bottom when new messages arrive
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages.length]);
+    scrollToBottom('smooth');
+  }, [messages.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleSend() {
     if (!message.trim()) return;
@@ -196,6 +223,7 @@ export default function SupportChatPage() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
+            onFocus={handleInputFocus}
             placeholder="Message"
             rows={1}
             style={{

@@ -107,11 +107,30 @@ function ChatPanel({ convo, onClose }) {
 
   const messages = data?.messages || [];
 
-  useEffect(() => {
-    // Scroll the messages container div directly — avoids page-level scroll jump
+  // Keep the latest message pinned just above the input bar whenever the
+  // keyboard opens/closes — same fix as the user support chat page.
+  function scrollToBottom() {
     const el = messagesContainerRef.current;
     if (el) el.scrollTop = el.scrollHeight;
+  }
+
+  useEffect(() => {
+    scrollToBottom();
   }, [messages.length]);
+
+  useEffect(() => {
+    function handleResize() {
+      scrollToBottom();
+      setTimeout(scrollToBottom, 250);
+    }
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  function handleInputFocus() {
+    scrollToBottom();
+    setTimeout(scrollToBottom, 300);
+  }
 
   // Group messages by date
   const grouped = [];
@@ -198,6 +217,7 @@ function ChatPanel({ convo, onClose }) {
               e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
             }}
             onKeyDown={handleKeyDown}
+            onFocus={handleInputFocus}
             placeholder={`Reply to ${convo.userName}…`}
             rows={1}
             className="chat-textarea"
